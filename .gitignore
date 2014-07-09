@@ -4,5 +4,5 @@
 bin/*
 source/*.o
 source/*.mod
-output/*.dat
-output/age_pdf_output/*
+output/age_pdf_output/*.dat
+otuput/age_pdf_output/*.csv
