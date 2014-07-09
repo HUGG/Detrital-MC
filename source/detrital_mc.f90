@@ -159,12 +159,8 @@
           endif
 
           write (*,'(a)') 'Reading predicted ages...'
-          !open (12,file='detrital_ages/det_ages_'//trim(pbasin)//'.dat',&
-          !      status='old')
-          open (12,file='detrital_ages/ba_basins/det_ages_'//trim(pbasin)//'.dat',&
+          open (12,file='detrital_ages/det_ages_'//trim(pbasin)//'.dat',&
                 status='old')
-          !open (12,file='detrital_ages/nd_basins/det_ages_'//trim(pbasin)//'.dat',&
-          !      status='old')
     3     read (12,*,end=4) dump
           plc=plc+1                                                             ! Find number of lines in model age files
           goto 3
