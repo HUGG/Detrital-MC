@@ -4,3 +4,5 @@
 bin/*
 source/*.o
 source/*.mod
+output/*.dat
+output/age_pdf_output/*
