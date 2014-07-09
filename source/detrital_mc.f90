@@ -7,9 +7,9 @@
 ! and finally record the results of that test. This process is repeated a
 ! large number of times (~10000).
 !
-! This is the main program file for version 2.0 of Detrital MC.
+! This is the main program file for version 3.0 of Detrital MC.
 !
-! dwhipp - 10.13
+! dwhipp - 07.14
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       program detrital_mc
@@ -63,7 +63,7 @@
 ! Write program starting info
       write (*,'(a)') '#------------------------------------------------------------------------------#'
       write (*,'(a)') 'Detrital Monte Carlo PDF creator started'
-      write (*,'(a)') 'Version 2.0 (dwhipp - October 2013)'
+      write (*,'(a)') 'Version 3.0 (dwhipp - July 2014)'
 
 ! Read in the input file
       call read_input_file(params,basin_info)
@@ -261,8 +261,13 @@
           call get_pdf_size(oage,oageu,olc,onum,params%pdfmin,params%pdfmax, &
                             params%dx,params%calc_pdf_range)
           allocate(on(onum+1),opdf(onum+1))                                   ! Allocate data PDF arrays
-          call make_age_pdf(oage,oageu,olc,onum,on,opdf,params%pdfmin,         &
-                            params%pdfmax,params%dx,params%pdfscl,pi,ocnt)
+          !call make_age_pdf(oage,oageu,params%alpha,olc,onum,on,opdf,          &
+          !                  params%pdfmin,params%pdfmax,params%dx,             &
+          !                  params%pdfscl,pi,ocnt)
+          ! I think the data PDF should still use alpha=1.0, so I've hard-coded that in
+          call make_age_pdf(oage,oageu,1.0,olc,onum,on,opdf,          &
+                            params%pdfmin,params%pdfmax,params%dx,             &
+                            params%pdfscl,pi,ocnt)
           allocate(opdfv(ocnt))                                               ! Allocate PDF vector
           call make_age_pdfv(onum,params%pdfscl,on,opdf,opdfv,ocnt)
         endif
@@ -287,7 +292,12 @@
             call get_pdf_size(page,pageu,plc,pnum,params%pdfmin,             &
                               params%pdfmax,params%dx,params%calc_pdf_range)
             allocate(pn(pnum+1),ppdf(pnum+1))                                   ! Allocate data PDF arrays
-            call make_age_pdf(page,pageu,plc,pnum,pn,ppdf,params%pdfmin,     &
+            if (params%alphain < 0.d0) then
+              params%alpha = (4.0/(3.0*plc))**0.2
+            else
+              params%alpha = params%alphain
+            endif
+            call make_age_pdf(page,pageu,params%alpha,plc,pnum,pn,ppdf,params%pdfmin,     &
                               params%pdfmax,params%dx,params%pdfscl,pi,pcnt)
             allocate(ppdfv(pcnt))                                               ! Allocate PDF vector
             call make_age_pdfv(pnum,params%pdfscl,pn,ppdf,ppdfv,pcnt)
@@ -316,6 +326,14 @@
             else
               mcsamp=params%numsamp(m)
             endif
+            ! Calculate optimal alpha value, if input value was negative
+            if (params%alphain < 0.d0) then
+              params%alpha = (4.0/(3.0*mcsamp))**0.2
+            else
+              params%alpha = params%alphain
+            endif
+            !write (*,*) 'params%alphain: ',params%alphain
+            !write (*,*) 'params%alpha: ',params%alpha            
             write (*,'(a,i7,a)') 'Running Monte Carlo simulation for ',mcsamp,' samples'
             allocate(pagemc(mcsamp),pageumc(mcsamp))
             !if (mcboth) allocate(pagemc2(mcsamp),pageumc2(mcsamp))
@@ -406,8 +424,8 @@
               call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,params%pdfmin,  &
                                 params%pdfmax,params%dx,params%calc_pdf_range)
               allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                       ! Allocate data PDF arrays
-              call make_age_pdf(pagemc,pageumc,mcsamp,pnummc,pnmc,ppdfmc,      &
-                                params%pdfmin,params%pdfmax,params%dx,         &
+              call make_age_pdf(pagemc,pageumc,params%alpha,mcsamp,pnummc,pnmc,&
+                                ppdfmc,params%pdfmin,params%pdfmax,params%dx,  &
                                 params%pdfscl,pi,pcntmc)
               allocate(ppdfvmc(pcntmc))                                       ! Allocate PDF vector
               call make_age_pdfv(pnummc,params%pdfscl,pnmc,ppdfmc,ppdfvmc,   &
@@ -480,9 +498,11 @@
               if (params%lsero) deallocate(lsage,lsageu,lserate,lseratesc)
             enddo
 
+            write(*,'(a)') 'Done.'
             mc_iterf=real(params%mc_iter)
             if (params%datamcpdfs .or. params%ppdfmcpdfs) then
               kpct(i)=(1-(sum(kuiper_res)/mc_iterf))*100.                     ! Store percent of models that passed kuiper test for given basin
+              write (*,'(a,f5.1,a)') 'Predicted Monte Carlo PDFs that passed the Kuiper test: ',kpct(i),'%'
 
               ! Write output files
               open(20,file='kuiper_mc_results_'//trim(mcschar)//'_samples_'&

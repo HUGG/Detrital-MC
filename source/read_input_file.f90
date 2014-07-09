@@ -498,6 +498,10 @@ if (echo_vals) write (*,*) 'params%pdf_pct_uncert: ',params%pdf_pct_uncert
 read (unit=101,fmt=*) params%pdfscl
 if (echo_vals) write (*,*) 'params%pdfscl: ',params%pdfscl
 
+![flt] params%alpha is the standard deviation scaling factor for making the PDFs
+read (unit=101,fmt=*) params%alphain
+if (echo_vals) write (*,*) 'params%alphain: ',params%alphain
+
 close(unit=101)
 
 end

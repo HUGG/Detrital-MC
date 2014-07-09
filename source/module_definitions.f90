@@ -1,7 +1,7 @@
 module definitions
 
 ! This module contains parameter values read from the input file for
-! detrital_mc v2.0 (det_mc_input.txt)
+! detrital_mc v3.0 (det_mc_input.txt)
 
   ! Variable declaration
   integer, parameter :: sp = selected_real_kind(6, 37)
@@ -15,7 +15,7 @@ module definitions
     logical :: datapdf,fullppdf,mcpdfs,datappdf,datamcpdfs,ppdfmcpdfs
     logical :: opdf_out,ppdf_out,mcpdfs_out,lsero,tec_header,calc_pdf_range
     real(kind=sp) :: lsagejunk,lseratejunk,dx,pdfmin,pdfmax,pdf_pct_uncert
-    real(kind=sp) :: pdfscl
+    real(kind=sp) :: pdfscl,alpha,alphain
   end type detrital_params
 
   type basin_information
