@@ -1,0 +1,15 @@
+Detrital MC version 1.0
+--------------------------------------------------------------------------------
+
+This code does Monte Carlo sampling of predicted age distributions and compares
+them to either other predicted age distributions or observed ages. The
+comparison is done using the Kuiper test and summary statistics report what
+percentage of the predicted age distributions are statistically equivalent to
+the measured age distribution.
+
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0
+International License (CC BY-NC 4.0). To view a copy of this license, visit
+http://creativecommons.org/licenses/by-nc/4.0/ or send a letter to Creative
+Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+
+dwhipp 07.14
