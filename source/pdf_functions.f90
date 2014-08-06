@@ -30,14 +30,14 @@
       return
       end subroutine get_pdf_size
       
-      subroutine make_age_pdf(age,ageu,lc,num,n,pdf,pdfmin,pdfmax,dx,pdfvsc,&
-                              pi,cnt)
+      subroutine make_age_pdf(age,ageu,alpha,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
+                              pdfvsc,pi,cnt)
 
       implicit none
 
       ! Passed in/out variable declaration
       integer lc,num,cnt
-      real*4  pdfmin,pdfmax,dx,pdfvsc,pi
+      real*4  pdfmin,pdfmax,dx,pdfvsc,pi,alpha
       real*4,dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
 
       ! Internal subroutine variables
@@ -57,8 +57,8 @@
       psum=0.
       do i=1,lc
         do j=1,num+1
-          p(j)=(1./(ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(j)-age(i))/&             ! Fill probability array
-                (ageu(i)))**2.)
+          p(j)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(j)-age(i))/&       ! Fill probability array
+                (alpha*ageu(i)))**2.)
           psum(j)=psum(j)+p(j)                                                  ! Fill sum array to check area under array curve
         enddo
       enddo

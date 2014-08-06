@@ -39,7 +39,7 @@
       integer,dimension(1) :: numsamp
       real*4 :: d,prob,pagemu,pagemed,pagesd,pdfvsc,mc_iterf,jf,pageus,pageup
       real*4 :: dx,osum,agenow,psummc,pi,peratemin,peratescl,d1,d2,d3,d4,d5
-      real*4 :: d6,d7,psummc2,lsagejunk,lseratejunk,pdfmin,pdfmax
+      real*4 :: d6,d7,psummc2,lsagejunk,lseratejunk,pdfmin,pdfmax,alphain,alpha
       real*8 :: randflt
       integer :: olc,onum,h,i,j,k,mc_iter,basnum,pamin,pamax,pnum
       integer :: plc,plcsc,cnt,paminmc,pamaxmc,pnummc,cnt2,cnt3,hm,hm2,cnt4,m
@@ -108,6 +108,7 @@
       lseratejunk=5.                                                            ! Junk ls erosion rate if no landslide ages exist in catchment
       pdfvsc=50.                                                                ! Approximate number of values in scaled PDFs
       simyr='1000.0000'                                                          ! Landslide sediment residence time
+      alpha=0.6                                                                 ! PDF scaling factor alpha (see Brandon, 1996)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
 
@@ -246,7 +247,8 @@
             write (*,'(a)') 'Generating observed age PDF...'
             call get_pdf_size(oage,oageu,olc,onum,pdfmin,pdfmax,dx,calc_pdf_range)
             allocate(on(onum+1),opdf(onum+1))                                   ! Allocate data PDF arrays
-            call make_age_pdf(oage,oageu,olc,onum,on,opdf,pdfmin,pdfmax,dx,&
+            ! We're assuming a value of 1.0 for alpha for the observed age PDF
+            call make_age_pdf(oage,oageu,1.0,olc,onum,on,opdf,pdfmin,pdfmax,dx,&
                                pdfvsc,pi,ocnt)
             allocate(opdfv(ocnt))                                               ! Allocate PDF vector
             call make_age_pdfv(onum,pdfvsc,on,opdf,opdfv,ocnt)
@@ -271,8 +273,14 @@
             !else
               call get_pdf_size(page,pageu,plc,pnum,pdfmin,pdfmax,dx,calc_pdf_range)
               allocate(pn(pnum+1),ppdf(pnum+1))                                   ! Allocate data PDF arrays
-              call make_age_pdf(page,pageu,plc,pnum,pn,ppdf,pdfmin,pdfmax,dx,&
-                                 pdfvsc,pi,pcnt)
+              ! Calculate the optimal alpha value if the input alpha is negative
+              if (alphain < 0.0) then
+                alpha = (4.0/(3.0*plc))**0.2
+              else
+                alpha = alphain
+              endif
+              call make_age_pdf(page,pageu,alpha,plc,pnum,pn,ppdf,pdfmin,      &
+                                 pdfmax,dx,pdfvsc,pi,pcnt)
               allocate(ppdfv(pcnt))                                               ! Allocate PDF vector
               call make_age_pdfv(pnum,pdfvsc,pn,ppdf,ppdfv,pcnt)
             !endif
@@ -299,6 +307,12 @@
                 mcsamp=olc
               else
                 mcsamp=numsamp(m)
+              endif
+              ! Calculate optimal alpha value, if input value was negative
+              if (alphain < 0.d0) then
+                alpha = (4.0/(3.0*mcsamp))**0.2
+              else
+                alpha = alphain
               endif
               write (*,'(a,i7,a)') 'Running Monte Carlo simulation for ',mcsamp,' samples'
               allocate(pagemc(mcsamp),pageumc(mcsamp))
@@ -392,8 +406,8 @@
                 enddo
                 call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,pdfmin,pdfmax,dx,calc_pdf_range)
                 allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                       ! Allocate data PDF arrays
-                call make_age_pdf(pagemc,pageumc,mcsamp,pnummc,pnmc,ppdfmc,&
-                                  pdfmin,pdfmax,dx,pdfvsc,pi,pcntmc)
+                call make_age_pdf(pagemc,pageumc,alpha,mcsamp,pnummc,pnmc,     &
+                                  ppdfmc,pdfmin,pdfmax,dx,pdfvsc,pi,pcntmc)
                 allocate(ppdfvmc(pcntmc))                                       ! Allocate PDF vector
                 call make_age_pdfv(pnummc,pdfvsc,pnmc,ppdfmc,ppdfvmc,pcntmc)
 

@@ -1,6 +1,5 @@
 ### Start of the makefile ---------------------------------------------------###
 NAME=det_mc
-#NAME=det_mc_int8
 
 ### Define compilers --------------------------------------------------------###
 # GNU
@@ -38,7 +37,8 @@ CFLAGS  = -O2
 #INT8FLAG = -fdefault-integer-8
 
 #AR=ar
-BITS=
+BITS=_v1.1
+#BITS=_v1.1_int8
 
 # Compile rules
 #
@@ -64,10 +64,10 @@ pdf_functions.o \
 detrital_mc.o
 #detrital_mc_int8.o
 
-
 all: $(BIN)
 $(BIN): $(OBJECTS)
-	$(F90) $(FFLAGS) $(OPTIONS) $(OBJECTS) $(INCLUDE) $(LIBS) -o $(BIN)
+	$(F90) $(FFLAGS) $(OPTIONS) $(OBJECTS) $(LIBS) -o $(BIN)
+	#$(F90) $(FFLAGS) $(OPTIONS) $(OBJECTS) $(INCLUDE) $(LIBS) -o $(BIN)
 
 .PHONY: install
 install:
