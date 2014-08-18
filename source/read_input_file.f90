@@ -10,10 +10,12 @@ type (detrital_params) :: params
 type (basin_information) :: basin_info(100)
 
 character(len=80) :: line
-integer :: datapdf_in,fullppdf_in,mcpdfs_in
+integer :: datapdf_in,fullppdf_in,mcpdfs_in,ecdfs_in
 integer :: datappdf_in,datamcpdfs_in,ppdfmcpdfs_in
 integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
+integer :: ocdf_out_in,pcdf_out_in,mccdfs_out_in
 integer :: lsero_in,tec_header_in,calc_pdf_range_in
+integer :: kuipernew_in
 integer :: i,j,k,io
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
@@ -320,6 +322,52 @@ else
   stop
 endif
 
+![int] ecdfs_in is the flag for whether or not to use empirical cumulative
+!distribution functions (ECDFs) rather that CSPDFs for the comparison between
+!the predicted and observed age distributions. This value is stored as [bool]
+!params%ecdfs
+read (unit=101,fmt=*) ecdfs_in
+if (echo_vals) write (*,*) 'ecdfs_in: ',ecdfs_in
+if (ecdfs_in == 0) then
+  params%ecdfs = .false.
+elseif (ecdfs_in == 1) then
+  params%ecdfs = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a)') 'Error: Bad value for flag to use ECDFs rather than CSPDFs for the comparison'
+  write (*,'(a,i1)') 'of the observed and predicted age distributions: ',ecdfs_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] kuipernew_in is the flag for whether or not to use the new formulation of
+!Kuiper's test, which is required for comparisons using ECDFs. This value is
+!stored as [bool] params%kuipernew
+read (unit=101,fmt=*) kuipernew_in
+if (echo_vals) write (*,*) 'kuipernew_in: ',kuipernew_in
+if (kuipernew_in == 0) then
+  params%kuipernew = .false.
+elseif (kuipernew_in == 1) then
+  params%kuipernew = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to use new formulation of Kuipers test: ',kuipernew_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![flt] params%kalpha is the significance level for Kuiper's test
+read (unit=101,fmt=*) params%kalpha
+if (echo_vals) write (*,*) 'params%kalpha: ',params%kalpha
+
 ![int] lsero_in is the flag for whether or not to simulate landslide erosion
 !This value is stored as [bool] params%lsero
 read (unit=101,fmt=*) lsero_in
@@ -418,6 +466,64 @@ endif
 read (unit=101,fmt=*) params%num_mc_out
 if (echo_vals) write (*,*) 'params%num_mc_out: ',params%num_mc_out
 
+![int] ocdf_out_in is the flag for whether or not observed age CDFs/ECDFs should
+!be written to file(s). This value is stored as [bool] params%ocdf_out
+read (unit=101,fmt=*) ocdf_out_in
+if (echo_vals) write (*,*) 'ocdf_out_in: ',ocdf_out_in
+if (ocdf_out_in == 0) then
+  params%ocdf_out = .false.
+elseif (ocdf_out_in == 1) then
+  params%ocdf_out = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to output observed age CDFs/ECDFs: ',ocdf_out_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] pcdf_out_in is the flag for whether or not full predicted age CDFs/ECDFs
+!should be written to file(s). This value is stored as [bool] params%pcdf_out
+read (unit=101,fmt=*) pcdf_out_in
+if (echo_vals) write (*,*) 'pcdf_out_in: ',pcdf_out_in
+if (pcdf_out_in == 0) then
+  params%pcdf_out = .false.
+elseif (pcdf_out_in == 1) then
+  params%pcdf_out = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to output full predicted age CDFs/ECDFs: ',pcdf_out_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] mccdfs_out_in is the flag for whether or not Monte Carlo predicted age
+!CDFs/ECDFs should be written to file(s). This value is stored as [bool]
+!params%mccdfs_out
+read (unit=101,fmt=*) mccdfs_out_in
+if (echo_vals) write (*,*) 'mccdfs_out_in: ',mccdfs_out_in
+if (mccdfs_out_in == 0) then
+  params%mccdfs_out = .false.
+elseif (mccdfs_out_in == 1) then
+  params%mccdfs_out = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to output Monte Carlo predicted age CDFs/ECDFs: ',mccdfs_out_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
 ![int] tec_header_in is the flag for whether or not to include a Tecplot header
 !in the PDF output files. This value is stored as [bool] params%tec_header
 read (unit=101,fmt=*) tec_header_in
@@ -501,6 +607,35 @@ if (echo_vals) write (*,*) 'params%pdfscl: ',params%pdfscl
 ![flt] params%alpha is the standard deviation scaling factor for making the PDFs
 read (unit=101,fmt=*) params%alphain
 if (echo_vals) write (*,*) 'params%alphain: ',params%alphain
+
+!Check for compatibility of input file options
+if(.not.params%kuipernew .and. params%ecdfs) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a)') 'Error: Incompatible options for CDF comparison and Kuipers test'
+  write (*,'(a)') ''
+  write (*,'(a)') '       Comparison of ECDFs requires the new version of Kuipers test'
+  write (*,'(a)') '       Either use the option for CDF comparison (d in section 4 of input file)'
+  write (*,'(a)') '       or use the new version of Kuipers test (e in section 4 of input file)'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+if (params%kuipernew .and. params%calc_pdf_range) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a)') 'Error: Incompatible options for PDF age range and Kuipers test'
+  write (*,'(a)') ''
+  write (*,'(a)') '       The new version of Kuipers test currently requires use of a fixed age'
+  write (*,'(a)') '       range. Disable option (c) in section 7 of the input file and specify an'
+  write (*,'(a)') '       age range using options (d) and (e) in section 7.'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
 
 close(unit=101)
 

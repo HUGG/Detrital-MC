@@ -101,6 +101,60 @@
       return
       end subroutine make_age_pdfv
 
+      subroutine make_age_cdf(pdf,num,dx,cdf)
+      
+      implicit none
+      
+      ! Passed in/out variable declaration
+      integer num
+      real*4 :: dx
+      real*4,intent(in) :: pdf(num+1)
+      real*4,intent(out) :: cdf(num+1)
+
+      ! Internal subroutine variables
+      integer i
+
+      cdf(1)=pdf(1)
+      do i=2,num+1
+        ! Simple integration using trapezoidal rule
+        cdf(i)=cdf(i-1)+(pdf(i)+pdf(i-1))/2.0*dx
+      enddo
+      
+      return
+      end subroutine make_age_cdf
+
+      subroutine make_age_ecdf(age,n,lc,num,ecdf)
+
+      implicit none
+
+      ! Passed in/out variable declaration
+      integer lc,num
+      real*4,intent(in) :: n(num+1)
+      real*4,intent(inout) :: age(lc)
+      real*4,intent(out) :: ecdf(num+1)
+
+      ! Internal subroutine variables
+      integer i,agei
+
+      ! Sort age array (?)
+      call insertion_sort(age)
+
+      ! Initialize counter variable for position in incoming raw age array
+      agei=1
+
+      ! Loop over all ages in PDF age range and check to see if the age in the
+      ! raw age array is less than that in the PDF age range. If so, increment
+      ! age counter and increase value in ecdf.
+      do i=1,num+1
+        do while (age(agei) <= n(i) .and. agei <= lc)
+          agei=agei+1
+        enddo
+        ecdf(i)=real(agei-1)/real(lc)
+      enddo
+
+      return
+      end subroutine make_age_ecdf
+
       function median(a, found)
         real, dimension(:), intent(in) :: a
         ! the optional found argument can be used to check
@@ -146,5 +200,24 @@
           a(j+1) = temp
         enddo
       end subroutine insertion_sort
+
+      function kuiper(alpha,d,nsamp)
+        implicit none
+        ! Values passed in/returned
+        real*4 :: alpha,d
+        integer :: nsamp,kuiper
+        ! Internal values
+        real*4 :: prob,ns,probkp
+        integer :: en,h
+
+        ns=real(nsamp)
+        en=sqrt(ns**2/(2*ns))
+        ! probkp is a function from kptwo.f90
+        prob=probkp((en+0.155+0.24/en)*d)
+        !write (*,*) 'probnew: ',prob
+        kuiper=0
+        if (alpha.ge.prob) kuiper=1
+        return 
+      end function kuiper
 
       end module pdf_functions

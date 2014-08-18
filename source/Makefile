@@ -42,7 +42,7 @@ CFLAGS  = -O2
 #INT8FLAG = -fdefault-integer-8
 
 #AR=ar
-BITS=
+BITS=_v3.0
 
 # Compile rules
 #
