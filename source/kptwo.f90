@@ -41,16 +41,33 @@
       call cumsum(org,n4,orgout)
       call cumsum(1.-org,n4,orgout2)
 
+!      open(1111,file='test_cdf.dat',status='unknown')
+!      do i=1,size(orgout)
+!        write(1111,*) i,' ',orgout(i)/en2
+!        !write(1111,*) orgout(i)/en2,' ',i
+!      enddo
+!      close(1111)
+!
+!      open(1111,file='test_cdf2.dat',status='unknown')
+!      do i=1,size(orgout2)
+!        write(1111,*) i,' ',orgout2(i)/en1
+!        !write(1111,*) orgout2(i)/en1,' ',i
+!      enddo
+!      close(1111)
+
 ! Determine Kuiper's statistic, significance level and if the null hypothesis
 ! is rejected at level alpha
       !d=maxval(abs((orgout/en2)-(orgout2/en1)))
       d=maxval((orgout/en2)-(orgout2/en1))+maxval((orgout2/en1)-(orgout/en2))
+      !write (*,*) 'd: ',d
+      
 !       do i=1,n3
 !         print *,dat(i)
 !       enddo
       !en=sqrt(en1*en2/(en1+en2))
       en=sqrt(ns**2/(2*ns))
       prob=probkp((en+0.155+0.24/en)*d)
+      !write (*,*) 'prob: ',prob
 !       print *,''
 !       print *,'d: ',d
 !       print *,'prob: ',prob
