@@ -24,7 +24,7 @@ $     subdirectory
 $ (c) The predicted thermochronometer age system to use
 $     (1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr)
 1
-ba1 MC001 2
+BZ435 BD435 4
 
 $=== [2] - Number of grains to consider in predicted age PDFs ==================
 $ Line 1: [int]
@@ -45,11 +45,22 @@ $ (c) Monte Carlo predicted age PDFs (yes = 1, no = 0)
 1 0 1
 
 $=== [4] - PDF comparison ======================================================
-$ Line 1: [int int int]
+$ Line 1: [int int int int int flt]
 $ (a) Observed age and full predicted age PDFs (yes = 1, no = 0)
 $ (b) Observed age and Monte Carlo predicted age PDFs (yes = 1, no = 0)
 $ (c) Full predicted age and Monte Carlo predicted age PDFs (yes = 1, no = 0)
-0 1 0
+$ (d) Use empirical cumulative distribution functions (ECDFs) rather than CSPDFs
+$     for PDF comparisons (Kuiper's test) (yes = 1, no = 0)
+$     NOTE: You must set option (e) below equal to 1 to use ECDFs
+$ (e) Use new Kuiper's test formulation or original? (yes = 1, no = 0)
+$     The differences between the two versions are trivial, but the new version
+$     must be used for comparison of ECDFs.
+$     NOTE: Currently, you must use a fixed age range for the PDFs/CDFs/ECDFs to
+$     use the new Kuiper's test. A fixed age range can be set using (d) and (e)
+$     in section 7 of this file.
+$ (f) Kuiper's test significance level. A value of 0.05 is recommended (95%
+$     confidence interval
+0 1 0 0 1 0.05
 
 $=== [5] - Landslide PDF options ===============================================
 $ Line 1: [int flt flt flt]
@@ -61,16 +72,24 @@ $ (d) Landslide sediment residence time in years.
 0 1. 5. 25.
 
 $=== [6] - PDF output ==========================================================
-$ Line 1: [int int int int int]
+$ Line 1: [int int int int int int int int]
+$ [Age probability density functions]
 $ (a) Observed age PDF (yes = 1, no = 0)
 $ (b) Full predicted age PDF (yes = 1, no = 0)
 $ (c) Monte Carlo predicted age PDFs (yes = 1, no = 0)
 $ (d) Number of Monte Carlo predicted age PDFs to output
-$ (e) Write Tecplot header to output PDFs (yes = 1, no = 0)
-1 0 1 1000 1
+$ [Cumulative age distributions]
+$     NOTE: If option 4 in section 3 (use empirical CDFs) is equal to 1, the
+$     output distributions will be empirical cumulative distribution functions
+$     (ECDFs), otherwise they will be cumulative density functions (CDFs)
+$ (e) Observed age cumulative distribution (yes = 1, no = 0)
+$ (f) Full predicted age cumulative distribution (yes = 1, no = 0)
+$ (g) Monte Carlo predicted age cumulative distribution (yes = 1, no = 0)
+$ (h) Write Tecplot header to output PDFs/CDFs/ECDFs (yes = 1, no = 0)
+1 0 1 10 1 0 1 0
 
 $=== [7] - Other options =======================================================
-$ Line 1: [int flt int flt flt flt flt]
+$ Line 1: [int flt int flt flt int flt flt flt]
 $ (a) Number of Monte Carlo predicted age PDFs to calculate (10000, typically)
 $ (b) Age increment for calculating PDFs (0.01 - 0.001, typically)
 $ (c) Calculate age range for PDFs using data age ranges and uncertainties
@@ -87,4 +106,4 @@ $     you're doing)
 $ (i) alpha, the standard deviation scaling factor (0.6 is a good choice). If
 $     alpha is negative, an optimal alpha value will be calculated using Eq. 18
 $     from Brandon, 1996, Radiation Damage.
-10000 0.01 1 0. 15. 1 10.94 50. -0.6
+10000 0.01 0 0. 60. 1 10.94 50. -0.6
