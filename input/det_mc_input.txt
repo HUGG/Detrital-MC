@@ -16,15 +16,23 @@ $
 $=== [1] - Basin summary information ===========================================
 $ Line 1: [int]
 $ (a) Number of basins to analyze, num_basins
-$ Line(s) 2+: [char char int]
+$ Line(s) 2+: [char int char int (int)]
 $ (a) Name of observed detrital age file in the data/observed_ages subdirectory
-$     (e.g., ba1.dat)
-$ (b) Name of the Pecube model run output directory (e.g., RUN00) in the data
-$     subdirectory
-$ (c) The predicted thermochronometer age system to use
-$     (1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr)
+$     (e.g., 'ba1' for ba1.dat)
+$ (b) Predicted age file format (1 = Pecube Comparison.txt, 2 = CSV file)
+$   - If (b) = 1 (Pecube format) then:
+$     - (c) Name of the Pecube model run output directory (e.g., RUN00) in the
+$           data subdirectory
+$     - (d) The predicted thermochronometer age system to use
+$           (1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr)
+$   - If (b) = 2 (Generic CSV) then:
+$     - (c) Name of the predicted age file (e.g., 'DW001' for DW001.csv) in the
+$           data subdirectory
+$     - (d) The number of the column containing predicted ages in the CSV file
+$     - (e) The number of the column containing predicted erosion rates in the
+$           CSV file
 1
-BZ435 BD435 4
+BH27-AFT 2 BH27_Pecube_and_topometrics_250m 8 5
 
 $=== [2] - Number of grains to consider in predicted age PDFs ==================
 $ Line 1: [int]
