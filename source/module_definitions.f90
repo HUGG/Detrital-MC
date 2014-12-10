@@ -21,8 +21,8 @@ module definitions
 
   type basin_information
     character(len=80) :: obasin_name
-    character(len=5)  :: pbasin_name
-    integer :: page_sys
+    character(len=80) :: pbasin_name
+    integer :: page_sys,page_ftype,page_col,perate_col
   end type basin_information
 
 end module definitions

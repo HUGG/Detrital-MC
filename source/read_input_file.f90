@@ -124,16 +124,15 @@ else
       stop
     endif
 
-    ![char] basin_info(:)%pbasin_name is the name of the predicted age output
-    !directory
-    read (unit=101,fmt=*) basin_info(i)%pbasin_name
-    if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
-    inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',exist=fileexist)
-    if (.not.fileexist) then
+    ![int] basin_info(:)%page_ftype is the number corresponding to the input predicted
+    !age file format
+    !1 = Pecube Comparison.txt, 2 = Generic CSV file
+    read (unit=101,fmt=*) basin_info(i)%page_ftype
+    if (echo_vals) write (*,*) 'basin_info(',i,')%page_ftype: ',basin_info(i)%page_ftype
+    if (basin_info(i)%page_ftype < 1 .or. basin_info(i)%page_ftype > 2) then
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
-      write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
-      write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//' directory?'
+      write (*,'(a,i1,a,i3)') 'Error: Unsupported predicted age file format (',basin_info(i)%page_ftype,') for basin ',i,'.'
+      write (*,'(a)') '       The listed predicted age file type must be an integer value between 1 and 2'
       write (*,'(a)') ''
       write (*,'(a)') 'Program exited with an error'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -141,20 +140,85 @@ else
       stop
     endif
 
-    ![int] params%page_sys is the number corresponding to the desired predicted
-    !thermochronometer age system to be compared to the data
-    !1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr
-    read (unit=101,fmt=*) basin_info(i)%page_sys
-    if (echo_vals) write (*,*) 'basin_info(',i,')%page_sys: ',basin_info(i)%page_sys
-    if (basin_info(i)%page_sys < 1 .or. basin_info(i)%page_sys > 5) then
-      write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a,i1,a,i3)') 'Error: Unsupported thermochronometer system (',basin_info(i)%page_sys,') for basin ',i,'.'
-      write (*,'(a)') '       The listed thermochronometer system must be an integer value between 1 and 5'
-      write (*,'(a)') ''
-      write (*,'(a)') 'Program exited with an error'
-      write (*,'(a)') '#------------------------------------------------------------------------------#'
-      close(unit=101)
-      stop
+    if (basin_info(i)%page_ftype == 1) then
+      ![char] basin_info(:)%pbasin_name is the name of the predicted age output
+      !directory
+      read (unit=101,fmt=*) basin_info(i)%pbasin_name
+      if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
+      inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',exist=fileexist)
+      if (.not.fileexist) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
+        write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
+        write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//' directory?'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%page_sys is the number corresponding to the desired predicted
+      !thermochronometer age system to be compared to the data
+      !1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr
+      read (unit=101,fmt=*) basin_info(i)%page_sys
+      if (echo_vals) write (*,*) 'basin_info(',i,')%page_sys: ',basin_info(i)%page_sys
+      if (basin_info(i)%page_sys < 1 .or. basin_info(i)%page_sys > 5) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported thermochronometer system (',basin_info(i)%page_sys,') for basin ',i,'.'
+        write (*,'(a)') '       The listed thermochronometer system must be an integer value between 1 and 5'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+    else
+      ![char] basin_info(:)%pbasin_name is the name of the predicted age input
+      !CSV file
+      read (unit=101,fmt=*) basin_info(i)%pbasin_name
+      if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
+      inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv',exist=fileexist)
+      if (.not.fileexist) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a)') 'Error: Cannot find predicted age file.'
+        write (*,'(a)') '       Does the file data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv exist?'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%page_col is the number corresponding to the column in
+      !the CSV file containing the predicted ages
+      read (unit=101,fmt=*) basin_info(i)%page_col
+      if (echo_vals) write (*,*) 'basin_info(',i,')%page_col: ',basin_info(i)%page_col
+      if (basin_info(i)%page_col < 1 .or. basin_info(i)%page_col > 1000) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported CSV file age column value (',basin_info(i)%page_col,') for basin ',i,'.'
+        write (*,'(a)') '       The listed value must be a positive integer value less than 1000'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%perate_col is the number corresponding to the column
+      !in the CSV file containing the predicted erosion rates
+      read (unit=101,fmt=*) basin_info(i)%perate_col
+      if (echo_vals) write (*,*) 'basin_info(',i,')%perate_col: ',basin_info(i)%perate_col
+      if (basin_info(i)%perate_col < 1 .or. basin_info(i)%perate_col > 1000) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported CSV file erate column value (',basin_info(i)%perate_col,') for basin ',i,'.'
+        write (*,'(a)') '       The listed value must be a positive integer value less than 1000'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
     endif
   enddo
 endif

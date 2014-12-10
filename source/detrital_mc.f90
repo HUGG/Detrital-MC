@@ -34,18 +34,26 @@
       real(kind=sp), allocatable :: oecdf(:),pecdf(:),pecdfmc(:)
       real(kind=sp), allocatable :: ppdfmc2,ppdfvmc2(:),oageupct(:)
       real(kind=sp), allocatable :: pmc(:)
-      integer,dimension(:),allocatable :: peratesc,kuiper_res,lseratesc!,olc
+      integer,dimension(:),allocatable :: kuiper_res,lseratesc!,olc
+      integer,dimension(:),allocatable :: peratesc
+      !integer*8, allocatable :: peratesc(:)
       !integer*8, allocatable :: lseratesc(:)
       real*4 :: d,prob,pagemu,pagemed,pagesd,mc_iterf,jf,pageup
       real*4 :: osum,agenow,psummc,pi,peratemin,peratescl,dumpr
-      real*4 :: d6,d7,psummc2,pctpagemu,pctpagemed,pctpagesd
-      real*8 :: randflt
+      real*4 :: psummc2,pctpagemu,pctpagemed,pctpagesd
+      real*4 :: dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,dump10
+      real*4 :: dump11,dump12,dump13,dump14,dump15,dump16,dump17,dump18,dump19
+      real*4 :: dump20,dump21,dump22,dump23,dump24,dump25,dump26,dump27,dump28
+      real*4 :: randflt,eps
       integer :: onum,h,i,j,k,pamin,pamax,pnum,olc
       integer :: plc,plcsc,cnt,paminmc,pamaxmc,pnummc,cnt2,cnt3,hm,hm2,cnt4,m
       integer :: lsc,cnt5,cnt6,lscsc,lctot,pdfnum,mcsamp,cnt7,nsc,ocnt,pcnt
       integer :: paminmc2,pamaxmc2,pnummc2,cnt8,curbasin,pcntmc
-      integer :: eratesum,peratesum,lseratesum,rint,eratechk,io,bsflc
+      integer :: eratesum,lseratesum,io,bsflc
+      integer :: peratesum,rint,eratechk
+      !integer*8 :: peratesum,rint,eratechk
       !integer*8 :: lseratesum,rint,eratechk
+      logical, allocatable :: peratemask(:)
       logical datacomp,fileexist
       !logical lsppdf,lspdf_out
       character(len=5)  :: hc,jc,mcschar
@@ -60,6 +68,7 @@
       !probcut=0.005
 
       !mcboth=.false.
+      eps=1.e-8
 
 ! Initialize random number generator
       call init_random_seed()
@@ -128,13 +137,20 @@
         endif
 
         write (*,'(a)') 'Reading predicted ages...'
-        open (12,file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',&
-              status='old')
-        read(12,*) plc
-        allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))                ! Allocate model age/uncertainty and erate arrays
-        if (basin_info(i)%page_sys == 1) then                                   ! Read predicted AHe ages
+        if (basin_info(i)%page_ftype==1) then
+          open (12,file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',&
+                status='old')
+          read(12,*) plc
+          allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))              ! Allocate model age/uncertainty and erate arrays
           do j=1,plc
-            read(12,*) dumpr,dumpr,dumpr,dumpr,perate(j),dumpr,page(j),dump
+            read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
+                       dump10,dump11,dump12,dump13,dump14,dump15,dump
+            if (basin_info(i)%page_sys == 1) page(j)=dump7                      ! Store predicted AHe ages
+            if (basin_info(i)%page_sys == 2) page(j)=dump9                      ! Store predicted AFT ages
+            if (basin_info(i)%page_sys == 3) page(j)=dump11                     ! Store predicted ZHe ages
+            if (basin_info(i)%page_sys == 4) page(j)=dump13                     ! Store predicted ZFT ages
+            if (basin_info(i)%page_sys == 5) page(j)=dump15                     ! Store predicted MAr ages
+            perate(j)=dump5                                                     ! Store predicted erosion rate
             if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
               if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
                 pageu(j) = page(j)*(pctpagemu/100.)
@@ -147,58 +163,22 @@
               pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
             endif
           enddo
-        elseif (basin_info(i)%page_sys == 2) then                               ! Read predicted AFT ages
+        else
+          open (12,file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv',&
+                status='old')
+          read(12,*) plc
+          allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))              ! Allocate model age/uncertainty and erate arrays
           do j=1,plc
-            read(12,*) dumpr,dumpr,dumpr,dumpr,perate(j),dumpr,dumpr,dumpr,    &
-                       page(j),dump
-            if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
-              if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagemu/100.)
-              elseif (params%obs_uncert_type == 2) then                         ! Assign uncertainty using median percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagemed/100.)
-              elseif (params%obs_uncert_type == 3) then                         ! Assign uncertainty using standard deviation in percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagesd/100.)
-              endif
-            else
-              pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
-            endif
-          enddo
-        elseif (basin_info(i)%page_sys == 3) then                               ! Read predicted ZHe ages
-          do j=1,plc
-            read(12,*) dumpr,dumpr,dumpr,dumpr,perate(j),dumpr,dumpr,dumpr,    &
-                       dumpr,dumpr,page(j),dump
-            if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
-              if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagemu/100.)
-              elseif (params%obs_uncert_type == 2) then                         ! Assign uncertainty using median percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagemed/100.)
-              elseif (params%obs_uncert_type == 3) then                         ! Assign uncertainty using standard deviation in percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagesd/100.)
-              endif
-            else
-              pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
-            endif
-          enddo
-        elseif (basin_info(i)%page_sys == 4) then                               ! Read predicted ZFT ages
-          do j=1,plc
-            read(12,*) dumpr,dumpr,dumpr,dumpr,perate(j),dumpr,dumpr,dumpr,    &
-                       dumpr,dumpr,dumpr,dumpr,page(j),dump
-            if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
-              if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagemu/100.)
-              elseif (params%obs_uncert_type == 2) then                         ! Assign uncertainty using median percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagemed/100.)
-              elseif (params%obs_uncert_type == 3) then                         ! Assign uncertainty using standard deviation in percent uncertainty in observed ages
-                pageu(j) = page(j)*(pctpagesd/100.)
-              endif
-            else
-              pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
-            endif
-          enddo
-        elseif (basin_info(i)%page_sys == 5) then                               ! Read predicted MAr ages
-          do j=1,plc
-            read(12,*) dumpr,dumpr,dumpr,dumpr,perate(j),dumpr,dumpr,dumpr,    &
-                       dumpr,dumpr,dumpr,dumpr,dumpr,dumpr,page(j),dump
+            read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
+                       dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
+                       dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
+                       dump26,dump27,dump28
+            if (basin_info(i)%page_col == 6) page(j)=dump6                      ! Store predicted AHe age
+            if (basin_info(i)%page_col == 7) page(j)=dump7                      ! Store predicted ZHe age
+            if (basin_info(i)%page_col == 8) page(j)=dump8                      ! Store predicted AFT age
+            if (basin_info(i)%page_col == 9) page(j)=dump9                      ! Store predicted ZFT age
+            if (basin_info(i)%page_col == 12) page(j)=dump12                    ! Store predicted MAr age
+            if (basin_info(i)%perate_col == 5) perate(j)=dump5                  ! Store predicted erosion rate
             if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
               if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
                 pageu(j) = page(j)*(pctpagemu/100.)
@@ -216,6 +196,13 @@
         close(12)
 
         peratemin=minval(perate)                                                ! Determine minimum erosion rate in model domain
+        if (peratemin < eps) then
+          allocate(peratemask(plc))
+          peratemask=(perate > eps)
+          peratemin=minval(perate,mask=peratemask)
+          deallocate(peratemask)
+        endif
+        
         peratescl=1./peratemin                                                  ! Set scaling value to ensure at least 1 occurance of min rate ages
         peratesc=nint(perate*peratescl)                                         ! Generate scaling factors by multiplying erosion rates by peratescl and converting to integers
         peratesum=sum(peratesc)
@@ -437,9 +424,10 @@
                   do while (eratechk.gt.0)
                     cnt=cnt+1
                     eratechk=eratechk-peratesc(cnt)
+                    !write(*,*) 'cnt: ',cnt
                   enddo
                   pagemc(k)=page(cnt)
-                  pageumc(k)=pageu(cnt)                  
+                  pageumc(k)=pageu(cnt)
                 endif
                 !rint=int8(randflt*(eratesum))+1                                 ! Get random integer value within range of size of scaled age dist.
                 !eratechk=rint
@@ -560,7 +548,7 @@
                     if (params%tec_header) then
                       write(pnummcc,'(i10)') pnummc+1
                       pnummcc=adjustl(pnummcc)
-                      write(24,'(a37)') 'TITLE="Monte Carlo predicted age PDFs"'
+                      write(24,'(a38)') 'TITLE="Monte Carlo predicted age PDFs"'
                       write(24,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
                       write(24,'(a80)') 'ZONE I='//trim(pnummcc)//&
                              ' DATAPACKING=POINT T="Monte Carlo predicted PDFs '&
@@ -581,8 +569,8 @@
                       if (params%tec_header) then
                         write(pnummcc,'(i10)') pnummc+1
                         pnummcc=adjustl(pnummcc)
-                        write(27,'(a37)') 'TITLE="Monte Carlo predicted age ECDFs"'
-                        write(27,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                        write(27,'(a39)') 'TITLE="Monte Carlo predicted age ECDFs"'
+                        write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                         write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
                                ' DATAPACKING=POINT T="Monte Carlo predicted ECDFs '&
                                //trim(basin_info(i)%obasin_name)//'"'
@@ -599,8 +587,8 @@
                       if (params%tec_header) then
                         write(pnummcc,'(i10)') pnummc+1
                         pnummcc=adjustl(pnummcc)
-                        write(27,'(a37)') 'TITLE="Monte Carlo predicted age CDFs"'
-                        write(27,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                        write(27,'(a38)') 'TITLE="Monte Carlo predicted age CDFs"'
+                        write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                         write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
                                ' DATAPACKING=POINT T="Monte Carlo predicted CDFs '&
                                //trim(basin_info(i)%obasin_name)//'"'
@@ -688,8 +676,8 @@
                 if (params%tec_header) then
                   write(onumc,'(i10)') onum+1
                   onumc=adjustl(onumc)
-                  write(25,'(a20)') 'TITLE="Data age ECDF"'
-                  write(25,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(25,'(a21)') 'TITLE="Data age ECDF"'
+                  write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(25,'(a60)') 'ZONE I='//trim(onumc)//&
                            ' DATAPACKING=POINT T="Data ECDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
@@ -705,7 +693,7 @@
                   write(onumc,'(i10)') onum+1
                   onumc=adjustl(onumc)
                   write(25,'(a20)') 'TITLE="Data age CDF"'
-                  write(25,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(25,'(a60)') 'ZONE I='//trim(onumc)//&
                            ' DATAPACKING=POINT T="Data CDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
@@ -743,8 +731,8 @@
                 if (params%tec_header) then
                   write(pnumc,'(i10)') pnum+1
                   pnumc=adjustl(pnumc)
-                  write(26,'(a25)') 'TITLE="Predicted age ECDF"'
-                  write(26,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(26,'(a26)') 'TITLE="Predicted age ECDF"'
+                  write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
                   ' DATAPACKING=POINT T="Predicted ECDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
@@ -760,7 +748,7 @@
                   write(pnumc,'(i10)') pnum+1
                   pnumc=adjustl(pnumc)
                   write(26,'(a25)') 'TITLE="Predicted age CDF"'
-                  write(26,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
                   ' DATAPACKING=POINT T="Predicted CDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
