@@ -15,12 +15,12 @@ integer :: datappdf_in,datamcpdfs_in,ppdfmcpdfs_in
 integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
 integer :: ocdf_out_in,pcdf_out_in,mccdfs_out_in
 integer :: lsero_in,tec_header_in,calc_pdf_range_in
-integer :: kuipernew_in
+integer :: kuipernew_in,scale_erates_in
 integer :: i,j,k,io
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
 
-echo_vals=.false.
+echo_vals=.true.
 
 inquire(file='input/det_mc_input.txt',exist=fileexist)
 if (.not.fileexist) then
@@ -467,6 +467,20 @@ read (unit=101,fmt=*) simyr_in
 if (echo_vals) write (*,*) 'simyr_in: ',simyr_in
 write (unit=params%simyr,fmt='(f8.4)') simyr_in
 
+![int] params%lsfiletype is the type of file used for the landslide input files
+read (unit=101,fmt=*) params%lsfiletype
+if (echo_vals) write (*,*) 'params%lsfiletype: ',params%lsfiletype
+if (params%scaletype > 2 .or. params%scaletype < 0) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for landslide file type: ',params%lsfiletype
+  write (*,'(a)') '       Value must be "1" or "2"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
 ![int] opdf_out_in is the flag for whether or not observed age PDFs should be
 !written to file(s). This value is stored as [bool] params%opdf_out
 read (unit=101,fmt=*) opdf_out_in
@@ -671,6 +685,41 @@ if (echo_vals) write (*,*) 'params%pdfscl: ',params%pdfscl
 ![flt] params%alpha is the standard deviation scaling factor for making the PDFs
 read (unit=101,fmt=*) params%alphain
 if (echo_vals) write (*,*) 'params%alphain: ',params%alphain
+
+![int] scale_erates_in is the flag for whether or not the input erosion rates
+!should be scaled
+!This value is stored as [bool] params%scale_erates
+read (unit=101,fmt=*) scale_erates_in
+if (echo_vals) write (*,*) 'scale_erates_in: ',scale_erates_in
+if (scale_erates_in == 0) then
+  params%scale_erates = .false.
+elseif (scale_erates_in == 1) then
+  params%scale_erates = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to scale erosion rates: ',scale_erates_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] params%scaletype is the type of scaling used when scaling the input
+!erosion rates
+read (unit=101,fmt=*) params%scaletype
+if (echo_vals) write (*,*) 'params%scaletype: ',params%scaletype
+if (params%scaletype > 3 .or. params%scaletype < 0) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for erosion rate scaling type: ',params%scaletype
+  write (*,'(a)') '       Value must be "1", "2" or "3"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
 
 !Check for compatibility of input file options
 if(.not.params%kuipernew .and. params%ecdfs) then

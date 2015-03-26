@@ -11,10 +11,11 @@ module definitions
   type detrital_params
     character(len=8)  :: simyr
     integer,dimension(:),pointer :: numsamp,basin_numbers
-    integer :: num_basins,nss,num_mc_out,mc_iter,obs_uncert_type
+    integer :: num_basins,nss,num_mc_out,mc_iter,obs_uncert_type,scaletype
+    integer :: lsfiletype
     logical :: datapdf,fullppdf,mcpdfs,datappdf,datamcpdfs,ppdfmcpdfs,ecdfs
     logical :: opdf_out,ppdf_out,mcpdfs_out,lsero,tec_header,calc_pdf_range
-    logical :: ocdf_out,pcdf_out,mccdfs_out,kuipernew
+    logical :: ocdf_out,pcdf_out,mccdfs_out,kuipernew,scale_erates
     real(kind=sp) :: lsagejunk,lseratejunk,dx,pdfmin,pdfmax,pdf_pct_uncert
     real(kind=sp) :: pdfscl,alpha,alphain,kalpha
   end type detrital_params
