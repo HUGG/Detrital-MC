@@ -30,18 +30,19 @@
       return
       end subroutine get_pdf_size
       
-      subroutine make_age_pdf(age,ageu,alpha,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
+      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
                               pdfvsc,pi,cnt)
 
       implicit none
 
       ! Passed in/out variable declaration
       integer lc,num,cnt
+      integer, dimension(:) :: eratesc(lc)
       real*4  pdfmin,pdfmax,dx,pdfvsc,pi,alpha
       real*4,dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
 
       ! Internal subroutine variables
-      integer hm,i,j
+      integer hm,i,j,k,agecnt
       real*4  sum,amin
       real*4,dimension(:),allocatable :: psum,p
       
@@ -55,19 +56,22 @@
         n(i)=pdfmin+real(i-1)*dx                                                  ! Fill age range array
       enddo
       psum=0.
+      agecnt=0
       do i=1,lc
-        do j=1,num+1
-          p(j)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(j)-age(i))/&       ! Fill probability array
-                (alpha*ageu(i)))**2.)
-          psum(j)=psum(j)+p(j)                                                  ! Fill sum array to check area under array curve
+        do j=1,eratesc(i)
+          do k=1,num+1
+            p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/&     ! Fill probability array
+                 (alpha*ageu(i)))**2.)
+            psum(k)=psum(k)+p(k)                                                ! Fill sum array to check area under array curve
+          enddo
+          agecnt=agecnt+1
         enddo
       enddo
 
       sum=0.
       do i=1,num+1
-        !pdf(i)=(psum(i)/real(lc))*dx                                           ! Scale PDF array to normalize area under PDF curve
-        pdf(i)=(psum(i)/real(lc))                                               ! Scale PDF array to normalize area under PDF curve
-        sum=sum+pdf(i)                                                          ! Calculate area under curve
+        pdf(i)=(psum(i)/real(agecnt))                                           ! Scale PDF array to normalize area under PDF curve
+        sum=sum+pdf(i)*dx                                                       ! Calculate area under curve
       enddo
 
       ! Generate data PDF vector

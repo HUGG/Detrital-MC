@@ -7,7 +7,7 @@
 ! and finally record the results of that test. This process is repeated a
 ! large number of times (~10000).
 !
-! dwhipp - 04/08
+! Last updated by dwhipp 07.15
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       program detrital_mc
@@ -25,13 +25,14 @@
       real(kind=sp), allocatable :: oage(:),oageu(:),on(:),opsum(:),op(:),opdf(:),opdfv(:)
       real(kind=sp), allocatable :: page(:),pageu(:),perate(:),pagesc(:),pageusc(:)
       real(kind=sp), allocatable :: pagemc(:),pageumc(:),pnmc(:),ppsummc(:),ppmc(:),ppdfmc(:)
-      real(kind=sp), allocatable :: ppdfvmc(:),kpct(:),lsage(:),lsageu(:),lsagesc(:)
-      real(kind=sp), allocatable :: lsageusc(:),pagesct(:),pageusct(:),lserate(:)
+      real(kind=sp), allocatable :: ppdfvmc(:),peratemc(:),kpct(:),lsage(:),lsageu(:),lsagesc(:)
+      real(kind=sp), allocatable :: lsageusc(:),lserate(:)
       real(kind=sp), allocatable :: pagetot(:),pageutot(:),pn(:),ppsum(:),ppdf(:),pp(:),ppdfv(:)
       real(kind=sp), allocatable :: pagemc2(:),pageumc2(:),pnmc2(:),ppsummc2(:),ppmc2(:)
       real(kind=sp), allocatable :: ppdfmc2,ppdfvmc2(:)
       real(kind=sp), allocatable :: pmc(:)
-      integer,dimension(:),allocatable :: peratesc,kuiper_res,lseratesc
+      integer, allocatable :: peratesc(:),kuiper_res(:),lseratesc(:),oeratesc(:)
+      integer, allocatable :: peratescmc(:)
       !integer*8, allocatable :: lseratesc(:)
       !integer,dimension(38) :: numsamp
       !integer,dimension(21) :: numsamp
@@ -41,11 +42,11 @@
       real*4 :: dx,osum,agenow,psummc,pi,peratemin,peratescl,d1,d2,d3,d4,d5
       real*4 :: d6,d7,psummc2,lsagejunk,lseratejunk,pdfmin,pdfmax,alphain,alpha
       real*8 :: randflt
-      integer :: olc,onum,h,i,j,k,mc_iter,basnum,pamin,pamax,pnum
+      integer :: olc,onum,h,i,j,k,mc_iter,basnum,pamin,pamax,pnum,,oeratesum
       integer :: plc,plcsc,cnt,paminmc,pamaxmc,pnummc,cnt2,cnt3,hm,hm2,cnt4,m
       integer :: lsc,cnt5,cnt6,lscsc,lctot,pdfnum,mcsamp,cnt7,nsc,ocnt,pcnt
       integer :: paminmc2,pamaxmc2,pnummc2,cnt8,curbasin,num_mc_out,pcntmc
-      integer :: eratesum,peratesum,lseratesum,rint,eratechk
+      integer :: eratesum,peratesum,lseratesum,rint,eratechk,peratesummc
       !integer*8 :: lseratesum,rint,eratechk
       logical lsero,datacomp,mcboth,usemc,opdf_out,ppdf_out,mcpdfs_out
       logical datapdf,fullppdf,mcpdfs,datappdf,datamcpdfs,ppdfmcpdfs,tec_header
@@ -151,12 +152,16 @@
             write (*,'(a)') 'Data comparison requested, reading observed ages...'
             open (11,file='observed_det_ages/'//trim(obasin)//'.dat',&
                   status='old')
-            allocate(oage(olc),oageu(olc))                                      ! Allocate observed age and age uncertainty arrays
+            allocate(oage(olc),oageu(olc),oeratesc(olc))                        ! Allocate observed age and age uncertainty arrays
             do j=1,olc
               read(11,*) oage(j),oageu(j)                                       ! Fill observed sample arrays
               if (j==olc) write (*,'(a,i3,a,a)') 'Read ',olc,' ages for basin ',trim(obasin)
             enddo
             close(11)
+
+            ! Fill erate array with dummy values
+            oeratesc=1
+            oeratesum=sum(oeratesc)
           endif
 
           write (*,'(a)') 'Reading predicted ages...'
@@ -245,8 +250,8 @@
             call get_pdf_size(oage,oageu,olc,onum,pdfmin,pdfmax,dx,calc_pdf_range)
             allocate(on(onum+1),opdf(onum+1))                                   ! Allocate data PDF arrays
             ! We're assuming a value of 1.0 for alpha in the observed age PDF
-            call make_age_pdf(oage,oageu,1.0,olc,onum,on,opdf,pdfmin,pdfmax,dx,&
-                               pdfvsc,pi,ocnt)
+            call make_age_pdf(oage,oageu,1.0,oeratesc,olc,onum,on,opdf,pdfmin, &
+                              pdfmax,dx,pdfvsc,pi,ocnt)
             allocate(opdfv(ocnt))                                               ! Allocate PDF vector
             call make_age_pdfv(onum,pdfvsc,on,opdf,opdfv,ocnt)
           endif
@@ -276,13 +281,12 @@
               else
                 alpha = alphain
               endif
-              call make_age_pdf(page,pageu,alpha,plc,pnum,pn,ppdf,pdfmin,      &
-                                 pdfmax,dx,pdfvsc,pi,pcnt)
+              call make_age_pdf(page,pageu,alpha,peratesc,plc,pnum,pn,ppdf,    &
+                                pdfmin,pdfmax,dx,pdfvsc,pi,pcnt)
               allocate(ppdfv(pcnt))                                               ! Allocate PDF vector
               call make_age_pdfv(pnum,pdfvsc,pn,ppdf,ppdfv,pcnt)
             !endif
           endif
-
 
 !!!
 ! Start monte carlo runs for testing model/data fits with Kuiper test
@@ -312,7 +316,7 @@
                 alpha = alphain
               endif
               write (*,'(a,i7,a)') 'Running Monte Carlo simulation for ',mcsamp,' samples'
-              allocate(pagemc(mcsamp),pageumc(mcsamp))
+              allocate(pagemc(mcsamp),pageumc(mcsamp),peratemc(mcsamp),peratescmc(mcsamp))
               if (mcboth) allocate(pagemc2(mcsamp),pageumc2(mcsamp))
               write (mcschar,'(i5)') mcsamp
               mcschar=adjustl(mcschar)
@@ -379,7 +383,8 @@
                       eratechk=eratechk-lseratesc(cnt)
                     enddo
                     pagemc(k)=lsage(cnt)
-                    pageumc(k)=lsageu(cnt)                  
+                    pageumc(k)=lsageu(cnt)
+                    peratemc(k)=lserate(cnt)
                   else
                     rint=int8(randflt*(peratesum))+1                              ! Get random integer value within range of size of predicted age dist.
                     eratechk=rint
@@ -389,7 +394,8 @@
                       eratechk=eratechk-peratesc(cnt)
                     enddo
                     pagemc(k)=page(cnt)
-                    pageumc(k)=pageu(cnt)                  
+                    pageumc(k)=pageu(cnt)
+                    peratemc(k)=perate(cnt)
                   endif
                   !rint=int8(randflt*(eratesum))+1                                 ! Get random integer value within range of size of scaled age dist.
                   !eratechk=rint
@@ -401,10 +407,14 @@
                   !pagemc(k)=pagetot(cnt)                                          ! Add random age to monte carlo age array
                   !pageumc(k)=pageutot(cnt)                                        ! Add associated uncertainty to monte carlo uncertainty array
                 enddo
+                peratescmc=nint(peratemc*peratescl)                               ! Scale erosion rates
+                peratesummc=sum(peratescmc,mcsamp)
+
                 call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,pdfmin,pdfmax,dx,calc_pdf_range)
                 allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                       ! Allocate data PDF arrays
-                call make_age_pdf(pagemc,pageumc,alpha,mcsamp,pnummc,pnmc,     &
-                                  ppdfmc,pdfmin,pdfmax,dx,pdfvsc,pi,pcntmc)
+                call make_age_pdf(pagemc,pageumc,alpha,peratescmc,mcsamp,      &
+                                  pnummc,pnmc,ppdfmc,pdfmin,pdfmax,dx,pdfvsc,  &
+                                  pi,pcntmc)
                 allocate(ppdfvmc(pcntmc))                                       ! Allocate PDF vector
                 call make_age_pdfv(pnummc,pdfvsc,pnmc,ppdfmc,ppdfvmc,pcntmc)
 
@@ -498,7 +508,7 @@
               endif
 
               ! Deallocate arrays
-              deallocate(pagemc,pageumc)
+              deallocate(pagemc,pageumc,peratemc,peratescmc)
               !if (mcboth) deallocate(pagemc2,pageumc2)
 
 ! End of main loop
@@ -543,7 +553,7 @@
               endif
 
 ! Deallocate arrays
-          if (datapdf) deallocate(oage,oageu,on,opdf,opdfv)
+          if (datapdf) deallocate(oage,oageu,on,opdf,opdfv,oeratesc)
           !if (datapdf) deallocate(oage,oageu)
           if (fullppdf) deallocate(page,pageu,pn,ppdf,ppdfv)
           deallocate(perate,peratesc)
