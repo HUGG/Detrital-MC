@@ -23,24 +23,29 @@
       type (detrital_params) :: params
       type (basin_information) :: basin_info(100)
 
-      real(kind=sp), allocatable :: oage(:),oageu(:),on(:),opsum(:),op(:),opdf(:),opdfv(:)
-      real(kind=sp), allocatable :: page(:),pageu(:),perate(:),pagesc(:),pageusc(:)
-      real(kind=sp), allocatable :: pagemc(:),pageumc(:),pnmc(:),ppsummc(:),ppmc(:),ppdfmc(:)
-      real(kind=sp), allocatable :: ppdfvmc(:),kpct(:),lsage(:),lsageu(:),lsagesc(:)
-      real(kind=sp), allocatable :: lsageusc(:),pagesct(:),pageusct(:),lserate(:)
-      real(kind=sp), allocatable :: pagetot(:),pageutot(:),pn(:),ppsum(:),ppdf(:),pp(:),ppdfv(:)
+      real(kind=sp), allocatable :: oage(:),oageu(:),on(:),opsum(:),op(:)
+      real(kind=sp), allocatable :: opdf(:),opdfv(:)
+      real(kind=sp), allocatable :: page(:),pageu(:),perate(:),pagesc(:)
+      real(kind=sp), allocatable :: pageusc(:),pagesct(:),pageusct(:)
+      real(kind=sp), allocatable :: pagemc(:),pageumc(:),pnmc(:),ppsummc(:)
+      real(kind=sp), allocatable :: ppmc(:),ppdfmc(:),ppdfvmc(:),peratemc(:)
+      real(kind=sp), allocatable :: lsage(:),lsageu(:),lsagesc(:),lsageusc(:)
+      real(kind=sp), allocatable :: lserate(:)
+      real(kind=sp), allocatable :: kpct(:),ppdf(:),pp(:),ppdfv(:)
+      real(kind=sp), allocatable :: pagetot(:),pageutot(:),pn(:),ppsum(:)
       !real(kind=sp), allocatable :: pagemc2(:),pageumc2(:),pnmc2(:),ppsummc2(:),ppmc2(:)
       real(kind=sp), allocatable :: ocdf(:),pcdf(:),pcdfmc(:)
       real(kind=sp), allocatable :: oecdf(:),pecdf(:),pecdfmc(:)
       real(kind=sp), allocatable :: ppdfmc2,ppdfvmc2(:),oageupct(:)
       real(kind=sp), allocatable :: pmc(:)
-      integer,dimension(:),allocatable :: peratesc,kuiper_res,lseratesc!,olc
+      integer, allocatable :: peratesc(:),kuiper_res(:),lseratesc(:),oeratesc(:)
+      integer, allocatable :: peratescmc(:)
       !integer*8, allocatable :: lseratesc(:)
       real*4 :: d,prob,pagemu,pagemed,pagesd,mc_iterf,jf,pageup
       real*4 :: osum,agenow,psummc,pi,peratemin,peratescl,dumpr
       real*4 :: d6,d7,psummc2,pctpagemu,pctpagemed,pctpagesd
       real*8 :: randflt
-      integer :: onum,h,i,j,k,pamin,pamax,pnum,olc
+      integer :: onum,h,i,j,k,pamin,pamax,pnum,olc,oeratesum,peratesummc
       integer :: plc,plcsc,cnt,paminmc,pamaxmc,pnummc,cnt2,cnt3,hm,hm2,cnt4,m
       integer :: lsc,cnt5,cnt6,lscsc,lctot,pdfnum,mcsamp,cnt7,nsc,ocnt,pcnt
       integer :: paminmc2,pamaxmc2,pnummc2,cnt8,curbasin,pcntmc
@@ -98,12 +103,16 @@
           write (*,'(a)') 'Data comparison requested, reading observed ages...'
           open (11,file='data/observed_ages/'//trim(basin_info(i)%obasin_name)//'.dat',status='old')
           read(11,*) olc
-          allocate(oage(olc),oageu(olc),oageupct(olc))                          ! Allocate observed age and age uncertainty arrays
+          allocate(oage(olc),oageu(olc),oageupct(olc),oeratesc(olc))              ! Allocate observed age and age uncertainty arrays
           do j=1,olc
             read(11,*) oage(j),oageu(j)                                         ! Fill observed sample arrays
             oageupct(j)=oageu(j)/oage(j)*100.                                   ! Store percent uncertainties
             if (j==olc) write (*,'(a,i3,a,a)') 'Read ',olc,' ages for basin ',trim(basin_info(i)%obasin_name)
           enddo
+
+          ! Fill erate array with dummy values
+          oeratesc=1
+          oeratesum=sum(oeratesc)
 
           ! Calculate percentage age uncertainties
           pagemu=sum(oageu(:))/real(olc)                                        ! Mean 1-sigma uncertainty in observed ages
@@ -272,14 +281,14 @@
           !                  params%pdfmin,params%pdfmax,params%dx,             &
           !                  params%pdfscl,pi,ocnt)
           ! I think the data PDF should still use alpha=1.0, so I've hard-coded that in
-          call make_age_pdf(oage,oageu,1.0,olc,onum,on,opdf,          &
+          call make_age_pdf(oage,oageu,1.0,oeratesc,olc,onum,on,opdf,            &
                             params%pdfmin,params%pdfmax,params%dx,             &
                             params%pdfscl,pi,ocnt)
           ! Calculate cumulative distributions, if requested
           if (params%ocdf_out) then
             if (params%ecdfs) then
               allocate(oecdf(onum+1))
-              call make_age_ecdf(oage,on,olc,onum,oecdf)
+              call make_age_ecdf(oage,oeratesc,oeratesum,on,olc,onum,oecdf)
             else
               allocate(ocdf(onum+1))
               call make_age_cdf(opdf,onum,params%dx,ocdf)
@@ -318,12 +327,13 @@
             else
               params%alpha = params%alphain
             endif
-            call make_age_pdf(page,pageu,params%alpha,plc,pnum,pn,ppdf,params%pdfmin,     &
-                              params%pdfmax,params%dx,params%pdfscl,pi,pcnt)
+            call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,    &
+                              ppdf,params%pdfmin,params%pdfmax,params%dx,      &
+                              params%pdfscl,pi,pcnt)
             if (params%pcdf_out) then
               if (params%ecdfs) then
                 allocate(pecdf(pnum+1))
-                call make_age_ecdf(page,pn,plc,pnum,pecdf)
+                call make_age_ecdf(page,peratesc,peratesum,pn,plc,pnum,pecdf)
               else
                 allocate(pcdf(pnum+1))
                 call make_age_cdf(ppdf,pnum,params%dx,pcdf)
@@ -365,7 +375,7 @@
             !write (*,*) 'params%alphain: ',params%alphain
             !write (*,*) 'params%alpha: ',params%alpha            
             write (*,'(a,i7,a)') 'Running Monte Carlo simulation for ',mcsamp,' samples'
-            allocate(pagemc(mcsamp),pageumc(mcsamp))
+            allocate(pagemc(mcsamp),pageumc(mcsamp),peratemc(mcsamp),peratescmc(mcsamp))
             !if (mcboth) allocate(pagemc2(mcsamp),pageumc2(mcsamp))
             write (mcschar,'(i5)') mcsamp
             mcschar=adjustl(mcschar)
@@ -429,7 +439,8 @@
                     eratechk=eratechk-lseratesc(cnt)
                   enddo
                   pagemc(k)=lsage(cnt)
-                  pageumc(k)=lsageu(cnt)                  
+                  pageumc(k)=lsageu(cnt)
+                  peratemc(k)=lserate(cnt)
                 else
                   rint=int8(randflt*(peratesum))+1                              ! Get random integer value within range of size of predicted age dist.
                   eratechk=rint
@@ -439,7 +450,8 @@
                     eratechk=eratechk-peratesc(cnt)
                   enddo
                   pagemc(k)=page(cnt)
-                  pageumc(k)=pageu(cnt)                  
+                  pageumc(k)=pageu(cnt)
+                  peratemc(k)=perate(cnt)
                 endif
                 !rint=int8(randflt*(eratesum))+1                                 ! Get random integer value within range of size of scaled age dist.
                 !eratechk=rint
@@ -451,16 +463,19 @@
                 !pagemc(k)=pagetot(cnt)                                          ! Add random age to monte carlo age array
                 !pageumc(k)=pageutot(cnt)                                        ! Add associated uncertainty to monte carlo uncertainty array
               enddo
+              peratescmc=nint(peratemc*peratescl)                               ! Scale erosion rates
+              peratesummc=sum(peratescmc,mcsamp)
+              
               call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,params%pdfmin,  &
                                 params%pdfmax,params%dx,params%calc_pdf_range)
-              allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                       ! Allocate data PDF arrays
-              call make_age_pdf(pagemc,pageumc,params%alpha,mcsamp,pnummc,pnmc,&
-                                ppdfmc,params%pdfmin,params%pdfmax,params%dx,  &
-                                params%pdfscl,pi,pcntmc)
+              allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                         ! Allocate data PDF arrays
+              call make_age_pdf(pagemc,pageumc,params%alpha,peratescmc,mcsamp, &
+                                pnummc,pnmc,ppdfmc,params%pdfmin,params%pdfmax,&
+                                params%dx,params%pdfscl,pi,pcntmc)
               if (params%mccdfs_out) then
                 if (params%ecdfs) then
                   allocate(pecdfmc(pnummc+1))
-                  call make_age_ecdf(pagemc,pnmc,mcsamp,pnummc,pecdfmc)
+                  call make_age_ecdf(pagemc,peratescmc,peratesummc,pnmc,mcsamp,pnummc,pecdfmc)
                 else
                   allocate(pcdfmc(pnummc+1))
                   call make_age_cdf(ppdfmc,pnummc,params%dx,pcdfmc)
@@ -560,7 +575,7 @@
                     if (params%tec_header) then
                       write(pnummcc,'(i10)') pnummc+1
                       pnummcc=adjustl(pnummcc)
-                      write(24,'(a37)') 'TITLE="Monte Carlo predicted age PDFs"'
+                      write(24,'(a38)') 'TITLE="Monte Carlo predicted age PDFs"'
                       write(24,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
                       write(24,'(a80)') 'ZONE I='//trim(pnummcc)//&
                              ' DATAPACKING=POINT T="Monte Carlo predicted PDFs '&
@@ -581,8 +596,8 @@
                       if (params%tec_header) then
                         write(pnummcc,'(i10)') pnummc+1
                         pnummcc=adjustl(pnummcc)
-                        write(27,'(a37)') 'TITLE="Monte Carlo predicted age ECDFs"'
-                        write(27,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                        write(27,'(a39)') 'TITLE="Monte Carlo predicted age ECDFs"'
+                        write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                         write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
                                ' DATAPACKING=POINT T="Monte Carlo predicted ECDFs '&
                                //trim(basin_info(i)%obasin_name)//'"'
@@ -599,8 +614,8 @@
                       if (params%tec_header) then
                         write(pnummcc,'(i10)') pnummc+1
                         pnummcc=adjustl(pnummcc)
-                        write(27,'(a37)') 'TITLE="Monte Carlo predicted age CDFs"'
-                        write(27,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                        write(27,'(a38)') 'TITLE="Monte Carlo predicted age CDFs"'
+                        write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                         write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
                                ' DATAPACKING=POINT T="Monte Carlo predicted CDFs '&
                                //trim(basin_info(i)%obasin_name)//'"'
@@ -633,27 +648,27 @@
             write(*,'(a)') 'Done.'
             mc_iterf=real(params%mc_iter)
             if (params%datamcpdfs .or. params%ppdfmcpdfs) then
-              kpct(i)=(1-(sum(kuiper_res)/mc_iterf))*100.                     ! Store percent of models that passed kuiper test for given basin
+              kpct(i)=(1-(sum(kuiper_res)/mc_iterf))*100.                       ! Store percent of models that passed kuiper test for given basin
               write (*,'(a,f5.1,a)') 'Predicted Monte Carlo PDFs that passed the Kuiper test: ',kpct(i),'%'
 
               ! Write output files
               open(20,file='kuiper_mc_results_'//trim(mcschar)//'_samples_'&
                    //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
               do j=1,params%mc_iter
-                write(20,*) kuiper_res(j)                                         ! Write out individual subset kuiper test result values to file for this basin
+                write(20,*) kuiper_res(j)                                       ! Write out individual subset kuiper test result values to file for this basin
               enddo
               close(20)
 
-              write(21,'(a12,a5,f10.2)') basin_info(i)%obasin_name,mcschar,kpct(i)                    ! Write out the summary percent of models that passed the Kuiper test
+              write(21,'(a12,a5,f10.2)') basin_info(i)%obasin_name,mcschar,kpct(i) ! Write out the summary percent of models that passed the Kuiper test
 
               !open(26,file='age_pdf_output/all_PDF_results_'//trim(obasin)//&
               !     '.dat',status='unknown')
-              !write(26,*) pmc                                                    ! Write out individual subset kuiper test result values to file for this basin
+              !write(26,*) pmc                                                  ! Write out individual subset kuiper test result values to file for this basin
               !close(26)
             endif
 
             ! Deallocate arrays
-            deallocate(pagemc,pageumc)
+            deallocate(pagemc,pageumc,peratemc,peratescmc)
             !if (mcboth) deallocate(pagemc2,pageumc2)
 
 ! End of main loop
@@ -689,7 +704,7 @@
                   write(onumc,'(i10)') onum+1
                   onumc=adjustl(onumc)
                   write(25,'(a20)') 'TITLE="Data age ECDF"'
-                  write(25,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(25,'(a60)') 'ZONE I='//trim(onumc)//&
                            ' DATAPACKING=POINT T="Data ECDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
@@ -705,7 +720,7 @@
                   write(onumc,'(i10)') onum+1
                   onumc=adjustl(onumc)
                   write(25,'(a20)') 'TITLE="Data age CDF"'
-                  write(25,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(25,'(a60)') 'ZONE I='//trim(onumc)//&
                            ' DATAPACKING=POINT T="Data CDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
@@ -744,7 +759,7 @@
                   write(pnumc,'(i10)') pnum+1
                   pnumc=adjustl(pnumc)
                   write(26,'(a25)') 'TITLE="Predicted age ECDF"'
-                  write(26,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
                   ' DATAPACKING=POINT T="Predicted ECDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
@@ -760,19 +775,19 @@
                   write(pnumc,'(i10)') pnum+1
                   pnumc=adjustl(pnumc)
                   write(26,'(a25)') 'TITLE="Predicted age CDF"'
-                  write(26,'(a34)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                  write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                   write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
                   ' DATAPACKING=POINT T="Predicted CDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
                 do k=1,pnum+1
-                  write(26,'(e13.6,e13.6)') pn(k),ppdfv(k)
+                  write(26,'(e13.6,e13.6)') pn(k),pcdf(k)
                 enddo
                 close(26)
               endif
             endif
 
 ! Deallocate arrays
-        if (params%datapdf) deallocate(oage,oageu,on,opdf,opdfv)
+        if (params%datapdf) deallocate(oage,oageu,on,opdf,opdfv,oeratesc)
         if (params%ocdf_out) then
           if (params%ecdfs) then
             deallocate(oecdf)

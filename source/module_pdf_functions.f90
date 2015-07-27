@@ -22,18 +22,19 @@
       return
       end subroutine get_pdf_size
       
-      subroutine make_age_pdf(age,ageu,alpha,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
+      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
                               pdfvsc,pi,cnt)
 
       implicit none
 
       ! Passed in/out variable declaration
       integer :: lc,num,cnt
+      integer, dimension(:) :: eratesc(lc)
       real*4  :: pdfmin,pdfmax,dx,pdfvsc,pi,alpha
       real*4,dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
 
       ! Internal subroutine variables
-      integer :: hm,i,j
+      integer :: hm,i,j,k,agecnt
       real*4  :: sum,amin
       real*4,dimension(:),allocatable :: psum,p
       
@@ -47,20 +48,26 @@
         n(i)=pdfmin+real(i-1)*dx                                                  ! Fill age range array
       enddo
       psum=0.
+      agecnt=0
       do i=1,lc
-        do j=1,num+1
-          p(j)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(j)-age(i))/&       ! Fill probability array
+        do j=1,eratesc(i)
+          do k=1,num+1
+            p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/&     ! Fill probability array
                 (alpha*ageu(i)))**2.)
-          psum(j)=psum(j)+p(j)                                                  ! Fill sum array to check area under array curve
+            psum(k)=psum(k)+p(k)                                                ! Fill sum array to check area under array curve
+          enddo
+          agecnt=agecnt+1
         enddo
       enddo
 
       sum=0.
       do i=1,num+1
         !pdf(i)=(psum(i)/real(lc))*dx                                           ! Scale PDF array to normalize area under PDF curve
-        pdf(i)=(psum(i)/real(lc))                                               ! Scale PDF array to normalize area under PDF curve
-        sum=sum+pdf(i)                                                          ! Calculate area under curve
+        !pdf(i)=(psum(i)/real(lc))                                              ! Scale PDF array to normalize area under PDF curve
+        pdf(i)=(psum(i)/real(agecnt))                                           ! Scale PDF array to normalize area under PDF curve
+        sum=sum+pdf(i)*dx                                                       ! Calculate area under curve
       enddo
+      !write (*,*) 'sum: ',sum
 
       ! Generate data PDF vector
       cnt=0
@@ -102,7 +109,7 @@
       end subroutine make_age_pdfv
 
       subroutine make_age_cdf(pdf,num,dx,cdf)
-      
+
       implicit none
       
       ! Passed in/out variable declaration
@@ -123,21 +130,32 @@
       return
       end subroutine make_age_cdf
 
-      subroutine make_age_ecdf(age,n,lc,num,ecdf)
+      subroutine make_age_ecdf(age,eratesc,eratesum,n,lc,num,ecdf)
 
       implicit none
 
       ! Passed in/out variable declaration
-      integer lc,num
+      integer,intent(in) :: lc,num,eratesc(lc),eratesum
       real*4,intent(in) :: n(num+1)
       real*4,intent(inout) :: age(lc)
       real*4,intent(out) :: ecdf(num+1)
 
       ! Internal subroutine variables
-      integer i,agei
+      integer i,j,agei,agecnt
+      real*4,allocatable :: erateages(:)
+
+      ! Create age array scaled by erosion rates
+      allocate(erateages(eratesum))
+      agecnt=0
+      do i=1,lc
+        do j=1,eratesc(i)
+          agecnt=agecnt+1
+          erateages(agecnt)=age(i)
+        enddo
+      enddo
 
       ! Sort age array (?)
-      call insertion_sort(age)
+      call insertion_sort(erateages)
 
       ! Initialize counter variable for position in incoming raw age array
       agei=1
@@ -146,11 +164,13 @@
       ! raw age array is less than that in the PDF age range. If so, increment
       ! age counter and increase value in ecdf.
       do i=1,num+1
-        do while (age(agei) <= n(i) .and. agei <= lc)
+        do while (erateages(agei) <= n(i) .and. agei <= eratesum)
           agei=agei+1
         enddo
-        ecdf(i)=real(agei-1)/real(lc)
+        ecdf(i)=real(agei-1)/real(eratesum)
       enddo
+
+      deallocate(erateages)
 
       return
       end subroutine make_age_ecdf
