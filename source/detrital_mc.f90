@@ -42,7 +42,7 @@
       real*4 :: dx,osum,agenow,psummc,pi,peratemin,peratescl,d1,d2,d3,d4,d5
       real*4 :: d6,d7,psummc2,lsagejunk,lseratejunk,pdfmin,pdfmax,alphain,alpha
       real*8 :: randflt
-      integer :: olc,onum,h,i,j,k,mc_iter,basnum,pamin,pamax,pnum,,oeratesum
+      integer :: olc,onum,h,i,j,k,mc_iter,basnum,pamin,pamax,pnum,oeratesum
       integer :: plc,plcsc,cnt,paminmc,pamaxmc,pnummc,cnt2,cnt3,hm,hm2,cnt4,m
       integer :: lsc,cnt5,cnt6,lscsc,lctot,pdfnum,mcsamp,cnt7,nsc,ocnt,pcnt
       integer :: paminmc2,pamaxmc2,pnummc2,cnt8,curbasin,num_mc_out,pcntmc
