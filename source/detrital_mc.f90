@@ -63,7 +63,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       !--- Include landslide erosion? -----------------------------------------!
-      lsero=.false.
+      lsero=.true.
       !--- Which PDFs should be generated? ------------------------------------!
       datapdf=.true.                                                            ! Data PDF
       fullppdf=.true.                                                          ! Full predicted PDF
@@ -95,8 +95,8 @@
       !numsamp=(/1,5,10,15,20,25,30,40,50,60,70,80,90,100,125,150,200,250,300,&
       !         400,500/)
       !numsamp=(/10,100,500/)
-      !numsamp=(/111/)
-      numsamp=(/34/)
+      numsamp=(/111/)
+      !numsamp=(/34/)
       basnum=21                                                                 ! Number of basins to analyze
       !basnum=12                                                                 ! Number of basins to analyze
       !mc_iter=10000                                                             ! Number of iterations in the Monte Carlo simulation
@@ -110,7 +110,7 @@
       lseratejunk=5.                                                            ! Junk ls erosion rate if no landslide ages exist in catchment
       pdfvsc=50.                                                                ! Approximate number of values in scaled PDFs
       simyr='1.0000'                                                            ! Landslide sediment residence time
-      alphain=0.6																! PDF scaling factor alpha (see Brandon, 1996)
+      alphain=1.0																! PDF scaling factor alpha (see Brandon, 1996)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
 
@@ -136,7 +136,8 @@
         read(10,*) obasin,pbasin,olc,pagemu,pagemed,pagesd                      ! Read input basin filenames, number of samples, mean 1 sigma and associated s.d.
         
         !if (i.eq.1 .or. i.eq.3 .or. i.eq.10 .or. i.eq.13) then
-        if (i.eq.12) then
+        if (i.eq.5) then
+        !if (i.eq.12) then
         !if (i.eq.curbasin) then
         !if (i.gt.0) then
           write (*,'(a,i3,a,i3)') 'Processing basin ',i,' of ',basnum
