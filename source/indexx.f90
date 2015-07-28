@@ -4,14 +4,19 @@
 ! dwhipp - 04/08
 
       SUBROUTINE indexx(arr,n1,index)
+
       USE nrutil, ONLY : arth,assert_eq,nrerror,swap
+
       IMPLICIT NONE
-      REAL*4,DIMENSION(n1),INTENT(IN) :: arr
-      INTEGER,DIMENSION(n1),INTENT(OUT) :: index
-      INTEGER,PARAMETER :: NN=15, NSTACK=50
-      REAL*4 :: a
-      INTEGER :: n,k,i,j,indext,jstack,l,r,n1
-      INTEGER,DIMENSION(NSTACK) :: istack
+
+      integer, parameter :: sp = selected_real_kind(6, 37)
+      INTEGER(kind=sp),PARAMETER :: NN=15, NSTACK=50
+
+      INTEGER(kind=sp) :: n,k,i,j,indext,jstack,l,r,n1
+      INTEGER(kind=sp),DIMENSION(NSTACK) :: istack
+      INTEGER(kind=sp),DIMENSION(n1),INTENT(OUT) :: index
+      REAL(kind=sp),DIMENSION(n1),INTENT(IN) :: arr
+      REAL(kind=sp) :: a
       n=assert_eq(size(index),size(arr),'indexx_sp')
       index=arth(1,1,n)
       jstack=0
@@ -72,8 +77,13 @@
       CONTAINS
 !BL
       SUBROUTINE icomp_xchg(i,j)
-      INTEGER,INTENT(INOUT) :: i,j
-      INTEGER :: swp
+
+      IMPLICIT NONE
+
+      integer, parameter :: sp = selected_real_kind(6, 37)
+
+      INTEGER(kind=sp),INTENT(INOUT) :: i,j
+      INTEGER(kind=sp) :: swp
       if (arr(j) < arr(i)) then
         swp=i
         i=j
@@ -83,14 +93,19 @@
       END SUBROUTINE indexx
 
       SUBROUTINE indexx_i4b(iarr,index)
+
       USE nrutil, ONLY : arth,assert_eq,nrerror,swap
+
       IMPLICIT NONE
-      INTEGER,DIMENSION(:),INTENT(IN) :: iarr
-      INTEGER,DIMENSION(:),INTENT(OUT) :: index
-      INTEGER,PARAMETER :: NN=15, NSTACK=50
-      INTEGER :: a
-      INTEGER :: n,k,i,j,indext,jstack,l,r
-      INTEGER,DIMENSION(NSTACK) :: istack
+
+      integer, parameter :: sp = selected_real_kind(6, 37)
+
+      INTEGER(kind=sp),DIMENSION(:),INTENT(IN) :: iarr
+      INTEGER(kind=sp),DIMENSION(:),INTENT(OUT) :: index
+      INTEGER(kind=sp),PARAMETER :: NN=15, NSTACK=50
+      INTEGER(kind=sp) :: a
+      INTEGER(kind=sp) :: n,k,i,j,indext,jstack,l,r
+      INTEGER(kind=sp),DIMENSION(NSTACK) :: istack
       n=assert_eq(size(index),size(iarr),'indexx_sp')
       index=arth(1,1,n)
       jstack=0
@@ -151,8 +166,13 @@
       CONTAINS
 !BL
       SUBROUTINE icomp_xchg(i,j)
-      INTEGER,INTENT(INOUT) :: i,j
-      INTEGER :: swp
+
+      IMPLICIT NONE
+
+      integer, parameter :: sp = selected_real_kind(6, 37)
+
+      INTEGER(kind=sp),INTENT(INOUT) :: i,j
+      INTEGER(kind=sp) :: swp
       if (iarr(j) < iarr(i)) then
         swp=i
         i=j

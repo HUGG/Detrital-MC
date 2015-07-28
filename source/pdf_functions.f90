@@ -3,12 +3,15 @@
       contains
       subroutine get_pdf_size(age,ageu,lc,num,pdfmin,pdfmax,dx,calc_pdf_range)
 
-      implicit none
+      IMPLICIT NONE
+
+      ! Variable declaration
+      integer, parameter :: sp = selected_real_kind(6, 37)
 
       ! Passed in/out variable declaration
-      integer lc,num
-      real*4,dimension(:) :: age(lc),ageu(lc)
-      real*4 pdfmin,pdfmax,dx
+      integer(kind=sp) :: lc,num
+      real(kind=sp) :: age(lc),ageu(lc)
+      real(kind=sp) :: pdfmin,pdfmax,dx
       logical :: calc_pdf_range
       
       if (calc_pdf_range) then
@@ -19,38 +22,28 @@
       
       num=nint((pdfmax-pdfmin)/dx)                                              ! Find number of values in PDF arrays
 
-!        write (*,*) 'dx in pdf functions: ',dx
-!        write (*,*) 'num in pdf functions: ',num
-!        write (*,*) 'age: ',age
-!        write (*,*) 'ageu: ',ageu
-!        write (*,*) 'lc: ',lc
-!        write (*,*) 'pdfmin: ',pdfmin
-!        write (*,*) 'pdfmax: ',pdfmax
-
       return
       end subroutine get_pdf_size
       
-      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
+      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,dx,   &
                               pdfvsc,pi,cnt)
 
-      implicit none
+      IMPLICIT NONE
+
+      integer, parameter :: sp = selected_real_kind(6, 37)
 
       ! Passed in/out variable declaration
-      integer lc,num,cnt
-      integer, dimension(:) :: eratesc(lc)
-      real*4  pdfmin,pdfmax,dx,pdfvsc,pi,alpha
-      real*4,dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
+      integer(kind=sp) :: lc,num,cnt
+      integer(kind=sp) :: eratesc(lc)
+      real(kind=sp) :: pdfmin,dx,pdfvsc,pi,alpha
+      real(kind=sp) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
 
       ! Internal subroutine variables
-      integer hm,i,j,k,agecnt
-      real*4  sum,amin
-      real*4,dimension(:),allocatable :: psum,p
+      integer(kind=sp) :: hm,i,j,k,agecnt
+      real(kind=sp) ::  sum
+      real(kind=sp),allocatable :: psum(:),p(:)
       
       allocate(psum(num+1),p(num+1))
-
-      !amin=minval(age)-2*maxval(ageu)                                          ! Find range of ages + uncertainties
-      !amin=minval(age)-10*maxval(ageu)                                         ! Find range of ages + uncertainties
-      !amin=pdfmin
 
       do i=1,num+1
         n(i)=pdfmin+real(i-1)*dx                                                  ! Fill age range array
@@ -90,15 +83,17 @@
 
       subroutine make_age_pdfv(num,pdfvsc,n,pdf,pdfv,cnt)
 
-      implicit none
+      IMPLICIT NONE
+
+      integer, parameter :: sp = selected_real_kind(6, 37)
 
       ! Passed in/out variable declaration
-      integer num,cnt
-      real*4  pdfvsc
-      real*4,dimension(:) :: n(num+1),pdf(num+1),pdfv(cnt)
+      integer(kind=sp) :: num,cnt
+      real(kind=sp) ::  pdfvsc
+      real(kind=sp) :: n(num+1),pdf(num+1),pdfv(cnt)
 
       ! Internal subroutine variables
-      integer hm,i,j
+      integer(kind=sp) :: hm,i,j
 
       cnt=0
       pdfv=0.
