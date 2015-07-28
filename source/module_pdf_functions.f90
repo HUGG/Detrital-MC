@@ -3,12 +3,14 @@
       contains
       subroutine get_pdf_size(age,ageu,lc,num,pdfmin,pdfmax,dx,calc_pdf_range)
 
-      implicit none
+      USE definitions
+
+      IMPLICIT NONE
 
       ! Passed in/out variable declaration
-      integer :: lc,num
-      real*4,dimension(:) :: age(lc),ageu(lc)
-      real*4 :: pdfmin,pdfmax,dx
+      integer(kind=sp) :: lc,num
+      real(kind=sp),dimension(:) :: age(lc),ageu(lc)
+      real(kind=sp) :: pdfmin,pdfmax,dx
       logical :: calc_pdf_range
       
       if (calc_pdf_range) then
@@ -22,27 +24,25 @@
       return
       end subroutine get_pdf_size
       
-      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,pdfmax,dx,    &
+      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,dx,    &
                               pdfvsc,pi,cnt)
 
-      implicit none
+      USE definitions
+
+      IMPLICIT NONE
 
       ! Passed in/out variable declaration
-      integer :: lc,num,cnt
-      integer, dimension(:) :: eratesc(lc)
-      real*4  :: pdfmin,pdfmax,dx,pdfvsc,pi,alpha
-      real*4,dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
+      integer(kind=sp) :: lc,num,cnt
+      integer(kind=sp), dimension(:) :: eratesc(lc)
+      real(kind=sp)  :: pdfmin,dx,pdfvsc,pi,alpha
+      real(kind=sp),dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
 
       ! Internal subroutine variables
       integer :: hm,i,j,k,agecnt
-      real*4  :: sum,amin
-      real*4,dimension(:),allocatable :: psum,p
+      real(kind=sp)  :: sum
+      real(kind=sp),dimension(:),allocatable :: psum,p
       
       allocate(psum(num+1),p(num+1))
-
-      !amin=minval(age)-2*maxval(ageu)                                          ! Find range of ages + uncertainties
-      !amin=minval(age)-10*maxval(ageu)                                         ! Find range of ages + uncertainties
-      !amin=pdfmin
 
       do i=1,num+1
         n(i)=pdfmin+real(i-1)*dx                                                  ! Fill age range array
@@ -67,7 +67,6 @@
         pdf(i)=(psum(i)/real(agecnt))                                           ! Scale PDF array to normalize area under PDF curve
         sum=sum+pdf(i)*dx                                                       ! Calculate area under curve
       enddo
-      !write (*,*) 'sum: ',sum
 
       ! Generate data PDF vector
       cnt=0
@@ -85,15 +84,17 @@
 
       subroutine make_age_pdfv(num,pdfvsc,n,pdf,pdfv,cnt)
 
-      implicit none
+      USE definitions
+
+      IMPLICIT NONE
 
       ! Passed in/out variable declaration
-      integer num,cnt
-      real*4  pdfvsc
-      real*4,dimension(:) :: n(num+1),pdf(num+1),pdfv(cnt)
+      integer(kind=sp) num,cnt
+      real(kind=sp)  pdfvsc
+      real(kind=sp),dimension(:) :: n(num+1),pdf(num+1),pdfv(cnt)
 
       ! Internal subroutine variables
-      integer hm,i,j
+      integer(kind=sp) hm,i,j
 
       cnt=0
       pdfv=0.
@@ -110,16 +111,18 @@
 
       subroutine make_age_cdf(pdf,num,dx,cdf)
 
-      implicit none
+      USE definitions
+
+      IMPLICIT NONE
       
       ! Passed in/out variable declaration
-      integer num
-      real*4 :: dx
-      real*4,intent(in) :: pdf(num+1)
-      real*4,intent(out) :: cdf(num+1)
+      integer(kind=sp) num
+      real(kind=sp) :: dx
+      real(kind=sp),intent(in) :: pdf(num+1)
+      real(kind=sp),intent(out) :: cdf(num+1)
 
       ! Internal subroutine variables
-      integer i
+      integer(kind=sp) i
 
       cdf(1)=pdf(1)
       do i=2,num+1
@@ -132,17 +135,19 @@
 
       subroutine make_age_ecdf(age,eratesc,eratesum,n,lc,num,ecdf)
 
-      implicit none
+      USE definitions
+
+      IMPLICIT NONE
 
       ! Passed in/out variable declaration
-      integer,intent(in) :: lc,num,eratesc(lc),eratesum
-      real*4,intent(in) :: n(num+1)
-      real*4,intent(inout) :: age(lc)
-      real*4,intent(out) :: ecdf(num+1)
+      integer(kind=sp),intent(in) :: lc,num,eratesc(lc),eratesum
+      real(kind=sp),intent(in) :: n(num+1)
+      real(kind=sp),intent(inout) :: age(lc)
+      real(kind=sp),intent(out) :: ecdf(num+1)
 
       ! Internal subroutine variables
-      integer i,j,agei,agecnt
-      real*4,allocatable :: erateages(:)
+      integer(kind=sp) i,j,agei,agecnt
+      real(kind=sp),allocatable :: erateages(:)
 
       ! Create age array scaled by erosion rates
       allocate(erateages(eratesum))
@@ -176,15 +181,20 @@
       end subroutine make_age_ecdf
 
       function median(a, found)
-        real, dimension(:), intent(in) :: a
+
+        USE definitions
+
+        IMPLICIT NONE
+
+        real(kind=sp), dimension(:), intent(in) :: a
         ! the optional found argument can be used to check
         ! if the function returned a valid value; we need this
         ! just if we suspect our "vector" can be "empty"
         logical, optional, intent(out) :: found
-        real :: median
+        real(kind=sp) :: median
  
-        integer :: l
-        real, dimension(size(a,1)) :: ac
+        integer(kind=sp) :: l
+        real(kind=sp), dimension(size(a,1)) :: ac
  
         if ( size(a,1) < 1 ) then
           if ( present(found) ) found = .false.
@@ -206,9 +216,14 @@
       end function median
 
       subroutine insertion_sort(a)
-        real, intent(in out), dimension(:) :: a
-        real :: temp
-        integer :: i, j
+
+        USE definitions
+
+        IMPLICIT NONE
+
+        real(kind=sp), intent(in out), dimension(:) :: a
+        real(kind=sp) :: temp
+        integer(kind=sp) :: i, j
  
         do i = 2, size(a)
           j = i - 1
@@ -222,13 +237,15 @@
       end subroutine insertion_sort
 
       function kuiper(alpha,d,nsamp)
-        implicit none
+
+        USE definitions
+
+        IMPLICIT NONE
         ! Values passed in/returned
-        real*4 :: alpha,d
-        integer :: nsamp,kuiper
+        real(kind=sp) :: alpha,d
+        integer(kind=sp) :: nsamp,kuiper
         ! Internal values
-        real*4 :: prob,ns,probkp
-        integer :: en,h
+        real(kind=sp) :: prob,ns,probkp,en
 
         ns=real(nsamp)
         en=sqrt(ns**2/(2*ns))

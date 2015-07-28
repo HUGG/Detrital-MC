@@ -4,14 +4,20 @@
 ! dwhipp - 04/08
 
       SUBROUTINE indexx(arr,n1,index)
+
       USE nrutil, ONLY : arth,assert_eq,nrerror,swap
+      USE definitions
+
       IMPLICIT NONE
-      REAL*4,DIMENSION(n1),INTENT(IN) :: arr
-      INTEGER,DIMENSION(n1),INTENT(OUT) :: index
-      INTEGER,PARAMETER :: NN=15, NSTACK=50
-      REAL*4 :: a
-      INTEGER :: n,k,i,j,indext,jstack,l,r,n1
-      INTEGER,DIMENSION(NSTACK) :: istack
+
+      INTEGER(kind=sp) :: n,k,i,j,indext,jstack,l,r,n1
+      INTEGER(kind=sp),PARAMETER :: NN=15, NSTACK=50
+      INTEGER(kind=sp),DIMENSION(NSTACK) :: istack
+      INTEGER(kind=sp),DIMENSION(n1),INTENT(OUT) :: index
+
+      REAL(kind=sp) :: a
+      REAL(kind=sp),DIMENSION(n1),INTENT(IN) :: arr
+
       n=assert_eq(size(index),size(arr),'indexx_sp')
       index=arth(1,1,n)
       jstack=0

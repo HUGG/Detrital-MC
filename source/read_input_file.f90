@@ -133,7 +133,8 @@ else
       write (*,'(a)') '#------------------------------------------------------------------------------#'
       write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
       write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
-      write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//' directory?'
+      write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'&
+                              //trim(basin_info(i)%pbasin_name)//' directory?'
       write (*,'(a)') ''
       write (*,'(a)') 'Program exited with an error'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
