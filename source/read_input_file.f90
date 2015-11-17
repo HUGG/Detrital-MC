@@ -15,12 +15,12 @@ integer :: datappdf_in,datamcpdfs_in,ppdfmcpdfs_in
 integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
 integer :: ocdf_out_in,pcdf_out_in,mccdfs_out_in
 integer :: lsero_in,tec_header_in,calc_pdf_range_in
-integer :: kuipernew_in
-integer :: i,j,k,io
+integer :: kuipernew_in,scale_erates_in
+integer :: i,j,k,io,geol_units,scale_by_uplift_velo_in
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
 
-echo_vals=.false.
+echo_vals=.true.
 
 inquire(file='input/det_mc_input.txt',exist=fileexist)
 if (.not.fileexist) then
@@ -124,17 +124,15 @@ else
       stop
     endif
 
-    ![char] basin_info(:)%pbasin_name is the name of the predicted age output
-    !directory
-    read (unit=101,fmt=*) basin_info(i)%pbasin_name
-    if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
-    inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',exist=fileexist)
-    if (.not.fileexist) then
+    ![int] basin_info(:)%page_ftype is the number corresponding to the input predicted
+    !age file format
+    !1 = Pecube Comparison.txt, 2 = Generic CSV file
+    read (unit=101,fmt=*) basin_info(i)%page_ftype
+    if (echo_vals) write (*,*) 'basin_info(',i,')%page_ftype: ',basin_info(i)%page_ftype
+    if (basin_info(i)%page_ftype < 1 .or. basin_info(i)%page_ftype > 2) then
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
-      write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
-      write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'&
-                              //trim(basin_info(i)%pbasin_name)//' directory?'
+      write (*,'(a,i1,a,i3)') 'Error: Unsupported predicted age file format (',basin_info(i)%page_ftype,') for basin ',i,'.'
+      write (*,'(a)') '       The listed predicted age file type must be an integer value between 1 and 2'
       write (*,'(a)') ''
       write (*,'(a)') 'Program exited with an error'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -142,20 +140,128 @@ else
       stop
     endif
 
-    ![int] params%page_sys is the number corresponding to the desired predicted
-    !thermochronometer age system to be compared to the data
-    !1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr
-    read (unit=101,fmt=*) basin_info(i)%page_sys
-    if (echo_vals) write (*,*) 'basin_info(',i,')%page_sys: ',basin_info(i)%page_sys
-    if (basin_info(i)%page_sys < 1 .or. basin_info(i)%page_sys > 5) then
-      write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a,i1,a,i3)') 'Error: Unsupported thermochronometer system (',basin_info(i)%page_sys,') for basin ',i,'.'
-      write (*,'(a)') '       The listed thermochronometer system must be an integer value between 1 and 5'
-      write (*,'(a)') ''
-      write (*,'(a)') 'Program exited with an error'
-      write (*,'(a)') '#------------------------------------------------------------------------------#'
-      close(unit=101)
-      stop
+    if (basin_info(i)%page_ftype == 1) then
+      ![char] basin_info(:)%pbasin_name is the name of the predicted age output
+      !directory
+      read (unit=101,fmt=*) basin_info(i)%pbasin_name
+      if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
+      inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',exist=fileexist)
+      if (.not.fileexist) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
+        write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
+        write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'&
+                                //trim(basin_info(i)%pbasin_name)//' directory?'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%page_sys is the number corresponding to the desired predicted
+      !thermochronometer age system to be compared to the data
+      !1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr
+      read (unit=101,fmt=*) basin_info(i)%page_sys
+      if (echo_vals) write (*,*) 'basin_info(',i,')%page_sys: ',basin_info(i)%page_sys
+      if (basin_info(i)%page_sys < 1 .or. basin_info(i)%page_sys > 5) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported thermochronometer system (',basin_info(i)%page_sys,') for basin ',i,'.'
+        write (*,'(a)') '       The listed thermochronometer system must be an integer value between 1 and 5'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+    else
+      ![char] basin_info(:)%pbasin_name is the name of the predicted age input
+      !CSV file
+      read (unit=101,fmt=*) basin_info(i)%pbasin_name
+      if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
+      inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv',exist=fileexist)
+      if (.not.fileexist) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a)') 'Error: Cannot find predicted age file.'
+        write (*,'(a)') '       Does the file data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv exist?'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%page_col is the number corresponding to the column in
+      !the CSV file containing the predicted ages
+      read (unit=101,fmt=*) basin_info(i)%page_col
+      if (echo_vals) write (*,*) 'basin_info(',i,')%page_col: ',basin_info(i)%page_col
+      if (basin_info(i)%page_col < 1 .or. basin_info(i)%page_col > 1000) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported CSV file age column value (',basin_info(i)%page_col,') for basin ',i,'.'
+        write (*,'(a)') '       The listed value must be a positive integer value less than 1000'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%perate_col is the number corresponding to the column
+      !in the CSV file containing the predicted erosion rates
+      read (unit=101,fmt=*) basin_info(i)%perate_col
+      if (echo_vals) write (*,*) 'basin_info(',i,')%perate_col: ',basin_info(i)%perate_col
+      if (basin_info(i)%perate_col < 1 .or. basin_info(i)%perate_col > 1000) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported CSV file erate column value (',basin_info(i)%perate_col,') for basin ',i,'.'
+        write (*,'(a)') '       The listed value must be a positive integer value less than 1000'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      if (basin_info(i)%perate_col==16 .or. basin_info(i)%perate_col==17 .or.  &
+          basin_info(i)%perate_col==18 .or. basin_info(i)%perate_col==19 .or.  &
+          basin_info(i)%perate_col==99) then
+        allocate(basin_info(i)%geol_scale_factor(6))
+        basin_info(i)%geol_scale_factor=0.0
+        if (basin_info(i)%perate_col==16) geol_units = 6
+        if (basin_info(i)%perate_col==17) geol_units = 2
+        if (basin_info(i)%perate_col==18) geol_units = 2
+        if (basin_info(i)%perate_col==19) geol_units = 2
+        if (basin_info(i)%perate_col==99) geol_units = 4
+        do j=1,geol_units
+          read (unit=101,fmt=*) basin_info(i)%geol_scale_factor(j)
+          if (echo_vals) write (*,*) 'basin_info(',i,')%geol_scale_factor(',j,'): ',basin_info(i)%geol_scale_factor(j)
+          if (basin_info(i)%geol_scale_factor(j) < 0) then
+            write (*,'(a)') '#------------------------------------------------------------------------------#'
+            write (*,'(a,i1,a,i3)') 'Error: Unsupported value for erosion rate scaling (',basin_info(i)%geol_scale_factor(j),') for basin ',i,'.'
+            write (*,'(a)') '       The listed value must be positive or zero'
+            write (*,'(a)') ''
+            write (*,'(a)') 'Program exited with an error'
+            write (*,'(a)') '#------------------------------------------------------------------------------#'
+            close(unit=101)
+            stop
+          endif
+        enddo
+        read (unit=101,fmt=*) scale_by_uplift_velo_in
+        if (echo_vals) write (*,*) 'basin_info(',i,')%scale_by_uplift_velo_in: ',scale_by_uplift_velo_in
+        if (scale_by_uplift_velo_in == 0) then
+          basin_info(i)%scale_by_uplift_velo = .false.
+        elseif (scale_by_uplift_velo_in == 1) then
+          basin_info(i)%scale_by_uplift_velo = .true.
+        else
+          write (*,'(a)') '#------------------------------------------------------------------------------#'
+          write (*,'(a,i1)') 'Error: Bad value for flag to scale geological units erosion using Pecube: ',scale_by_uplift_velo_in
+          write (*,'(a)') '       Value must be either "0" or "1"'
+          write (*,'(a)') ''
+          write (*,'(a)') 'Program exited with an error'
+          write (*,'(a)') '#------------------------------------------------------------------------------#'
+          close(unit=101)
+          stop
+        endif
+      endif
     endif
   enddo
 endif
@@ -404,6 +510,20 @@ read (unit=101,fmt=*) simyr_in
 if (echo_vals) write (*,*) 'simyr_in: ',simyr_in
 write (unit=params%simyr,fmt='(f8.4)') simyr_in
 
+![int] params%lsfiletype is the type of file used for the landslide input files
+read (unit=101,fmt=*) params%lsfiletype
+if (echo_vals) write (*,*) 'params%lsfiletype: ',params%lsfiletype
+if (params%scaletype > 2 .or. params%scaletype < 0) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for landslide file type: ',params%lsfiletype
+  write (*,'(a)') '       Value must be "1" or "2"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
 ![int] opdf_out_in is the flag for whether or not observed age PDFs should be
 !written to file(s). This value is stored as [bool] params%opdf_out
 read (unit=101,fmt=*) opdf_out_in
@@ -608,6 +728,41 @@ if (echo_vals) write (*,*) 'params%pdfscl: ',params%pdfscl
 ![flt] params%alpha is the standard deviation scaling factor for making the PDFs
 read (unit=101,fmt=*) params%alphain
 if (echo_vals) write (*,*) 'params%alphain: ',params%alphain
+
+![int] scale_erates_in is the flag for whether or not the input erosion rates
+!should be scaled
+!This value is stored as [bool] params%scale_erates
+read (unit=101,fmt=*) scale_erates_in
+if (echo_vals) write (*,*) 'scale_erates_in: ',scale_erates_in
+if (scale_erates_in == 0) then
+  params%scale_erates = .false.
+elseif (scale_erates_in == 1) then
+  params%scale_erates = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to scale erosion rates: ',scale_erates_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] params%scaletype is the type of scaling used when scaling the input
+!erosion rates
+read (unit=101,fmt=*) params%scaletype
+if (echo_vals) write (*,*) 'params%scaletype: ',params%scaletype
+if (params%scaletype > 3 .or. params%scaletype < 0) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for erosion rate scaling type: ',params%scaletype
+  write (*,'(a)') '       Value must be "1", "2" or "3"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
 
 !Check for compatibility of input file options
 if(.not.params%kuipernew .and. params%ecdfs) then

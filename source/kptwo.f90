@@ -63,7 +63,7 @@
       !d=maxval(abs((orgout/en2)-(orgout2/en1)))
       d=maxval((orgout/en2)-(orgout2/en1))+maxval((orgout2/en1)-(orgout/en2))
       !write (*,*) 'd: ',d
-      
+
 !       do i=1,n3
 !         print *,dat(i)
 !       enddo
@@ -90,7 +90,7 @@
 
       SUBROUTINE cumsum(arr,n,ans)
 
-      USE DEFINITIONS
+      USE definitions
 
       IMPLICIT NONE
 
@@ -113,7 +113,7 @@
 
       FUNCTION probkp(alam)
 
-      USE DEFINITIONS
+      USE definitions
 
       IMPLICIT NONE
 
