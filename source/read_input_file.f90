@@ -16,7 +16,7 @@ integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
 integer :: ocdf_out_in,pcdf_out_in,mccdfs_out_in
 integer :: lsero_in,tec_header_in,calc_pdf_range_in
 integer :: kuipernew_in,scale_erates_in
-integer :: i,j,k,io,geol_units,scale_by_uplift_velo_in
+integer :: i,j,k,io,geol_units,scale_by_uplift_velo_in,veusz_output_in
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
 
@@ -656,6 +656,25 @@ elseif (tec_header_in == 1) then
 else
   write (*,'(a)') '#------------------------------------------------------------------------------#'
   write (*,'(a,i1)') 'Error: Bad value for flag to include Tecplot headers in the output files: ',tec_header_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] veusz_output_in is the flag for whether or not to write output PDF/CDF/
+!ECDF files in a file format for use with the Veusz plotting software
+read (unit=101,fmt=*) veusz_output_in
+if (echo_vals) write (*,*) 'veusz_output_in: ',veusz_output_in
+if (veusz_output_in == 0) then
+  params%veusz_output = .false.
+elseif (veusz_output_in == 1) then
+  params%veusz_output = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to write output in Veusz format: ',veusz_output_in
   write (*,'(a)') '       Value must be either "0" or "1"'
   write (*,'(a)') ''
   write (*,'(a)') 'Program exited with an error'

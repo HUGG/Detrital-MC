@@ -126,7 +126,7 @@ $ (f) Full predicted age cumulative distribution (yes = 1, no = 0)
 $ (g) Monte Carlo predicted age cumulative distribution (yes = 1, no = 0)
 $ (h) Write Tecplot header to output PDFs/CDFs/ECDFs (yes = 1, no = 0)
 $ (i) Write Veusz formatted PDFs/CDFs/ECDFs (yes = 1, no = 0)
-1 0 1 100 1 0 1 0
+1 0 1 100 1 0 1 0 1
 
 $=== [7] - Other options =======================================================
 $ Line 1: [int flt int flt flt int flt flt flt]

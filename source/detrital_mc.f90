@@ -592,61 +592,127 @@
                   if (j.lt.10000) hc(1:1)='0'
                   ! Write out Monte Carlo PDFs
                   if (params%mcpdfs_out) then
-                    open(24,file='age_pdf_output/mc_age_PDF_'//hc//'_'&
-                         //trim(mcschar)//'_samples_'//trim(basin_info(i)%obasin_name)//'.dat',&
-                         status='unknown')
-                    if (params%tec_header) then
-                      write(pnummcc,'(i10)') pnummc+1
-                      pnummcc=adjustl(pnummcc)
-                      write(24,'(a38)') 'TITLE="Monte Carlo predicted age PDFs"'
-                      write(24,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
-                      write(24,'(a80)') 'ZONE I='//trim(pnummcc)//&
-                             ' DATAPACKING=POINT T="Monte Carlo predicted PDFs '&
-                             //trim(basin_info(i)%obasin_name)//'"'
+                    if (params%veusz_output) then
+                      if (j == 1) then
+                        open(24,file='age_pdf_output/mc_age_PDFs_'//trim(mcschar)//&
+                             '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
+                             status='unknown',action='write')
+                        write(24,'(a20)') 'Age [Ma],Probability'
+                        do k=1,pnummc+1
+                          write(24,'(e13.6,a1,e13.6)') pnmc(k),',',ppdfmc(k)
+                        enddo
+                        close(24)
+                      else
+                        open(24,file='age_pdf_output/mc_age_PDFs_'//trim(mcschar)//&
+                             '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
+                             status='old',position='append',action='write')
+                        write(24,'(a7)') 'nan,nan'
+                        do k=1,pnummc+1
+                          write(24,'(e13.6,a1,e13.6)') pnmc(k),',',ppdfmc(k)
+                        enddo
+                        close(24)
+                      endif
+                    else
+                      open(24,file='age_pdf_output/mc_age_PDF_'//hc//'_'&
+                           //trim(mcschar)//'_samples_'//trim(basin_info(i)%obasin_name)//'.dat',&
+                           status='unknown')
+                      if (params%tec_header) then
+                        write(pnummcc,'(i10)') pnummc+1
+                        pnummcc=adjustl(pnummcc)
+                        write(24,'(a38)') 'TITLE="Monte Carlo predicted age PDFs"'
+                        write(24,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
+                        write(24,'(a80)') 'ZONE I='//trim(pnummcc)//&
+                               ' DATAPACKING=POINT T="Monte Carlo predicted PDFs '&
+                               //trim(basin_info(i)%obasin_name)//'"'
+                      endif
+                      do k=1,pnummc+1
+                        write(24,'(e13.6,e13.6)') pnmc(k),ppdfmc(k)
+                      enddo
+                      close(24)
                     endif
-                    do k=1,pnummc+1
-                      write(24,'(e13.6,e13.6)') pnmc(k),ppdfmc(k)
-                    enddo
-                    close(24)
                   endif
                   ! Write out Monte Carlo CDFs or ECDFs
                   if (params%mccdfs_out) then
                     ! Write out Monte Carlo empirical cumulative distributions
                     if (params%ecdfs) then
-                      open(27,file='age_pdf_output/mc_age_ECDF_'//hc//'_'&
-                           //trim(mcschar)//'_samples_'//trim(basin_info(i)%obasin_name)//'.dat',&
-                           status='unknown')
-                      if (params%tec_header) then
-                        write(pnummcc,'(i10)') pnummc+1
-                        pnummcc=adjustl(pnummcc)
-                        write(27,'(a39)') 'TITLE="Monte Carlo predicted age ECDFs"'
-                        write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
-                        write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
-                               ' DATAPACKING=POINT T="Monte Carlo predicted ECDFs '&
-                               //trim(basin_info(i)%obasin_name)//'"'
+                      if (params%veusz_output) then
+                        if (j == 1) then
+                          open(27,file='age_pdf_output/mc_age_ECDFs_'//trim(mcschar)//&
+                               '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
+                               status='unknown',action='write')
+                          write(27,'(a31)') 'Age [Ma],Cumulative probability'
+                          do k=1,pnummc+1
+                            write(27,'(e13.6,a1,e13.6)') pnmc(k),',',pecdfmc(k)
+                          enddo
+                          close(27)
+                        else
+                          open(27,file='age_pdf_output/mc_age_ECDFs_'//trim(mcschar)//&
+                               '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
+                               status='old',position='append',action='write')
+                          write(27,'(a7)') 'nan,nan'
+                          do k=1,pnummc+1
+                            write(27,'(e13.6,a1,e13.6)') pnmc(k),',',pecdfmc(k)
+                          enddo
+                          close(27)
+                        endif
+                      else
+                        open(27,file='age_pdf_output/mc_age_ECDF_'//hc//'_'&
+                             //trim(mcschar)//'_samples_'//trim(basin_info(i)%obasin_name)//'.dat',&
+                             status='unknown')
+                        if (params%tec_header) then
+                          write(pnummcc,'(i10)') pnummc+1
+                          pnummcc=adjustl(pnummcc)
+                          write(27,'(a39)') 'TITLE="Monte Carlo predicted age ECDFs"'
+                          write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                          write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
+                                 ' DATAPACKING=POINT T="Monte Carlo predicted ECDFs '&
+                                 //trim(basin_info(i)%obasin_name)//'"'
+                        endif
+                        do k=1,pnummc+1
+                          write(27,'(e13.6,e13.6)') pnmc(k),pecdfmc(k)
+                        enddo
+                        close(27)
                       endif
-                      do k=1,pnummc+1
-                        write(27,'(e13.6,e13.6)') pnmc(k),pecdfmc(k)
-                      enddo
-                      close(27)
                     ! Write out Monte Carlo cumulative density functions
                     else
-                      open(27,file='age_pdf_output/mc_age_CDF_'//hc//'_'&
-                           //trim(mcschar)//'_samples_'//trim(basin_info(i)%obasin_name)//'.dat',&
-                           status='unknown')
-                      if (params%tec_header) then
-                        write(pnummcc,'(i10)') pnummc+1
-                        pnummcc=adjustl(pnummcc)
-                        write(27,'(a38)') 'TITLE="Monte Carlo predicted age CDFs"'
-                        write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
-                        write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
-                               ' DATAPACKING=POINT T="Monte Carlo predicted CDFs '&
-                               //trim(basin_info(i)%obasin_name)//'"'
+                      if (params%veusz_output) then
+                        if (j == 1) then
+                          open(27,file='age_pdf_output/mc_age_CDFs_'//trim(mcschar)//&
+                               '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
+                               status='unknown',action='write')
+                          write(27,'(a31)') 'Age [Ma],Cumulative probability'
+                          do k=1,pnummc+1
+                            write(27,'(e13.6,a1,e13.6)') pnmc(k),',',pcdfmc(k)
+                          enddo
+                          close(27)
+                        else
+                          open(27,file='age_pdf_output/mc_age_CDFs_'//trim(mcschar)//&
+                               '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
+                               status='old',position='append',action='write')
+                          write(27,'(a7)') 'nan,nan'
+                          do k=1,pnummc+1
+                            write(27,'(e13.6,a1,e13.6)') pnmc(k),',',pcdfmc(k)
+                          enddo
+                          close(27)
+                        endif
+                      else
+                        open(27,file='age_pdf_output/mc_age_CDF_'//hc//'_'&
+                             //trim(mcschar)//'_samples_'//trim(basin_info(i)%obasin_name)//'.dat',&
+                             status='unknown')
+                        if (params%tec_header) then
+                          write(pnummcc,'(i10)') pnummc+1
+                          pnummcc=adjustl(pnummcc)
+                          write(27,'(a38)') 'TITLE="Monte Carlo predicted age CDFs"'
+                          write(27,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                          write(27,'(a80)') 'ZONE I='//trim(pnummcc)//&
+                                 ' DATAPACKING=POINT T="Monte Carlo predicted CDFs '&
+                                 //trim(basin_info(i)%obasin_name)//'"'
+                        endif
+                        do k=1,pnummc+1
+                          write(27,'(e13.6,e13.6)') pnmc(k),pcdfmc(k)
+                        enddo
+                        close(27)
                       endif
-                      do k=1,pnummc+1
-                        write(27,'(e13.6,e13.6)') pnmc(k),pcdfmc(k)
-                      enddo
-                      close(27)
                     endif
                   endif
                 endif
@@ -692,111 +758,174 @@
 ! Write out PDFs/CDFs/ECDFs
             ! Write out data PDF
             if (params%opdf_out) then
-              open(22,file='age_pdf_output/data_age_PDF_'//trim(basin_info(i)%obasin_name)//&
-                  '.dat',status='unknown')
-              if (params%tec_header) then
-                write(onumc,'(i10)') onum+1
-                onumc=adjustl(onumc)
-                write(22,'(a20)') 'TITLE="Data age PDF"'
-                write(22,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
-                write(22,'(a60)') 'ZONE I='//trim(onumc)//&
-                         ' DATAPACKING=POINT T="Data PDF '//trim(basin_info(i)%obasin_name)//'"'
+              if (params%veusz_output) then
+                open(22,file='age_pdf_output/data_age_PDF_'//trim(basin_info(i)%obasin_name)//&
+                    '_veusz.csv',status='unknown',action='write')
+                write(22,'(a20)') 'Age [Ma],Probability'
+                do k=1,onum+1
+                  write(22,'(e13.6,a1,e13.6)') on(k),',',opdf(k)
+                enddo
+                close(22)
+              else
+                open(22,file='age_pdf_output/data_age_PDF_'//trim(basin_info(i)%obasin_name)//&
+                    '.dat',status='unknown')
+                if (params%tec_header) then
+                  write(onumc,'(i10)') onum+1
+                  onumc=adjustl(onumc)
+                  write(22,'(a20)') 'TITLE="Data age PDF"'
+                  write(22,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
+                  write(22,'(a60)') 'ZONE I='//trim(onumc)//&
+                           ' DATAPACKING=POINT T="Data PDF '//trim(basin_info(i)%obasin_name)//'"'
+                endif
+                do k=1,onum+1
+                  write(22,'(e13.6,e13.6)') on(k),opdf(k)
+                enddo
+                close(22)
               endif
-              do k=1,onum+1
-                write(22,'(e13.6,e13.6)') on(k),opdf(k)
-              enddo
-              close(22)
             endif
 
             ! Write out data CDF or ECDF
             if (params%ocdf_out) then
               ! Write out data empirical cumulative distribution function
               if (params%ecdfs) then
-                open(25,file='age_pdf_output/data_age_ECDF_'//trim(basin_info(i)%obasin_name)//&
-                    '.dat',status='unknown')
-                if (params%tec_header) then
-                  write(onumc,'(i10)') onum+1
-                  onumc=adjustl(onumc)
-                  write(25,'(a21)') 'TITLE="Data age ECDF"'
-                  write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
-                  write(25,'(a60)') 'ZONE I='//trim(onumc)//&
-                           ' DATAPACKING=POINT T="Data ECDF '//trim(basin_info(i)%obasin_name)//'"'
+                if (params%veusz_output) then
+                  open(25,file='age_pdf_output/data_age_ECDF_'//trim(basin_info(i)%obasin_name)//&
+                      '_veusz.csv',status='unknown',action='write')
+                  write(25,'(a31)') 'Age [Ma],Cumulative probability'
+                  do k=1,onum+1
+                    write(25,'(e13.6,a1,e13.6)') on(k),',',oecdf(k)
+                  enddo
+                  close(25)
+                else
+                  open(25,file='age_pdf_output/data_age_ECDF_'//trim(basin_info(i)%obasin_name)//&
+                      '.dat',status='unknown')
+                  if (params%tec_header) then
+                    write(onumc,'(i10)') onum+1
+                    onumc=adjustl(onumc)
+                    write(25,'(a21)') 'TITLE="Data age ECDF"'
+                    write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                    write(25,'(a60)') 'ZONE I='//trim(onumc)//&
+                             ' DATAPACKING=POINT T="Data ECDF '//trim(basin_info(i)%obasin_name)//'"'
+                  endif
+                  do k=1,onum+1
+                    write(25,'(e13.6,e13.6)') on(k),oecdf(k)
+                  enddo
+                  close(25)
                 endif
-                do k=1,onum+1
-                  write(25,'(e13.6,e13.6)') on(k),oecdf(k)
-                enddo
-                close(25)
               ! Write out data cumulative density function
               else
-                open(25,file='age_pdf_output/data_age_CDF_'//trim(basin_info(i)%obasin_name)//&
-                    '.dat',status='unknown')
-                if (params%tec_header) then
-                  write(onumc,'(i10)') onum+1
-                  onumc=adjustl(onumc)
-                  write(25,'(a20)') 'TITLE="Data age CDF"'
-                  write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
-                  write(25,'(a60)') 'ZONE I='//trim(onumc)//&
-                           ' DATAPACKING=POINT T="Data CDF '//trim(basin_info(i)%obasin_name)//'"'
+                if (params%veusz_output) then
+                  open(25,file='age_pdf_output/data_age_CDF_'//trim(basin_info(i)%obasin_name)//&
+                      '_veusz.csv',status='unknown',action='write')
+                  write(25,'(a31)') 'Age [Ma],Cumulative probabilty'
+                  do k=1,onum+1
+                    write(25,'(e13.6,a1,e13.6)') on(k),',',ocdf(k)
+                  enddo
+                  close(25)
+                else
+                  open(25,file='age_pdf_output/data_age_CDF_'//trim(basin_info(i)%obasin_name)//&
+                      '.dat',status='unknown')
+                  if (params%tec_header) then
+                    write(onumc,'(i10)') onum+1
+                    onumc=adjustl(onumc)
+                    write(25,'(a20)') 'TITLE="Data age CDF"'
+                    write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                    write(25,'(a60)') 'ZONE I='//trim(onumc)//&
+                             ' DATAPACKING=POINT T="Data CDF '//trim(basin_info(i)%obasin_name)//'"'
+                  endif
+                  do k=1,onum+1
+                    write(25,'(e13.6,e13.6)') on(k),ocdf(k)
+                  enddo
+                  close(25)
                 endif
-                do k=1,onum+1
-                  write(25,'(e13.6,e13.6)') on(k),ocdf(k)
-                enddo
-                close(25)
               endif
             endif
 
             ! Write out full predicted PDF
             if (params%ppdf_out) then
-              open(23,file='age_pdf_output/full_predicted_age_PDF_'&
-                   //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
-              if (params%tec_header) then
-                write(pnumc,'(i10)') pnum+1
-                pnumc=adjustl(pnumc)
-                write(23,'(a25)') 'TITLE="Predicted age PDF"'
-                write(23,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
-                write(23,'(a65)') 'ZONE I='//trim(pnumc)//&
-                ' DATAPACKING=POINT T="Predicted PDF '//trim(basin_info(i)%obasin_name)//'"'
+              if (params%veusz_output) then
+                open(23,file='age_pdf_output/full_predicted_age_PDF_'&
+                     //trim(basin_info(i)%obasin_name)//'_veusz.csv',          &
+                     status='unknown',action='write')
+                write(23,'(a20)') 'Age [Ma],Probability'
+                do k=1,pnum+1
+                  write(23,'(e13.6,a1,e13.6)') pn(k),',',ppdf(k)
+                enddo
+                close(23)
+              else
+                open(23,file='age_pdf_output/full_predicted_age_PDF_'&
+                     //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
+                if (params%tec_header) then
+                  write(pnumc,'(i10)') pnum+1
+                  pnumc=adjustl(pnumc)
+                  write(23,'(a25)') 'TITLE="Predicted age PDF"'
+                  write(23,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
+                  write(23,'(a65)') 'ZONE I='//trim(pnumc)//&
+                  ' DATAPACKING=POINT T="Predicted PDF '//trim(basin_info(i)%obasin_name)//'"'
+                endif
+                do k=1,pnum+1
+                  write(23,'(e13.6,e13.6)') pn(k),ppdf(k)
+                enddo
+                close(23)
               endif
-              do k=1,pnum+1
-                write(23,'(e13.6,e13.6)') pn(k),ppdf(k)
-              enddo
-              close(23)
             endif
 
             ! Write out full predicted CDF or ECDF
             if (params%pcdf_out) then
               ! Write out data empirical cumulative distribution function
               if (params%ecdfs) then
-                open(26,file='age_pdf_output/full_predicted_age_ECDF_'&
-                     //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
-                if (params%tec_header) then
-                  write(pnumc,'(i10)') pnum+1
-                  pnumc=adjustl(pnumc)
-                  write(26,'(a26)') 'TITLE="Predicted age ECDF"'
-                  write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
-                  write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
-                  ' DATAPACKING=POINT T="Predicted ECDF '//trim(basin_info(i)%obasin_name)//'"'
+                if (params%veusz_output) then
+                  open(26,file='age_pdf_output/full_predicted_age_ECDF_'&
+                       //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
+                       status='unknown',action='write')
+                  write(26,'(a31)') 'Age [Ma],Cumulative probabilty'
+                  do k=1,pnum+1
+                    write(26,'(e13.6,e13.6)') pn(k),pecdf(k)
+                  enddo
+                  close(26)
+                else
+                  open(26,file='age_pdf_output/full_predicted_age_ECDF_'&
+                       //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
+                  if (params%tec_header) then
+                    write(pnumc,'(i10)') pnum+1
+                    pnumc=adjustl(pnumc)
+                    write(26,'(a26)') 'TITLE="Predicted age ECDF"'
+                    write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                    write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
+                    ' DATAPACKING=POINT T="Predicted ECDF '//trim(basin_info(i)%obasin_name)//'"'
+                  endif
+                  do k=1,pnum+1
+                    write(26,'(e13.6,e13.6)') pn(k),pecdf(k)
+                  enddo
+                  close(26)
                 endif
-                do k=1,pnum+1
-                  write(26,'(e13.6,e13.6)') pn(k),pecdf(k)
-                enddo
-                close(26)
               ! Write out data cumulative density function
               else
-                open(26,file='age_pdf_output/full_predicted_age_CDF_'&
-                     //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
-                if (params%tec_header) then
-                  write(pnumc,'(i10)') pnum+1
-                  pnumc=adjustl(pnumc)
-                  write(26,'(a25)') 'TITLE="Predicted age CDF"'
-                  write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
-                  write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
-                  ' DATAPACKING=POINT T="Predicted CDF '//trim(basin_info(i)%obasin_name)//'"'
+                if (params%veusz_output) then
+                  open(26,file='age_pdf_output/full_predicted_age_CDF_'&
+                       //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
+                       status='unknown',action='write')
+                  write(26,'(a31)') 'Age [Ma],Cumulative probability'
+                  do k=1,pnum+1
+                    write(26,'(e13.6,e13.6)') pn(k),pcdf(k)
+                  enddo
+                  close(26)
+                else
+                  open(26,file='age_pdf_output/full_predicted_age_CDF_'&
+                       //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
+                  if (params%tec_header) then
+                    write(pnumc,'(i10)') pnum+1
+                    pnumc=adjustl(pnumc)
+                    write(26,'(a25)') 'TITLE="Predicted age CDF"'
+                    write(26,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
+                    write(26,'(a65)') 'ZONE I='//trim(pnumc)//&
+                    ' DATAPACKING=POINT T="Predicted CDF '//trim(basin_info(i)%obasin_name)//'"'
+                  endif
+                  do k=1,pnum+1
+                    write(26,'(e13.6,e13.6)') pn(k),pcdf(k)
+                  enddo
+                  close(26)
                 endif
-                do k=1,pnum+1
-                  write(26,'(e13.6,e13.6)') pn(k),pcdf(k)
-                enddo
-                close(26)
               endif
             endif
 
