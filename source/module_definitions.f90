@@ -24,6 +24,8 @@ module definitions
     character(len=80) :: obasin_name
     character(len=80) :: pbasin_name
     integer :: page_sys,page_ftype,page_col,perate_col
+    real(kind=sp),dimension(:),pointer :: geol_scale_factor
+    logical :: scale_by_uplift_velo
   end type basin_information
 
 end module definitions

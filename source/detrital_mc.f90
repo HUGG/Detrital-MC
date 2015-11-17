@@ -15,50 +15,46 @@
       program detrital_mc
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      use definitions
-      use pdf_functions
+      USE definitions
+      USE pdf_functions
 
-      implicit none
+      IMPLICIT NONE
 
       type (detrital_params) :: params
       type (basin_information) :: basin_info(100)
 
-      real(kind=sp), allocatable :: oage(:),oageu(:),on(:),opsum(:),op(:),opdf(:),opdfv(:)
-      real(kind=sp), allocatable :: page(:),pageu(:),perate(:),pagesc(:),pageusc(:)
-      real(kind=sp), allocatable :: pagemc(:),pageumc(:),pnmc(:),ppsummc(:),ppmc(:),ppdfmc(:)
-      real(kind=sp), allocatable :: ppdfvmc(:),kpct(:),lsage(:),lsageu(:),lsagesc(:)
-      real(kind=sp), allocatable :: lsageusc(:),pagesct(:),pageusct(:),lserate(:)
-      real(kind=sp), allocatable :: pagetot(:),pageutot(:),pn(:),ppsum(:),ppdf(:),pp(:),ppdfv(:)
-      !real(kind=sp), allocatable :: pagemc2(:),pageumc2(:),pnmc2(:),ppsummc2(:),ppmc2(:)
+      real(kind=sp), allocatable :: oage(:),oageu(:),on(:)
+      real(kind=sp), allocatable :: opdf(:),opdfv(:)
+      real(kind=sp), allocatable :: page(:),pageu(:),perate(:)
+      real(kind=sp), allocatable :: pagemc(:),pageumc(:),pnmc(:)
+      real(kind=sp), allocatable :: ppdfmc(:),ppdfvmc(:),peratemc(:)
+      real(kind=sp), allocatable :: lsage(:),lsageu(:)
+      real(kind=sp), allocatable :: lserate(:)
+      real(kind=sp), allocatable :: kpct(:),ppdf(:),ppdfv(:),pn(:)
       real(kind=sp), allocatable :: ocdf(:),pcdf(:),pcdfmc(:)
       real(kind=sp), allocatable :: oecdf(:),pecdf(:),pecdfmc(:)
-      real(kind=sp), allocatable :: ppdfmc2,ppdfvmc2(:),oageupct(:)
-      real(kind=sp), allocatable :: pmc(:)
-      integer,dimension(:),allocatable :: kuiper_res!,lseratesc!,olc
-      integer,dimension(:),allocatable :: peratesc
-      !integer*8, allocatable :: peratesc(:)
-      integer*8, allocatable :: lseratesc(:)
-      real*4 :: d,prob,pagemu,pagemed,pagesd,mc_iterf,jf,pageup
-      real*4 :: osum,agenow,psummc,pi,peratemin,peratescl,dumpr
-      real*4 :: psummc2,pctpagemu,pctpagemed,pctpagesd
-      real*4 :: dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,dump10
-      real*4 :: dump11,dump12,dump13,dump14,dump15,dump16,dump17,dump18,dump19
-      real*4 :: dump20,dump21,dump22,dump23,dump24,dump25,dump26,dump27,dump28
-      real*4 :: randflt,eps
-      integer :: onum,h,i,j,k,pamin,pamax,pnum,olc
-      integer :: plc,plcsc,cnt,paminmc,pamaxmc,pnummc,cnt2,cnt3,hm,hm2,cnt4,m
-      integer :: lsc,cnt5,cnt6,lscsc,lctot,pdfnum,mcsamp,cnt7,nsc,ocnt,pcnt
-      integer :: paminmc2,pamaxmc2,pnummc2,cnt8,curbasin,pcntmc
-      integer :: eratesum,io,bsflc
-      integer :: peratesum
+      real(kind=sp), allocatable :: oageupct(:)
+      integer(kind=sp), allocatable :: peratesc(:),kuiper_res(:),lseratesc(:)
+      integer(kind=sp), allocatable :: oeratesc(:),peratescmc(:)
+      !integer*8, allocatable :: lseratesc(:)
+      real(kind=sp) :: d,prob,pagemu,pagemed,pagesd,mc_iterf,jf
+      real(kind=sp) :: pi,peratemin,peratescl,dumpr
+      real(kind=sp) :: pctpagemu,pctpagemed,pctpagesd
+      real(kind=sp) :: dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9
+      real(kind=sp) :: dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17
+      real(kind=sp) :: dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25
+      real(kind=sp) :: dump26,dump27,dump28,dump29,dump30,dump31,dump32
+      real(kind=sp) :: randflt,eps
+      integer(kind=sp) :: onum,h,i,j,k,pnum,olc,oeratesum,peratesummc
+      integer(kind=sp) :: plc,cnt,pnummc,m,peratesum
+      integer(kind=sp) :: lsc,mcsamp,nsc,ocnt,pcnt,pcntmc
       !integer :: lseratesum,rint,eratechk
       !integer*8 :: peratesum,rint,eratechk
-      integer*8 :: lseratesum,rint,eratechk
+      integer(kind=dp) :: lseratesum,rint,eratechk
       logical, allocatable :: peratemask(:)
       logical datacomp,fileexist
       !logical lsppdf,lspdf_out
       character(len=5)  :: hc,jc,mcschar
-      character(len=8)  :: buffer
       character(len=10) :: onumc,pnumc,pnummcc
       character(len=80) :: dump
 !      character(len=12), allocatable :: obasin(:),pbasin(:)
@@ -80,7 +76,7 @@
 ! Write program starting info
       write (*,'(a)') '#------------------------------------------------------------------------------#'
       write (*,'(a)') 'Detrital Monte Carlo PDF creator started'
-      write (*,'(a)') 'Version 3.0 (dwhipp - July 2014)'
+      write (*,'(a)') 'Version 3.0a (dwhipp - Nov. 2015)'
 
 ! Read in the input file
       call read_input_file(params,basin_info)
@@ -91,7 +87,6 @@
       do i=1,params%num_basins                                                  ! Loop through number of subbasins to analyze
         plc=0                                                                   ! Reset predicted age line counter
         lsc=0                                                                   ! Reset landslide age line counter
-        !curbasin=params%basin_numbers(i)
 
         !write (*,'(a)') '#------------------------------------------------------------------------------#'
         write (*,*) ''
@@ -108,12 +103,16 @@
           write (*,'(a)') 'Data comparison requested, reading observed ages...'
           open (11,file='data/observed_ages/'//trim(basin_info(i)%obasin_name)//'.dat',status='old')
           read(11,*) olc
-          allocate(oage(olc),oageu(olc),oageupct(olc))                          ! Allocate observed age and age uncertainty arrays
+          allocate(oage(olc),oageu(olc),oageupct(olc),oeratesc(olc))            ! Allocate observed age and age uncertainty arrays
           do j=1,olc
             read(11,*) oage(j),oageu(j)                                         ! Fill observed sample arrays
             oageupct(j)=oageu(j)/oage(j)*100.                                   ! Store percent uncertainties
             if (j==olc) write (*,'(a,i3,a,a)') 'Read ',olc,' ages for basin ',trim(basin_info(i)%obasin_name)
           enddo
+
+          ! Fill erate arrat with dummy values
+          oeratesc=1
+          oeratesum=sum(oeratesc)
 
           ! Calculate percentage age uncertainties
           pagemu=sum(oageu(:))/real(olc)                                        ! Mean 1-sigma uncertainty in observed ages
@@ -173,19 +172,59 @@
             read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
                        dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
                        dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
-                       dump26,dump27,dump28
+                       dump26,dump27,dump28,dump29,dump30,dump31,dump32
             if (basin_info(i)%page_col == 6) page(j)=dump6                      ! Store predicted AHe age
             if (basin_info(i)%page_col == 7) page(j)=dump7                      ! Store predicted ZHe age
             if (basin_info(i)%page_col == 8) page(j)=dump8                      ! Store predicted AFT age
             if (basin_info(i)%page_col == 9) page(j)=dump9                      ! Store predicted ZFT age
             if (basin_info(i)%page_col == 12) page(j)=dump12                    ! Store predicted MAr age
             if (basin_info(i)%perate_col == 5) perate(j)=dump5                  ! Store predicted erosion rate
-            if (basin_info(i)%perate_col == 16) perate(j)=dump16                ! Store predicted erosion rate
-            if (basin_info(i)%perate_col == 17) perate(j)=dump17                ! Store predicted erosion rate
-            if (basin_info(i)%perate_col == 18) perate(j)=dump18                ! Store predicted erosion rate
-            if (basin_info(i)%perate_col == 19) perate(j)=dump19                ! Store predicted erosion rate
-            if (basin_info(i)%perate_col == 27) perate(j)=dump27                ! Store predicted erosion rate
-            if (basin_info(i)%perate_col == 28) perate(j)=dump28                ! Store predicted erosion rate
+            if (basin_info(i)%perate_col == 16) then                            ! Scale ages using bedrock geology
+              if (dump16 > eps .and. dump16 < 7.0) perate(j)=basin_info(i)%geol_scale_factor(int(dump16))
+              if (basin_info(i)%scale_by_uplift_velo) perate(j)=perate(j)*dump5
+            endif
+            if (basin_info(i)%perate_col == 17) then                            ! Scale ages using glaciers
+              if (dump17 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              endif
+              if (basin_info(i)%scale_by_uplift_velo) perate(j)=perate(j)*dump5
+            endif
+            if (basin_info(i)%perate_col == 18) then                            ! Scale ages using moraines
+              if (dump18 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              endif
+              if (basin_info(i)%scale_by_uplift_velo) perate(j)=perate(j)*dump5
+            endif
+            if (basin_info(i)%perate_col == 19) then                            ! Scale ages using rock glaciers
+              if (dump19 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              endif
+              if (basin_info(i)%scale_by_uplift_velo) perate(j)=perate(j)*dump5
+            endif
+            if (basin_info(i)%perate_col == 20) perate(j)=dump16                ! Scale ages using Ksn
+            if (basin_info(i)%perate_col == 21) perate(j)=dump17                ! Scale ages using Ksn_t045
+            if (basin_info(i)%perate_col == 22) perate(j)=dump18                ! Scale ages using Ksn_t2
+            if (basin_info(i)%perate_col == 23) perate(j)=dump19                ! Scale ages using Ksn_t3
+            if (basin_info(i)%perate_col == 31) perate(j)=dump27                ! Scale ages using ssp_t2b31
+            if (basin_info(i)%perate_col == 32) perate(j)=dump28                ! Scale ages using ssp_t3b42
+            if (basin_info(i)%perate_col == 99) then
+              if (dump17 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              elseif (dump18 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              elseif (dump19 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(3)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(4)
+              endif
+              if (basin_info(i)%scale_by_uplift_velo) perate(j)=perate(j)*dump5
+            endif
             if (perate(j) < eps) perate(j)=0.0                                  ! Ensure no erosion rate scalars are negative
             if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
               if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
@@ -211,7 +250,7 @@
             elseif (params%scaletype == 4) then
               write(*,*) 'Not yet implemented.'
             elseif (params%scaletype == 5) then
-              write(*,*) 'Not yet implemented.' 
+              write(*,*) 'Not yet implemented.'
             elseif (params%scaletype == 6) then
               write(*,*) 'Not yet implemented.'
             elseif (params%scaletype == 7) then
@@ -229,7 +268,7 @@
           peratemin=minval(perate,mask=peratemask)
           deallocate(peratemask)
         endif
-        
+
         peratescl=1./peratemin                                                  ! Set scaling value to ensure at least 1 occurance of min rate ages
         peratesc=nint(perate*peratescl)                                         ! Generate scaling factors by multiplying erosion rates by peratescl and converting to integers
         peratesum=sum(peratesc)
@@ -282,23 +321,22 @@
           call get_pdf_size(oage,oageu,olc,onum,params%pdfmin,params%pdfmax, &
                             params%dx,params%calc_pdf_range)
           allocate(on(onum+1),opdf(onum+1))                                     ! Allocate data PDF arrays
-          if (params%alphain < 0.d0) then
-            params%alpha = (4.0/(3.0*plc))**0.2
-          else
-            params%alpha = params%alphain
-          endif
-          call make_age_pdf(oage,oageu,params%alpha,olc,onum,on,opdf,          &
-                            params%pdfmin,params%pdfmax,params%dx,             &
-                            params%pdfscl,pi,ocnt)
+          !if (params%alphain < 0.d0) then
+          !  params%alpha = (4.0/(3.0*plc))**0.2
+          !else
+          !  params%alpha = params%alphain
+          !endif
+          !call make_age_pdf(oage,oageu,params%alpha,olc,onum,on,opdf,          &
+          !                  params%pdfmin,params%pdfmax,params%dx,             &
+          !                  params%pdfscl,pi,ocnt)
           ! I think the data PDF should still use alpha=1.0, so I've hard-coded that in
-!          call make_age_pdf(oage,oageu,1.0,olc,onum,on,opdf,          &
-!                            params%pdfmin,params%pdfmax,params%dx,             &
-!                            params%pdfscl,pi,ocnt)
+          call make_age_pdf(oage,oageu,1.0,oeratesc,olc,onum,on,opdf,          &
+                            params%pdfmin,params%dx,params%pdfscl,pi,ocnt)
           ! Calculate cumulative distributions, if requested
           if (params%ocdf_out) then
             if (params%ecdfs) then
               allocate(oecdf(onum+1))
-              call make_age_ecdf(oage,on,olc,onum,oecdf)
+              call make_age_ecdf(oage,oeratesc,oeratesum,on,olc,onum,oecdf)
             else
               allocate(ocdf(onum+1))
               call make_age_cdf(opdf,onum,params%dx,ocdf)
@@ -337,12 +375,13 @@
             else
               params%alpha = params%alphain
             endif
-            call make_age_pdf(page,pageu,params%alpha,plc,pnum,pn,ppdf,params%pdfmin,     &
-                              params%pdfmax,params%dx,params%pdfscl,pi,pcnt)
+            call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,    &
+                              ppdf,params%pdfmin,params%dx,params%pdfscl,pi,   &
+                              pcnt)
             if (params%pcdf_out) then
               if (params%ecdfs) then
                 allocate(pecdf(pnum+1))
-                call make_age_ecdf(page,pn,plc,pnum,pecdf)
+                call make_age_ecdf(page,peratesc,peratesum,pn,plc,pnum,pecdf)
               else
                 allocate(pcdf(pnum+1))
                 call make_age_cdf(ppdf,pnum,params%dx,pcdf)
@@ -360,16 +399,12 @@
         if (params%mcpdfs .or. params%datamcpdfs .or. params%ppdfmcpdfs) then
           write (*,'(a)') 'Starting Monte Carlo PDF generation...'
           if (params%datamcpdfs .or. params%ppdfmcpdfs) allocate(kuiper_res(params%mc_iter))       ! Allocate kuiper test array
-          !allocate(pmc(int(pdfvsc),2*mc_iter))
           if (params%datamcpdfs) then
             nsc=1
           else
             nsc=size(params%numsamp)
           endif
           do m=1,nsc                                                            ! Loop through number of desired samples
-            !pmc=0.
-            cnt4=0
-! COMMENTED OUT FOR TESTING
             if (params%datamcpdfs) then
               mcsamp=olc
             else
@@ -382,9 +417,9 @@
               params%alpha = params%alphain
             endif
             !write (*,*) 'params%alphain: ',params%alphain
-            !write (*,*) 'params%alpha: ',params%alpha            
+            !write (*,*) 'params%alpha: ',params%alpha
             write (*,'(a,i7,a)') 'Running Monte Carlo simulation for ',mcsamp,' samples'
-            allocate(pagemc(mcsamp),pageumc(mcsamp))
+            allocate(pagemc(mcsamp),pageumc(mcsamp),peratemc(mcsamp),peratescmc(mcsamp))
             !if (mcboth) allocate(pagemc2(mcsamp),pageumc2(mcsamp))
             write (mcschar,'(i5)') mcsamp
             mcschar=adjustl(mcschar)
@@ -458,6 +493,7 @@
                   enddo
                   pagemc(k)=lsage(cnt)
                   pageumc(k)=lsageu(cnt)
+                  peratemc(k)=lserate(cnt)
                 else
                   rint=int8(randflt*(peratesum))+1                              ! Get random integer value within range of size of predicted age dist.
                   eratechk=rint
@@ -469,41 +505,29 @@
                   enddo
                   pagemc(k)=page(cnt)
                   pageumc(k)=pageu(cnt)
+                  peratemc(k)=perate(cnt)
                 endif
-                !rint=int8(randflt*(eratesum))+1                                 ! Get random integer value within range of size of scaled age dist.
-                !eratechk=rint
-                !cnt=0
-                !do while (eratechk.gt.0)
-                  !cnt=cnt+1
-                  !eratechk=eratechk-eratetot(cnt)
-                !enddo
-                !pagemc(k)=pagetot(cnt)                                          ! Add random age to monte carlo age array
-                !pageumc(k)=pageutot(cnt)                                        ! Add associated uncertainty to monte carlo uncertainty array
               enddo
+              peratescmc=nint(peratemc*peratescl)                               ! Scale erosion rates
+              peratesummc=sum(peratescmc,mcsamp)
               call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,params%pdfmin,  &
                                 params%pdfmax,params%dx,params%calc_pdf_range)
-              allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                       ! Allocate data PDF arrays
-              call make_age_pdf(pagemc,pageumc,params%alpha,mcsamp,pnummc,pnmc,&
-                                ppdfmc,params%pdfmin,params%pdfmax,params%dx,  &
+              allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                         ! Allocate data PDF arrays
+              call make_age_pdf(pagemc,pageumc,params%alpha,peratescmc,mcsamp, &
+                                pnummc,pnmc,ppdfmc,params%pdfmin,params%dx,    &
                                 params%pdfscl,pi,pcntmc)
               if (params%mccdfs_out) then
                 if (params%ecdfs) then
                   allocate(pecdfmc(pnummc+1))
-                  call make_age_ecdf(pagemc,pnmc,mcsamp,pnummc,pecdfmc)
+                  call make_age_ecdf(pagemc,peratescmc,peratesummc,pnmc,mcsamp,pnummc,pecdfmc)
                 else
                   allocate(pcdfmc(pnummc+1))
                   call make_age_cdf(ppdfmc,pnummc,params%dx,pcdfmc)
-                  !pagemcmin = pnmc(minloc(pcdfmc,dim=1,mask=(pcdfmc > probcut)))
-                  !pagemcmax = pnmc(maxloc(pcdfmc,dim=1,mask=(pcdfmc < 1.0-probcut)))
                 endif
               endif
               allocate(ppdfvmc(pcntmc))                                       ! Allocate PDF vector
               call make_age_pdfv(pnummc,params%pdfscl,pnmc,ppdfmc,ppdfvmc,   &
                                  pcntmc)
-
-              !if (scale_ls_pdfs) then
-              !
-              !endif
 
 ! Run Kuiper test to get misfit between data and model
 !              open(1111,file='test_cdf.dat',status='unknown')
@@ -554,26 +578,11 @@
                                                   mcsamp,d,prob,h)
               endif
 
-!              if (params%datappdf) call kptwo(opdfv,ocnt,ppdfv,pcnt,olc,d,prob,h)
-!              if (params%datamcpdfs) call kptwo(opdfv,ocnt,ppdfvmc,pcntmc,mcsamp,d,&
-!                              prob,h)
-!              if (params%ppdfmcpdfs) call kptwo(ppdfv,pcnt,ppdfvmc,pcntmc,mcsamp,d,&
-!                              prob,h)
-
-!                if (mcboth) then
-!                  call kptwo(ppdfvmc,cnt3,ppdfvmc2,cnt8,mcsamp,d,prob,h)
-!                else
-!                  call kptwo(ppdfv,pcnt,ppdfvmc,cnt3,mcsamp,d,prob,h)
-!                endif
-!              endif
               if (params%datamcpdfs .or. params%ppdfmcpdfs) then
-                kuiper_res(j)=h                                               ! Store kuiper test result (0=pass;1=fail) for this iteration in kuiper results array
-                if (h.eq.0) cnt4=cnt4+1                                       ! Increment counter for number of models that pass Kuiper test
+                kuiper_res(j)=h                                                 ! Store kuiper test result (0=pass;1=fail) for this iteration in kuiper results array
               endif
 
 ! Write out select PDFs
-              !if (h.eq.0 .and. cnt4.le.100) then                               ! First 100 that pass the Kuiper test
-              !if (h.eq.0 .and. cnt4.le.1) then                                 ! First one that passes the Kuiper test
               if (params%mcpdfs_out .or. params%mccdfs_out) then
                 if (j.le.params%num_mc_out) then                                ! First num_mc_out PDFs
                   write(hc,'(i5)') j
@@ -641,10 +650,10 @@
                     endif
                   endif
                 endif
-              endif              
+              endif
 
 ! Deallocate arrays
-              deallocate(pnmc,ppdfmc,ppdfvmc)                                 ! Deallocate arrays reallocated during monte carlo sim
+              deallocate(pnmc,ppdfmc,ppdfvmc)                                   ! Deallocate arrays reallocated during monte carlo sim
               if (params%mccdfs_out) then
                 if (params%ecdfs) then
                   deallocate(pecdfmc)
@@ -653,36 +662,27 @@
                 endif
               endif
 
-!                if (mcboth) then
-!                  deallocate(pnmc2,ppsummc2,ppdfmc2,ppmc2,ppdfvmc2)               ! Deallocate arrays reallocated during monte carlo sim
-!                endif
               if (params%lsero) deallocate(lsage,lsageu,lserate,lseratesc)
             enddo
 
             write(*,'(a)') 'Done.'
             mc_iterf=real(params%mc_iter)
             if (params%datamcpdfs .or. params%ppdfmcpdfs) then
-              kpct(i)=(1-(sum(kuiper_res)/mc_iterf))*100.                     ! Store percent of models that passed kuiper test for given basin
+              kpct(i)=(1-(sum(kuiper_res)/mc_iterf))*100.                       ! Store percent of models that passed kuiper test for given basin
               write (*,'(a,f5.1,a)') 'Predicted Monte Carlo PDFs that passed the Kuiper test: ',kpct(i),'%'
 
               ! Write output files
               open(20,file='kuiper_mc_results_'//trim(mcschar)//'_samples_'&
                    //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
               do j=1,params%mc_iter
-                write(20,*) kuiper_res(j)                                         ! Write out individual subset kuiper test result values to file for this basin
+                write(20,*) kuiper_res(j)                                       ! Write out individual subset kuiper test result values to file for this basin
               enddo
               close(20)
-
-              write(21,'(a12,a5,f10.2)') basin_info(i)%obasin_name,mcschar,kpct(i)                    ! Write out the summary percent of models that passed the Kuiper test
-
-              !open(26,file='age_pdf_output/all_PDF_results_'//trim(obasin)//&
-              !     '.dat',status='unknown')
-              !write(26,*) pmc                                                    ! Write out individual subset kuiper test result values to file for this basin
-              !close(26)
+              write(21,'(a12,a5,f10.2)') basin_info(i)%obasin_name,mcschar,kpct(i) ! Write out the summary percent of models that passed the Kuiper test
             endif
 
             ! Deallocate arrays
-            deallocate(pagemc,pageumc)
+            deallocate(pagemc,pageumc,peratemc,peratescmc)
             !if (mcboth) deallocate(pagemc2,pageumc2)
 
 ! End of main loop
@@ -794,14 +794,14 @@
                   ' DATAPACKING=POINT T="Predicted CDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
                 do k=1,pnum+1
-                  write(26,'(e13.6,e13.6)') pn(k),ppdfv(k)
+                  write(26,'(e13.6,e13.6)') pn(k),pcdf(k)
                 enddo
                 close(26)
               endif
             endif
 
 ! Deallocate arrays
-        if (params%datapdf) deallocate(oage,oageu,on,opdf,opdfv)
+        if (params%datapdf) deallocate(oage,oageu,on,opdf,opdfv,oeratesc)
         if (params%ocdf_out) then
           if (params%ecdfs) then
             deallocate(oecdf)
@@ -809,11 +809,8 @@
             deallocate(ocdf)
           endif
         endif
-        !if (datapdf) deallocate(oage,oageu)
         if (params%fullppdf) deallocate(pn,ppdf,ppdfv)
         deallocate(page,pageu,perate,peratesc)
-        !if (lsero) deallocate(lsage,lsageu,lserate,lseratesc)
-        !deallocate(pagetot,pageutot,eratetot)
         if (params%datamcpdfs .or. params%ppdfmcpdfs) deallocate(kuiper_res)
 
 ! Close open files
