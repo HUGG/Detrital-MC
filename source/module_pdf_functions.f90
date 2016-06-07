@@ -12,19 +12,19 @@
       real(kind=sp),dimension(:) :: age(lc),ageu(lc)
       real(kind=sp) :: pdfmin,pdfmax,dx
       logical :: calc_pdf_range
-      
+
       if (calc_pdf_range) then
         !pdfmin=minval(age)-2*maxval(ageu)                                      ! Find range of ages + uncertainties
         pdfmin=minval(age)-10*maxval(ageu)                                      ! Find range of ages + uncertainties
         pdfmax=maxval(age)+10*maxval(ageu)
       endif
-      
+
       num=nint((pdfmax-pdfmin)/dx)                                              ! Find number of values in PDF arrays
 
       return
       end subroutine get_pdf_size
-      
-      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,dx,    &
+
+      subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,dx,   &
                               pdfvsc,pi,cnt)
 
       USE definitions
@@ -34,14 +34,14 @@
       ! Passed in/out variable declaration
       integer(kind=sp) :: lc,num,cnt
       integer(kind=sp), dimension(:) :: eratesc(lc)
-      real(kind=sp)  :: pdfmin,dx,pdfvsc,pi,alpha
+      real(kind=sp) :: pdfmin,pdfmax,dx,pdfvsc,pi,alpha
       real(kind=sp),dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
 
       ! Internal subroutine variables
-      integer :: hm,i,j,k,agecnt
-      real(kind=sp)  :: sum
+      integer(kind=sp) :: hm,i,j,k,agecnt
+      real(kind=sp) :: sum,amin
       real(kind=sp),dimension(:),allocatable :: psum,p
-      
+
       allocate(psum(num+1),p(num+1))
 
       do i=1,num+1
@@ -53,7 +53,7 @@
         do j=1,eratesc(i)
           do k=1,num+1
             p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/&     ! Fill probability array
-                (alpha*ageu(i)))**2.)
+                 (alpha*ageu(i)))**2.)
             psum(k)=psum(k)+p(k)                                                ! Fill sum array to check area under array curve
           enddo
           agecnt=agecnt+1
@@ -90,7 +90,7 @@
 
       ! Passed in/out variable declaration
       integer(kind=sp) num,cnt
-      real(kind=sp)  pdfvsc
+      real(kind=sp) pdfvsc
       real(kind=sp),dimension(:) :: n(num+1),pdf(num+1),pdfv(cnt)
 
       ! Internal subroutine variables
@@ -114,7 +114,7 @@
       USE definitions
 
       IMPLICIT NONE
-      
+
       ! Passed in/out variable declaration
       integer(kind=sp) num
       real(kind=sp) :: dx
@@ -129,7 +129,7 @@
         ! Simple integration using trapezoidal rule
         cdf(i)=cdf(i-1)+(pdf(i)+pdf(i-1))/2.0*dx
       enddo
-      
+
       return
       end subroutine make_age_cdf
 
@@ -192,27 +192,27 @@
         ! just if we suspect our "vector" can be "empty"
         logical, optional, intent(out) :: found
         real(kind=sp) :: median
- 
+
         integer(kind=sp) :: l
         real(kind=sp), dimension(size(a,1)) :: ac
- 
+
         if ( size(a,1) < 1 ) then
           if ( present(found) ) found = .false.
         else
           ac = a
           ! this is not an intrinsic
           call insertion_sort(ac)
- 
+
           l = size(a,1)
           if ( mod(l, 2) == 0 ) then
             median = (ac(l/2+1) + ac(l/2))/2.0
           else
             median = ac(l/2+1)
           endif
- 
+
           if ( present(found) ) found = .true.
         endif
- 
+
       end function median
 
       subroutine insertion_sort(a)
@@ -224,7 +224,7 @@
         real(kind=sp), intent(in out), dimension(:) :: a
         real(kind=sp) :: temp
         integer(kind=sp) :: i, j
- 
+
         do i = 2, size(a)
           j = i - 1
           temp = a(i)
@@ -241,6 +241,7 @@
         USE definitions
 
         IMPLICIT NONE
+
         ! Values passed in/returned
         real(kind=sp) :: alpha,d
         integer(kind=sp) :: nsamp,kuiper
@@ -254,7 +255,7 @@
         !write (*,*) 'probnew: ',prob
         kuiper=0
         if (alpha.ge.prob) kuiper=1
-        return 
+        return
       end function kuiper
 
       end module pdf_functions

@@ -1,13 +1,13 @@
 $===============================================================================
-$  ____       _        _ _        _   __  __  ____ 
+$  ____       _        _ _        _   __  __  ____
 $ |  _ \  ___| |_ _ __(_) |_ __ _| | |  \/  |/ ___|
-$ | | | |/ _ \ __| '__| | __/ _` | | | |\/| | |    
-$ | |_| |  __/ |_| |  | | || (_| | | | |  | | |___ 
+$ | | | |/ _ \ __| '__| | __/ _` | | | |\/| | |
+$ | |_| |  __/ |_| |  | | || (_| | | | |  | | |___
 $ |____/ \___|\__|_|  |_|\__\__,_|_| |_|  |_|\____|
 $
 $===============================================================================
-$ Input file for detrital_mc version 3.0
-$ dwhipp - 07.14
+$ Input file for detrital_mc version 3.1
+$ dwhipp - 11.15
 $===============================================================================
 $
 $ Comment lines start with a '$' character
@@ -16,15 +16,53 @@ $
 $=== [1] - Basin summary information ===========================================
 $ Line 1: [int]
 $ (a) Number of basins to analyze, num_basins
-$ Line(s) 2+: [char char int]
+$ Line(s) 2+: [char int char int (int)]
 $ (a) Name of observed detrital age file in the data/observed_ages subdirectory
-$     (e.g., ba1.dat)
-$ (b) Name of the Pecube model run output directory (e.g., RUN00) in the data
-$     subdirectory
-$ (c) The predicted thermochronometer age system to use
-$     (1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr)
+$     (e.g., 'ba1' for ba1.dat)
+$ (b) Predicted age file format (1 = Pecube Comparison.txt, 2 = CSV file)
+$   - If (b) = 1 (Pecube format) then:
+$     - (c) Name of the Pecube model run output directory (e.g., RUN00) in the
+$           data subdirectory
+$     - (d) The predicted thermochronometer age system to use
+$           (1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr)
+$   - If (b) = 2 (Generic CSV) then:
+$     - (c) Name of the predicted age file (e.g., 'DW001' for DW001.csv) in the
+$           data subdirectory
+$     - (d) The number of the column containing predicted ages in the CSV file
+$     - (e) The number of the column containing predicted erosion rates in the
+$           CSV file
+$     - If (e) is equal to 16, 17, 18, 19 or 99, additional information is
+$       required.
+$       - If (e) = 16 then:
+$         - (f-k) are the geological scaling factors for the (f) Tethyan,
+$           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites and (k) LHSC
+$         - (l) is a flag for whether or not to multiply the scaling factors
+$           above by the instantaneous exhumation rates from Pecube
+$       - If (e) = 17 then:
+$         - (f) is the scaling factor for glacier-covered areas
+$         - (g) is the scaling factor for glacier-free areas
+$         - (h) is a flag for whether or not to multiply the scaling factors
+$           above by the instantaneous exhumation rates from Pecube
+$       - If (e) = 18 then:
+$         - (f) is the scaling factor for moraine-covered areas
+$         - (g) is the scaling factor for moraine-free areas
+$         - (h) is a flag for whether or not to multiply the scaling factors
+$           above by the instantaneous exhumation rates from Pecube
+$       - If (e) = 19 then:
+$         - (f) is the scaling factor for rock glacier-covered areas
+$         - (g) is the scaling factor for rock glacier-free areas
+$         - (h) is a flag for whether or not to multiply the scaling factors
+$           above by the instantaneous exhumation rates from Pecube
+$       - If (e) = 99 then:
+$         - (f) is the scaling factor for glacier-covered areas
+$         - (g) is the scaling factor for moraine-covered areas
+$         - (h) is the scaling factor for rock glacier-covered areas
+$         - (i) is the scaling factor for glacier-, moraine-, and rock
+$           glacier-free areas
+$         - (j) is a flag for whether or not to multiply the scaling factors
+$           above by the instantaneous exhumation rates from Pecube
 1
-BZ435 BD435 4
+BH381-AFT 2 BH381_250m 8 5
 
 $=== [2] - Number of grains to consider in predicted age PDFs ==================
 $ Line 1: [int]
@@ -69,7 +107,8 @@ $ (b) Junk landslide age when there are no landslides within the catchment
 $ (c) Junk landslide erosion rate when there are no landslides within the
 $     catchment
 $ (d) Landslide sediment residence time in years.
-0 1. 5. 25.
+$ (e) Landslide input file format (1 = ASCII, 2 = binary)
+0 1. 5. 100. 2
 
 $=== [6] - PDF output ==========================================================
 $ Line 1: [int int int int int int int int]
@@ -86,7 +125,8 @@ $ (e) Observed age cumulative distribution (yes = 1, no = 0)
 $ (f) Full predicted age cumulative distribution (yes = 1, no = 0)
 $ (g) Monte Carlo predicted age cumulative distribution (yes = 1, no = 0)
 $ (h) Write Tecplot header to output PDFs/CDFs/ECDFs (yes = 1, no = 0)
-1 0 1 10 1 0 1 0
+$ (i) Write Veusz formatted PDFs/CDFs/ECDFs (yes = 1, no = 0)
+1 0 1 100 1 0 1 0 1
 
 $=== [7] - Other options =======================================================
 $ Line 1: [int flt int flt flt int flt flt flt]
@@ -106,4 +146,8 @@ $     you're doing)
 $ (i) alpha, the standard deviation scaling factor (0.6 is a good choice). If
 $     alpha is negative, an optimal alpha value will be calculated using Eq. 18
 $     from Brandon, 1996, Radiation Damage.
-10000 0.01 0 0. 60. 1 10.94 50. -0.6
+$ (j) Scale input erosion rates? (yes = 1, no = 0)
+$ (k) If yes for (j), what kind of scaling should be done?
+$  - Normalize erosion rates = 1
+$  -
+10000 0.01 0 0. 20. 1 10.94 50. 0.6 0 3
