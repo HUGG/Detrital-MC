@@ -7,9 +7,9 @@
 ! and finally record the results of that test. This process is repeated a
 ! large number of times (~10000).
 !
-! This is the main program file for version 3.0 of Detrital MC.
+! This is the main program file for version 3.1 of Detrital MC.
 !
-! dwhipp - 07.14
+! dwhipp - 06.16
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       program detrital_mc
@@ -44,9 +44,9 @@
       real(kind=sp) :: dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17
       real(kind=sp) :: dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25
       real(kind=sp) :: dump26,dump27,dump28,dump29,dump30,dump31,dump32
-      real(kind=sp) :: randflt,eps
-      integer(kind=sp) :: onum,h,i,j,k,pnum,olc,oeratesum,peratesummc
-      integer(kind=sp) :: plc,cnt,pnummc,m,peratesum
+      real(kind=sp) :: randflt,eps,peratesum
+      integer(kind=sp) :: onum,h,i,j,k,pnum,olc,oeratesum,peratescsummc
+      integer(kind=sp) :: plc,cnt,pnummc,m,peratescsum
       integer(kind=sp) :: lsc,mcsamp,nsc,ocnt,pcnt,pcntmc
       !integer :: lseratesum,rint,eratechk
       !integer*8 :: peratesum,rint,eratechk
@@ -76,7 +76,7 @@
 ! Write program starting info
       write (*,'(a)') '#------------------------------------------------------------------------------#'
       write (*,'(a)') 'Detrital Monte Carlo PDF creator started'
-      write (*,'(a)') 'Version 3.0a (dwhipp - Nov. 2015)'
+      write (*,'(a)') 'Version 3.1 (dwhipp - June 2016)'
 
 ! Read in the input file
       call read_input_file(params,basin_info)
@@ -261,17 +261,21 @@
         write (*,'(a,i6,a,a)') 'Read ',plc,' predicted ages/erosion rates for basin ',trim(basin_info(i)%pbasin_name)
         close(12)
 
-        peratemin=minval(perate)                                                ! Determine minimum erosion rate in model domain
-        if (peratemin < eps) then
-          allocate(peratemask(plc))
-          peratemask=(perate > eps)
-          peratemin=minval(perate,mask=peratemask)
-          deallocate(peratemask)
+        if (params%fixed_dist_size) then                                          ! Scale age prevalence to fit desired number of ages
+          peratesum = sum(perate)                                                 ! Sum predicted erosion rates
+          peratescl = real(params%dist_size) / peratesum                          ! Calculate age distribution scaling factor
+        else
+          peratemin=minval(perate)                                                ! Determine minimum erosion rate in model domain
+          if (peratemin < eps) then
+            allocate(peratemask(plc))
+            peratemask=(perate > eps)
+            peratemin=minval(perate,mask=peratemask)
+            deallocate(peratemask)
+          endif
+          peratescl=1./peratemin                                                  ! Set scaling value to ensure at least 1 occurance of min rate ages
         endif
-
-        peratescl=1./peratemin                                                  ! Set scaling value to ensure at least 1 occurance of min rate ages
         peratesc=nint(perate*peratescl)                                         ! Generate scaling factors by multiplying erosion rates by peratescl and converting to integers
-        peratesum=sum(peratesc)
+        peratescsum=sum(peratesc)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! DAVE: SHOULD THIS BE MODIFIED TO UPDATE THE LS ERATE FILE FOR MULTIPLE SETS?
@@ -381,7 +385,7 @@
             if (params%pcdf_out) then
               if (params%ecdfs) then
                 allocate(pecdf(pnum+1))
-                call make_age_ecdf(page,peratesc,peratesum,pn,plc,pnum,pecdf)
+                call make_age_ecdf(page,peratesc,peratescsum,pn,plc,pnum,pecdf)
               else
                 allocate(pcdf(pnum+1))
                 call make_age_cdf(ppdf,pnum,params%dx,pcdf)
@@ -416,8 +420,6 @@
             else
               params%alpha = params%alphain
             endif
-            !write (*,*) 'params%alphain: ',params%alphain
-            !write (*,*) 'params%alpha: ',params%alpha
             write (*,'(a,i7,a)') 'Running Monte Carlo simulation for ',mcsamp,' samples'
             allocate(pagemc(mcsamp),pageumc(mcsamp),peratemc(mcsamp),peratescmc(mcsamp))
             !if (mcboth) allocate(pagemc2(mcsamp),pageumc2(mcsamp))
@@ -495,7 +497,7 @@
                   pageumc(k)=lsageu(cnt)
                   peratemc(k)=lserate(cnt)
                 else
-                  rint=int8(randflt*(peratesum))+1                              ! Get random integer value within range of size of predicted age dist.
+                  rint=int8(randflt*(peratescsum))+1                            ! Get random integer value within range of size of predicted age dist.
                   eratechk=rint
                   cnt=0
                   do while (eratechk.gt.0)
@@ -508,8 +510,12 @@
                   peratemc(k)=perate(cnt)
                 endif
               enddo
-              peratescmc=nint(peratemc*peratescl)                               ! Scale erosion rates
-              peratesummc=sum(peratescmc,mcsamp)
+              if (params%fixed_dist_size) then
+                peratesummc = sum(lserate
+              else
+                peratescmc=nint(peratemc*peratescl)                             ! Scale erosion rates
+                peratescsummc=sum(peratescmc,mcsamp)
+              endif
               call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,params%pdfmin,  &
                                 params%pdfmax,params%dx,params%calc_pdf_range)
               allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                         ! Allocate data PDF arrays
