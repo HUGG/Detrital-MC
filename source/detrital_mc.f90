@@ -38,7 +38,7 @@
       integer(kind=sp), allocatable :: oeratesc(:),peratescmc(:)
       !integer*8, allocatable :: lseratesc(:)
       real(kind=sp) :: d,prob,pagemu,pagemed,pagesd,mc_iterf,jf
-      real(kind=sp) :: pi,peratemin,peratescl,dumpr
+      real(kind=sp) :: pi,peratemin,peratescl,dumpr,lseratescl
       real(kind=sp) :: pctpagemu,pctpagemed,pctpagesd
       real(kind=sp) :: dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9
       real(kind=sp) :: dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17
@@ -477,9 +477,24 @@
                 endif
                 close(14)
                 allocate(lseratesc(lsc))
-                lseratesc=nint(lserate*peratescl)                               ! Scale landslide erosion rates
+
+
+                ! SHOULD ALL OF THIS BE IN TERMS OF PERATE, RATHER THAN LSERATE???
+                if (params%fixed_dist_size) then                                ! Scale age prevalence to fit desired number of ages
+                  ! This may cause divide-by-zero errors if there are no
+                  ! landslides in the landslide data file - can deal with that
+                  ! later
+                  lseratesum = sum(lserate)                                     ! Sum predicted erosion rates
+                  lseratescl = real(params%dist_size) / lseratesum              ! Calculate age distribution scaling factor
+                else
+                  lseratescl = peratescl                                        ! Set landsliding scaling factor equal to predicted erate factor
+                endif
+                lseratesc=nint(lserate*lseratescl)                               ! Scale landslide erosion rates
                 lseratesum=sum(lseratesc,lsc)
               endif
+
+
+
 
 ! Randomly grab mcsamp (n) grains from model distribution
 
@@ -510,12 +525,22 @@
                   peratemc(k)=perate(cnt)
                 endif
               enddo
+              
+
+
+
+              ! SHOULD THIS BE DIFFERENT FOR LS VERSUS NO LS CASES???
               if (params%fixed_dist_size) then
                 peratesummc = sum(lserate
               else
                 peratescmc=nint(peratemc*peratescl)                             ! Scale erosion rates
                 peratescsummc=sum(peratescmc,mcsamp)
               endif
+
+
+
+
+
               call get_pdf_size(pagemc,pageumc,mcsamp,pnummc,params%pdfmin,  &
                                 params%pdfmax,params%dx,params%calc_pdf_range)
               allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                         ! Allocate data PDF arrays
