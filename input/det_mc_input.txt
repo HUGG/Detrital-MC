@@ -7,7 +7,7 @@ $ |____/ \___|\__|_|  |_|\__\__,_|_| |_|  |_|\____|
 $
 $===============================================================================
 $ Input file for detrital_mc version 3.1
-$ dwhipp - 11.15
+$ dwhipp - 06.16
 $===============================================================================
 $
 $ Comment lines start with a '$' character
@@ -129,7 +129,7 @@ $ (i) Write Veusz formatted PDFs/CDFs/ECDFs (yes = 1, no = 0)
 1 0 1 100 1 0 1 0 1
 
 $=== [7] - Other options =======================================================
-$ Line 1: [int flt int flt flt int flt flt flt]
+$ Line 1: [int flt int flt flt int flt flt flt int]
 $ (a) Number of Monte Carlo predicted age PDFs to calculate (10000, typically)
 $ (b) Age increment for calculating PDFs (0.01 - 0.001, typically)
 $ (c) Calculate age range for PDFs using data age ranges and uncertainties
@@ -150,4 +150,7 @@ $ (j) Scale input erosion rates? (yes = 1, no = 0)
 $ (k) If yes for (j), what kind of scaling should be done?
 $  - Normalize erosion rates = 1
 $  -
-10000 0.01 0 0. 20. 1 10.94 50. 0.6 0 3
+$ (l) Array size for fixed-size predicted age distributions
+$  - If the value is less than 1, the default scaling will be used
+$  - If the value is positive, a value of 10000000 (ten million) is recommended
+10000 0.01 0 0. 20. 1 10.94 50. 0.6 0 3 10000000

@@ -12,7 +12,7 @@ module definitions
     character(len=8)  :: simyr
     integer,dimension(:),pointer :: numsamp,basin_numbers
     integer :: num_basins,nss,num_mc_out,mc_iter,obs_uncert_type,scaletype
-    integer :: lsfiletype
+    integer :: lsfiletype,dist_size
     logical :: datapdf,fullppdf,mcpdfs,datappdf,datamcpdfs,ppdfmcpdfs,ecdfs
     logical :: opdf_out,ppdf_out,mcpdfs_out,lsero,tec_header,calc_pdf_range
     logical :: ocdf_out,pcdf_out,mccdfs_out,kuipernew,scale_erates

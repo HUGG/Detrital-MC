@@ -783,6 +783,10 @@ if (params%scaletype > 3 .or. params%scaletype < 0) then
   stop
 endif
 
+![int] params%dist_size is the desired size of age distribution arrays
+read (unit=101,fmt=*) params%dist_size
+if (echo_vals) write (*,*) 'params%dist_size: ',params%dist_size
+
 !Check for compatibility of input file options
 if(.not.params%kuipernew .and. params%ecdfs) then
   write (*,'(a)') '#------------------------------------------------------------------------------#'

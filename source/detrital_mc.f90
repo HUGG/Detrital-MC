@@ -61,7 +61,8 @@
 
       ! This stuff will be needed for auto-sizing the PDF arrays using the data
       ! uncertainties. Leaving it here for now...
-      !real(kind=sp) :: probcut,oagemin,oagemax,pagemin,pagemax,pagemcmin,pagemcmax
+      !real(kind=sp) :: probcut,oagemin,oagemax,pagemin,pagemax,pagemcmin
+      !real(kind=sp) :: pagemcmax
       !probcut=0.005
 
       !mcboth=.false.
@@ -239,12 +240,12 @@
             endif
           enddo
           if (params%scale_erates) then
-            if (params%scaletype == 1) then                                   ! Normalized
+            if (params%scaletype == 1) then                                     ! Normalized
               perate=perate/maxval(perate)
-            elseif (params%scaletype == 2) then                               ! Power law exponent = 2.0
+            elseif (params%scaletype == 2) then                                 ! Power law exponent = 2.0
               perate=perate**2.0
               perate=perate/maxval(perate)
-            elseif (params%scaletype == 3) then                               ! Power law exponent = 5.0
+            elseif (params%scaletype == 3) then                                 ! Power law exponent = 5.0
               perate=perate**5.0
               perate=perate/maxval(perate)
             elseif (params%scaletype == 4) then
@@ -261,18 +262,18 @@
         write (*,'(a,i6,a,a)') 'Read ',plc,' predicted ages/erosion rates for basin ',trim(basin_info(i)%pbasin_name)
         close(12)
 
-        if (params%fixed_dist_size) then                                          ! Scale age prevalence to fit desired number of ages
-          peratesum = sum(perate)                                                 ! Sum predicted erosion rates
-          peratescl = real(params%dist_size) / peratesum                          ! Calculate age distribution scaling factor
+        if (params%dist_size > 0) then                                          ! Scale age prevalence to fit desired number of ages
+          peratesum = sum(perate)                                               ! Sum predicted erosion rates
+          peratescl = real(params%dist_size) / peratesum                        ! Calculate age distribution scaling factor
         else
-          peratemin=minval(perate)                                                ! Determine minimum erosion rate in model domain
+          peratemin=minval(perate)                                              ! Determine minimum erosion rate in model domain
           if (peratemin < eps) then
             allocate(peratemask(plc))
             peratemask=(perate > eps)
             peratemin=minval(perate,mask=peratemask)
             deallocate(peratemask)
           endif
-          peratescl=1./peratemin                                                  ! Set scaling value to ensure at least 1 occurance of min rate ages
+          peratescl=1./peratemin                                                ! Set scaling value to ensure at least 1 occurance of min rate ages
         endif
         peratesc=nint(perate*peratescl)                                         ! Generate scaling factors by multiplying erosion rates by peratescl and converting to integers
         peratescsum=sum(peratesc)
@@ -480,16 +481,11 @@
 
 
                 ! SHOULD ALL OF THIS BE IN TERMS OF PERATE, RATHER THAN LSERATE???
-                if (params%fixed_dist_size) then                                ! Scale age prevalence to fit desired number of ages
-                  ! This may cause divide-by-zero errors if there are no
-                  ! landslides in the landslide data file - can deal with that
-                  ! later
-                  lseratesum = sum(lserate)                                     ! Sum predicted erosion rates
-                  lseratescl = real(params%dist_size) / lseratesum              ! Calculate age distribution scaling factor
-                else
-                  lseratescl = peratescl                                        ! Set landsliding scaling factor equal to predicted erate factor
+                if (params%dist_size > 0) then                                  ! Scale age prevalence to fit desired number of ages
+                  lseratesum = sum(lserate)                                     ! Sum predicted landsliding erosion rates
+                  peratescl = real(params%dist_size) / lseratesum               ! Re-calculate age distribution scaling factor
                 endif
-                lseratesc=nint(lserate*lseratescl)                               ! Scale landslide erosion rates
+                lseratesc=nint(lserate*peratescl)                               ! Scale landslide erosion rates
                 lseratesum=sum(lseratesc,lsc)
               endif
 
@@ -530,14 +526,15 @@
 
 
               ! SHOULD THIS BE DIFFERENT FOR LS VERSUS NO LS CASES???
-              if (params%fixed_dist_size) then
-                peratesummc = sum(lserate
-              else
-                peratescmc=nint(peratemc*peratescl)                             ! Scale erosion rates
-                peratescsummc=sum(peratescmc,mcsamp)
-              endif
+              ! if (params%dist_size > 0) then
+              !   peratesummc = sum(lserate
+              ! else
+              !   peratescmc=nint(peratemc*peratescl)                             ! Scale erosion rates
+              !   peratescsummc=sum(peratescmc,mcsamp)
+              ! endif
 
-
+              peratescmc=nint(peratemc*peratescl)                             ! Scale erosion rates
+              peratescsummc=sum(peratescmc,mcsamp)
 
 
 
@@ -550,7 +547,7 @@
               if (params%mccdfs_out) then
                 if (params%ecdfs) then
                   allocate(pecdfmc(pnummc+1))
-                  call make_age_ecdf(pagemc,peratescmc,peratesummc,pnmc,mcsamp,pnummc,pecdfmc)
+                  call make_age_ecdf(pagemc,peratescmc,peratescsummc,pnmc,mcsamp,pnummc,pecdfmc)
                 else
                   allocate(pcdfmc(pnummc+1))
                   call make_age_cdf(ppdfmc,pnummc,params%dx,pcdfmc)
