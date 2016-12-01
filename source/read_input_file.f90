@@ -724,10 +724,10 @@ if (echo_vals) write (*,*) 'params%pdfmax: ',params%pdfmax
 !uncertainty)
 read (unit=101,fmt=*) params%obs_uncert_type
 if (echo_vals) write (*,*) 'params%obs_uncert_type: ',params%obs_uncert_type
-if (params%obs_uncert_type > 3 .or. params%obs_uncert_type < 0) then
+if (params%obs_uncert_type > 4 .or. params%obs_uncert_type < 0) then
   write (*,'(a)') '#------------------------------------------------------------------------------#'
   write (*,'(a,i1)') 'Error: Bad value for PDF uncertainty type: ',params%obs_uncert_type
-  write (*,'(a)') '       Value must be either "1", "2" or "3"'
+  write (*,'(a)') '       Value must be either "1", "2", "3", or "4"'
   write (*,'(a)') ''
   write (*,'(a)') 'Program exited with an error'
   write (*,'(a)') '#------------------------------------------------------------------------------#'

@@ -89,7 +89,6 @@
         plc=0                                                                   ! Reset predicted age line counter
         lsc=0                                                                   ! Reset landslide age line counter
 
-        !write (*,'(a)') '#------------------------------------------------------------------------------#'
         write (*,*) ''
         write (*,'(a,i3,a,i3,a,a,a)') 'Processing basin ',i,' of ',params%num_basins,' (',trim(basin_info(i)%obasin_name),')'
 
@@ -111,7 +110,7 @@
             if (j==olc) write (*,'(a,i3,a,a)') 'Read ',olc,' ages for basin ',trim(basin_info(i)%obasin_name)
           enddo
 
-          ! Fill erate arrat with dummy values
+          ! Fill erate array with dummy values
           oeratesc=1
           oeratesum=sum(oeratesc)
 
@@ -130,6 +129,8 @@
               write (*,'(a,f6.2,a)') 'Applying median uncertainty (',pctpagemed,'%) to predicted ages'
             elseif (params%obs_uncert_type == 3) then
               write (*,'(a,f6.2,a)') 'Applying standard deviation in uncertainty (',pctpagesd,'%) to predicted ages'
+            elseif (params%obs_uncert_type == 4) then
+              write (*,'(a,f6.2,a)') 'Applying user-specified uncertainty (',params%pdf_pct_uncert,'%) to predicted ages'
             endif
           else
             write (*,'(a,f6.2,a)') 'Applying user-specified uncertainty (',params%pdf_pct_uncert,'%) to predicted ages'
@@ -152,6 +153,7 @@
             if (basin_info(i)%page_sys == 4) page(j)=dump13                     ! Store predicted ZFT ages
             if (basin_info(i)%page_sys == 5) page(j)=dump15                     ! Store predicted MAr ages
             perate(j)=dump5                                                     ! Store predicted erosion rate
+
             if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
               if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
                 pageu(j) = page(j)*(pctpagemu/100.)
@@ -159,6 +161,8 @@
                 pageu(j) = page(j)*(pctpagemed/100.)
               elseif (params%obs_uncert_type == 3) then                         ! Assign uncertainty using standard deviation in percent uncertainty in observed ages
                 pageu(j) = page(j)*(pctpagesd/100.)
+              elseif (params%obs_uncert_type == 4) then                         ! Assign user-specified percent uncertainty
+                pageu(j)=page(j)*(params%pdf_pct_uncert/100.)
               endif
             else
               pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
@@ -227,6 +231,7 @@
               if (basin_info(i)%scale_by_uplift_velo) perate(j)=perate(j)*dump5
             endif
             if (perate(j) < eps) perate(j)=0.0                                  ! Ensure no erosion rate scalars are negative
+
             if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
               if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
                 pageu(j) = page(j)*(pctpagemu/100.)
@@ -234,11 +239,14 @@
                 pageu(j) = page(j)*(pctpagemed/100.)
               elseif (params%obs_uncert_type == 3) then                         ! Assign uncertainty using standard deviation in percent uncertainty in observed ages
                 pageu(j) = page(j)*(pctpagesd/100.)
+              elseif (params%obs_uncert_type == 4) then                         ! Assign user-specified percent uncertainty
+                pageu(j)=page(j)*(params%pdf_pct_uncert/100.)
               endif
             else
               pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
             endif
           enddo
+
           if (params%scale_erates) then
             if (params%scaletype == 1) then                                     ! Normalized
               perate=perate/maxval(perate)
@@ -278,62 +286,12 @@
         peratesc=nint(perate*peratescl)                                         ! Generate scaling factors by multiplying erosion rates by peratescl and converting to integers
         peratescsum=sum(peratesc)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! DAVE: SHOULD THIS BE MODIFIED TO UPDATE THE LS ERATE FILE FOR MULTIPLE SETS?
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!--- LANDSLIDE AGES/RATES ARE NOW ONLY READ DOWN BELOW FOR THE MONTE CARLO STUFF
-!          if (lsppdf) then                                        ! If simulating landsliding, then read in the landslide ages and erosion rates
-!            write (*,*) 'Landslide simulation requested, reading landslide ',&
-!                    'erosion rates...'
-!            open(14,file='detrital_ages/ls_ages_'//trim(pbasin)//'_'&
-!                 //trim(simyr)//'yrs_iter1.dat',status='old')
-!    5       read(14,*,end=6) dump
-!            lsc=lsc+1
-!            goto 5
-!    6       rewind (14)
-!            if (lsc.eq.0) then
-!              write (*,*) '*** Warning: No landslide ages found in given catchment ***'
-!              write (*,*) 'Assigning junk age of',lsagejunk,'and erosion rate of',&
-!                      lseratejunk
-!              lsc=lsc+1
-!              allocate(lsage(lsc),lsageu(lsc),lserate(lsc))
-!              do j=1,lsc
-!                lsage(j)=lsagejunk
-!                lsageu(j)=lsagejunk*(pageus/100)
-!                lserate(j)=lseratejunk
-!              enddo
-!            else
-!              allocate(lsage(lsc),lsageu(lsc),lserate(lsc))
-!              do j=1,lsc
-!                read(14,*) lsage(j),lserate(j)
-!                if (datappdf .or. datamcpdfs) then                              ! If doing a data comparison, then use the data uncertainty specified above
-!                  lsageu(j)=lsage(j)*(pageup/100.)
-!                else                                                            ! Otherwise, use the user-specified value above
-!                  lsageu(j)=lsage(j)*(pageus/100.)
-!                endif
-!              enddo
-!            endif
-!            close(14)
-!            allocate(lseratesc(lsc))
-!            lseratesc=nint(lserate*peratescl)                                   ! Scale landslide erosion rates
-!            lseratesum=sum(lseratesc)
-!          endif
-
 ! Generate data PDF
         if (params%datapdf) then                                                ! Generate data PDF if doing a data comparison
           write (*,'(a)') 'Generating observed age PDF...'
           call get_pdf_size(oage,oageu,olc,onum,params%pdfmin,params%pdfmax, &
                             params%dx,params%calc_pdf_range)
           allocate(on(onum+1),opdf(onum+1))                                     ! Allocate data PDF arrays
-          !if (params%alphain < 0.d0) then
-          !  params%alpha = (4.0/(3.0*plc))**0.2
-          !else
-          !  params%alpha = params%alphain
-          !endif
-          !call make_age_pdf(oage,oageu,params%alpha,olc,onum,on,opdf,          &
-          !                  params%pdfmin,params%pdfmax,params%dx,             &
-          !                  params%pdfscl,pi,ocnt)
           ! I think the data PDF should still use alpha=1.0, so I've hard-coded that in
           call make_age_pdf(oage,oageu,1.0,oeratesc,olc,onum,on,opdf,          &
                             params%pdfmin,params%dx,params%pdfscl,pi,ocnt)
@@ -345,58 +303,38 @@
             else
               allocate(ocdf(onum+1))
               call make_age_cdf(opdf,onum,params%dx,ocdf)
-              !oagemin = on(minloc(ocdf,dim=1,mask=(ocdf > probcut)))
-              !oagemax = on(maxloc(ocdf,dim=1,mask=(ocdf < 1.0-probcut)))
-              !write(*,*) 'oagemin: ',oagemin
-              !write(*,*) 'oagemax: ',oagemax
             endif
           endif
-          allocate(opdfv(ocnt))                                               ! Allocate PDF vector
+          allocate(opdfv(ocnt))                                                 ! Allocate PDF vector
           call make_age_pdfv(onum,params%pdfscl,on,opdf,opdfv,ocnt)
         endif
 
 ! Generate full predicted PDF
         if (params%fullppdf) then
           write (*,'(a)') 'Generating full predicted age PDF...'
-          ! I've commented this out for not as I don't think it makes any
-          ! sense to generate full landslide age PDFs (since the landslides
-          ! are random). If uncommented, it needs to be fixed to work
-          ! properly.
-          ! dwhipp - 06/10
-
-          !if (lsero) then
-          !  call get_pdf_size(lsage,lsageu,lsc,pnum,pdfmin,pdfmax,dx)
-          !  allocate(pn(pnum+1),ppdf(pnum+1))                                   ! Allocate data PDF arrays
-          !  call make_age_pdf(lsage,lsageu,lsc,pnum,pn,ppdf,pdfmin,pdfmax,dx,&
-          !                     pdfvsc,pi,pcnt)
-          !  allocate(ppdfv(pcnt))                                               ! Allocate PDF vector
-          !  call make_age_pdfv(pnum,pdfvsc,pn,ppdf,ppdfv,pcnt)
-          !else
-            call get_pdf_size(page,pageu,plc,pnum,params%pdfmin,             &
-                              params%pdfmax,params%dx,params%calc_pdf_range)
-            allocate(pn(pnum+1),ppdf(pnum+1))                                   ! Allocate data PDF arrays
-            if (params%alphain < 0.d0) then
-              params%alpha = (4.0/(3.0*plc))**0.2
+          call get_pdf_size(page,pageu,plc,pnum,params%pdfmin,                 &
+                            params%pdfmax,params%dx,params%calc_pdf_range)
+          allocate(pn(pnum+1),ppdf(pnum+1))                                     ! Allocate data PDF arrays
+          if (params%alphain < 0.d0) then
+            params%alpha = (4.0/(3.0*plc))**0.2
+          else
+            params%alpha = params%alphain
+          endif
+          call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,      &
+                            ppdf,params%pdfmin,params%dx,params%pdfscl,pi,     &
+                            pcnt)
+          if (params%pcdf_out) then
+            if (params%ecdfs) then
+              allocate(pecdf(pnum+1))
+              call make_age_ecdf(page,peratesc,peratescsum,pn,plc,pnum,pecdf)
             else
-              params%alpha = params%alphain
+              allocate(pcdf(pnum+1))
+              call make_age_cdf(ppdf,pnum,params%dx,pcdf)
             endif
-            call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,    &
-                              ppdf,params%pdfmin,params%dx,params%pdfscl,pi,   &
-                              pcnt)
-            if (params%pcdf_out) then
-              if (params%ecdfs) then
-                allocate(pecdf(pnum+1))
-                call make_age_ecdf(page,peratesc,peratescsum,pn,plc,pnum,pecdf)
-              else
-                allocate(pcdf(pnum+1))
-                call make_age_cdf(ppdf,pnum,params%dx,pcdf)
-              endif
-            endif
-            allocate(ppdfv(pcnt))                                               ! Allocate PDF vector
-            call make_age_pdfv(pnum,params%pdfscl,pn,ppdf,ppdfv,pcnt)
-          !endif
+          endif
+          allocate(ppdfv(pcnt))                                                 ! Allocate PDF vector
+          call make_age_pdfv(pnum,params%pdfscl,pn,ppdf,ppdfv,pcnt)
         endif
-
 
 !!!
 ! Start monte carlo runs for testing model/data fits with Kuiper test
@@ -434,8 +372,6 @@
               jf=real(j)
               ! Read landslide ages here now!
               if (params%lsero) then                                                 ! If simulating landsliding, then read in the landslide ages and erosion rates
-!                  write (*,*) 'Landslide simulation requested, reading landslide ',&
-!                          'erosion rates...'
                 lsc=0                                                           ! Reset landslide age line counter
                 write(jc,'(i5)') j                                              ! Write iteration number to character
                 jc=adjustl(jc)
@@ -449,9 +385,6 @@
                 goto 7
   8             rewind (14)
                 if (lsc.eq.0) then
-                  !write (*,*) '*** Warning: No landslide ages found in given catchment ***'
-                  !write (*,*) 'Assigning junk age of',lsagejunk,'and erosion rate of',&
-                  !        lseratejunk
                   lsc=lsc+1
                   allocate(lsage(lsc),lsageu(lsc),lserate(lsc))
                   do k=1,lsc
@@ -491,7 +424,6 @@
 
 
 
-
 ! Randomly grab mcsamp (n) grains from model distribution
 
               do k=1,mcsamp
@@ -514,7 +446,6 @@
                   do while (eratechk.gt.0)
                     cnt=cnt+1
                     eratechk=eratechk-peratesc(cnt)
-                    !write(*,*) 'cnt: ',cnt
                   enddo
                   pagemc(k)=page(cnt)
                   pageumc(k)=pageu(cnt)
@@ -558,12 +489,6 @@
                                  pcntmc)
 
 ! Run Kuiper test to get misfit between data and model
-!              open(1111,file='test_cdf.dat',status='unknown')
-!              do k=1,size(opdfv)
-!                write(1111,*) opdfv(k),' ',k
-!              enddo
-!              close(1111)
-
               if (params%kuipernew) then
                 ! Calculate h for comparison of observed and full predicted PDFs
                 if (params%datappdf) then
