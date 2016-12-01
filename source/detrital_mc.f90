@@ -294,7 +294,7 @@
           allocate(on(onum+1),opdf(onum+1))                                     ! Allocate data PDF arrays
           ! I think the data PDF should still use alpha=1.0, so I've hard-coded that in
           call make_age_pdf(oage,oageu,1.0,oeratesc,olc,onum,on,opdf,          &
-                            params%pdfmin,params%dx,params%pdfscl,pi,ocnt)
+                            params%pdfmin,params%dx,params%pdfscl,pi,ocnt,0)
           ! Calculate cumulative distributions, if requested
           if (params%ocdf_out) then
             if (params%ecdfs) then
@@ -322,7 +322,7 @@
           endif
           call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,      &
                             ppdf,params%pdfmin,params%dx,params%pdfscl,pi,     &
-                            pcnt)
+                            pcnt,1)
           if (params%pcdf_out) then
             if (params%ecdfs) then
               allocate(pecdf(pnum+1))
@@ -474,7 +474,7 @@
               allocate(pnmc(pnummc+1),ppdfmc(pnummc+1))                         ! Allocate data PDF arrays
               call make_age_pdf(pagemc,pageumc,params%alpha,peratescmc,mcsamp, &
                                 pnummc,pnmc,ppdfmc,params%pdfmin,params%dx,    &
-                                params%pdfscl,pi,pcntmc)
+                                params%pdfscl,pi,pcntmc,0)
               if (params%mccdfs_out) then
                 if (params%ecdfs) then
                   allocate(pecdfmc(pnummc+1))
