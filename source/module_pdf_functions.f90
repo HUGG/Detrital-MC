@@ -49,21 +49,17 @@
       enddo
       psum=0.
       agecnt=0
-      do i=1,lc
-        do j=1,eratesc(i)
-          do k=1,num+1
-            p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/&     ! Fill probability array
-                 (alpha*ageu(i)))**2.)
-            psum(k)=psum(k)+p(k)                                                ! Fill sum array to check area under array curve
-          enddo
-          agecnt=agecnt+1
+      do i=1,lc                                                                 ! Loop over number of sample ages
+        do k=1,num+1                                                            ! Loop over age range in PDF
+          p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/       &! Fill probability array
+               (alpha*ageu(i)))**2.)
+          psum(k)=psum(k)+p(k)                                                  ! Fill sum array to check area under array curve
         enddo
+        agecnt=agecnt+1
       enddo
 
       sum=0.
-      do i=1,num+1
-        !pdf(i)=(psum(i)/real(lc))*dx                                           ! Scale PDF array to normalize area under PDF curve
-        !pdf(i)=(psum(i)/real(lc))                                              ! Scale PDF array to normalize area under PDF curve
+      do i=1,num+1                                                              ! Loop over age range in PDF
         pdf(i)=(psum(i)/real(agecnt))                                           ! Scale PDF array to normalize area under PDF curve
         sum=sum+pdf(i)*dx                                                       ! Calculate area under curve
       enddo
