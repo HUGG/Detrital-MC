@@ -9,7 +9,7 @@ implicit none
 type (detrital_params) :: params
 type (basin_information) :: basin_info(100)
 
-character(len=80) :: line
+character(len=160) :: line
 integer :: datapdf_in,fullppdf_in,mcpdfs_in,ecdfs_in
 integer :: datappdf_in,datamcpdfs_in,ppdfmcpdfs_in
 integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
