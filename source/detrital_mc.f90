@@ -262,6 +262,7 @@
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
                 perate(j)=perate(j)*dump27
               endif
+            endif
             if (basin_info(i)%perate_col == 99) then
               if (dump17 > eps) then
                 perate(j)=basin_info(i)%geol_scale_factor(1)
