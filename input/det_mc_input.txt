@@ -31,36 +31,51 @@ $           data subdirectory
 $     - (d) The number of the column containing predicted ages in the CSV file
 $     - (e) The number of the column containing predicted erosion rates in the
 $           CSV file
-$     - If (e) is equal to 16, 17, 18, 19 or 99, additional information is
+$     - If (e) is equal to 16, 17, 18, 19, 98, or 99, additional information is
 $       required.
 $       - If (e) = 16 then:
 $         - (f-k) are the geological scaling factors for the (f) Tethyan,
 $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites and (k) LHSC
-$         - (l) is a flag for whether or not to multiply the scaling factors
-$           above by the instantaneous exhumation rates from Pecube
+$         - (l) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power)
 $       - If (e) = 17 then:
 $         - (f) is the scaling factor for glacier-covered areas
 $         - (g) is the scaling factor for glacier-free areas
-$         - (h) is a flag for whether or not to multiply the scaling factors
-$           above by the instantaneous exhumation rates from Pecube
+$         - (h) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power)
 $       - If (e) = 18 then:
 $         - (f) is the scaling factor for moraine-covered areas
 $         - (g) is the scaling factor for moraine-free areas
-$         - (h) is a flag for whether or not to multiply the scaling factors
-$           above by the instantaneous exhumation rates from Pecube
+$         - (h) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power)
 $       - If (e) = 19 then:
 $         - (f) is the scaling factor for rock glacier-covered areas
 $         - (g) is the scaling factor for rock glacier-free areas
-$         - (h) is a flag for whether or not to multiply the scaling factors
-$           above by the instantaneous exhumation rates from Pecube
+$         - (h) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power)
+$       - If (e) = 98 then:
+$         - (f-k) are the geological scaling factors for the (f) Tethyan,
+$           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) LHSC,
+$         - (l) is the scaling factor for glacier-covered areas
+$         - (m) is the scaling factor for moraine-covered areas
+$         - (n) is the scaling factor for rock glacier-covered areas
+$         - (o) is the scaling factor for regions free of glacial formations
+$         - (p) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power)
 $       - If (e) = 99 then:
 $         - (f) is the scaling factor for glacier-covered areas
 $         - (g) is the scaling factor for moraine-covered areas
 $         - (h) is the scaling factor for rock glacier-covered areas
 $         - (i) is the scaling factor for glacier-, moraine-, and rock
 $           glacier-free areas
-$         - (j) is a flag for whether or not to multiply the scaling factors
-$           above by the instantaneous exhumation rates from Pecube
+$         - (j) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power)
 1
 BH381-AFT 2 BH381_250m 8 5
 
@@ -140,7 +155,8 @@ $ (f) Type of age uncertainty to apply if comparing to data
 $  - Mean 1-sigma percent uncertainty in observed ages = 1
 $  - Median 1-sigma percent uncertainty in observed ages = 2
 $  - Standard deviation in 1-sigma percent uncertainty in observed ages = 3
-$ (g) Percent age uncertainty to use if not comparing to data
+$  - User-specified percent uncertainty = 4 (using option g below)
+$ (g) Percent age uncertainty to use if not comparing to data or specified above
 $ (h) Approximate number of values in scaled age PDFs (50., unless you know what
 $     you're doing)
 $ (i) alpha, the standard deviation scaling factor (0.6 is a good choice). If
@@ -152,5 +168,5 @@ $  - Normalize erosion rates = 1
 $  -
 $ (l) Array size for fixed-size predicted age distributions
 $  - If the value is less than 1, the default scaling will be used
-$  - If the value is positive, a value of 10000000 (ten million) is recommended
-10000 0.01 0 0. 20. 1 10.94 50. 0.6 0 3 10000000
+$  - If the value is positive, a value of 1000000 (one million) is recommended
+10000 0.005 0 0. 20. 1 5.0 50. 0.6 0 3 1000000
