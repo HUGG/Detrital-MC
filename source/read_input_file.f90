@@ -9,14 +9,14 @@ implicit none
 type (detrital_params) :: params
 type (basin_information) :: basin_info(100)
 
-character(len=80) :: line
+character(len=160) :: line
 integer :: datapdf_in,fullppdf_in,mcpdfs_in,ecdfs_in
 integer :: datappdf_in,datamcpdfs_in,ppdfmcpdfs_in
 integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
 integer :: ocdf_out_in,pcdf_out_in,mccdfs_out_in
 integer :: lsero_in,tec_header_in,calc_pdf_range_in
 integer :: kuipernew_in,scale_erates_in
-integer :: i,j,k,io,geol_units,scale_by_uplift_velo_in
+integer :: i,j,k,io,geol_units,veusz_output_in
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
 
@@ -223,13 +223,14 @@ else
 
       if (basin_info(i)%perate_col==16 .or. basin_info(i)%perate_col==17 .or.  &
           basin_info(i)%perate_col==18 .or. basin_info(i)%perate_col==19 .or.  &
-          basin_info(i)%perate_col==99) then
-        allocate(basin_info(i)%geol_scale_factor(6))
+          basin_info(i)%perate_col==98 .or. basin_info(i)%perate_col==99) then
+        allocate(basin_info(i)%geol_scale_factor(10))
         basin_info(i)%geol_scale_factor=0.0
         if (basin_info(i)%perate_col==16) geol_units = 6
         if (basin_info(i)%perate_col==17) geol_units = 2
         if (basin_info(i)%perate_col==18) geol_units = 2
         if (basin_info(i)%perate_col==19) geol_units = 2
+        if (basin_info(i)%perate_col==98) geol_units = 10
         if (basin_info(i)%perate_col==99) geol_units = 4
         do j=1,geol_units
           read (unit=101,fmt=*) basin_info(i)%geol_scale_factor(j)
@@ -245,16 +246,12 @@ else
             stop
           endif
         enddo
-        read (unit=101,fmt=*) scale_by_uplift_velo_in
-        if (echo_vals) write (*,*) 'basin_info(',i,')%scale_by_uplift_velo_in: ',scale_by_uplift_velo_in
-        if (scale_by_uplift_velo_in == 0) then
-          basin_info(i)%scale_by_uplift_velo = .false.
-        elseif (scale_by_uplift_velo_in == 1) then
-          basin_info(i)%scale_by_uplift_velo = .true.
-        else
+        read (unit=101,fmt=*) basin_info(i)%uplift_velo_scaling
+        if (echo_vals) write (*,*) 'basin_info(',i,')%uplift_velo_scaling: ',basin_info(i)%uplift_velo_scaling
+        if (basin_info(i)%uplift_velo_scaling < 0 .or. basin_info(i)%uplift_velo_scaling > 3) then
           write (*,'(a)') '#------------------------------------------------------------------------------#'
-          write (*,'(a,i1)') 'Error: Bad value for flag to scale geological units erosion using Pecube: ',scale_by_uplift_velo_in
-          write (*,'(a)') '       Value must be either "0" or "1"'
+          write (*,'(a,i1)') 'Error: Bad value for type of uplift scaling to apply: ',basin_info(i)%uplift_velo_scaling
+          write (*,'(a)') '       Value must be either "0", "1", "2", or "3"'
           write (*,'(a)') ''
           write (*,'(a)') 'Program exited with an error'
           write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -664,6 +661,25 @@ else
   stop
 endif
 
+![int] veusz_output_in is the flag for whether or not to write output PDF/CDF/
+!ECDF files in a file format for use with the Veusz plotting software
+read (unit=101,fmt=*) veusz_output_in
+if (echo_vals) write (*,*) 'veusz_output_in: ',veusz_output_in
+if (veusz_output_in == 0) then
+  params%veusz_output = .false.
+elseif (veusz_output_in == 1) then
+  params%veusz_output = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to write output in Veusz format: ',veusz_output_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
 ![int] params%mc_iter is the number of Monte Carlo iterations to simulate
 read (unit=101,fmt=*) params%mc_iter
 if (echo_vals) write (*,*) 'params%mc_iter: ',params%mc_iter
@@ -705,10 +721,10 @@ if (echo_vals) write (*,*) 'params%pdfmax: ',params%pdfmax
 !uncertainty)
 read (unit=101,fmt=*) params%obs_uncert_type
 if (echo_vals) write (*,*) 'params%obs_uncert_type: ',params%obs_uncert_type
-if (params%obs_uncert_type > 3 .or. params%obs_uncert_type < 0) then
+if (params%obs_uncert_type > 4 .or. params%obs_uncert_type < 0) then
   write (*,'(a)') '#------------------------------------------------------------------------------#'
   write (*,'(a,i1)') 'Error: Bad value for PDF uncertainty type: ',params%obs_uncert_type
-  write (*,'(a)') '       Value must be either "1", "2" or "3"'
+  write (*,'(a)') '       Value must be either "1", "2", "3", or "4"'
   write (*,'(a)') ''
   write (*,'(a)') 'Program exited with an error'
   write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -763,6 +779,10 @@ if (params%scaletype > 3 .or. params%scaletype < 0) then
   close(unit=101)
   stop
 endif
+
+![int] params%dist_size is the desired size of age distribution arrays
+read (unit=101,fmt=*) params%dist_size
+if (echo_vals) write (*,*) 'params%dist_size: ',params%dist_size
 
 !Check for compatibility of input file options
 if(.not.params%kuipernew .and. params%ecdfs) then

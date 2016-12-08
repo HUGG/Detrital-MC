@@ -25,14 +25,14 @@
       end subroutine get_pdf_size
 
       subroutine make_age_pdf(age,ageu,alpha,eratesc,lc,num,n,pdf,pdfmin,dx,   &
-                              pdfvsc,pi,cnt)
+                              pdfvsc,pi,cnt,fullpdf)
 
       USE definitions
 
       IMPLICIT NONE
 
       ! Passed in/out variable declaration
-      integer(kind=sp) :: lc,num,cnt
+      integer(kind=sp) :: lc,num,cnt,fullpdf
       integer(kind=sp), dimension(:) :: eratesc(lc)
       real(kind=sp) :: pdfmin,pdfmax,dx,pdfvsc,pi,alpha
       real(kind=sp),dimension(:) :: age(lc),ageu(lc),n(num+1),pdf(num+1)
@@ -49,21 +49,29 @@
       enddo
       psum=0.
       agecnt=0
-      do i=1,lc
-        do j=1,eratesc(i)
-          do k=1,num+1
-            p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/&     ! Fill probability array
+
+      do i=1,lc                                                                 ! Loop over number of sample ages
+        if (fullpdf == 1) then
+          do j=1,eratesc(i)                                                     ! Loop over scaled erosion rate for given sample
+            do k=1,num+1                                                        ! Loop over age range in PDF
+              p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/&   ! Fill probability array
+                   (alpha*ageu(i)))**2.)
+              psum(k)=psum(k)+p(k)                                              ! Fill sum array to check area under array curve
+            enddo
+            agecnt=agecnt+1
+          enddo
+        else
+          do k=1,num+1                                                          ! Loop over age range in PDF
+            p(k)=(1./(alpha*ageu(i)*sqrt(2.*pi)))*exp(-0.5*((n(k)-age(i))/     &! Fill probability array
                  (alpha*ageu(i)))**2.)
             psum(k)=psum(k)+p(k)                                                ! Fill sum array to check area under array curve
           enddo
           agecnt=agecnt+1
-        enddo
+        endif
       enddo
 
       sum=0.
-      do i=1,num+1
-        !pdf(i)=(psum(i)/real(lc))*dx                                           ! Scale PDF array to normalize area under PDF curve
-        !pdf(i)=(psum(i)/real(lc))                                              ! Scale PDF array to normalize area under PDF curve
+      do i=1,num+1                                                              ! Loop over age range in PDF
         pdf(i)=(psum(i)/real(agecnt))                                           ! Scale PDF array to normalize area under PDF curve
         sum=sum+pdf(i)*dx                                                       ! Calculate area under curve
       enddo
