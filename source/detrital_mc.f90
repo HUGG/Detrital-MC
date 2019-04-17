@@ -338,7 +338,7 @@
         peratescsum=sum(peratesc)
 
 ! Generate data PDF
-        if (params%fullppdf .and. peratescsum > eps) then                       ! Generate data PDF if doing a data comparison
+        if (params%datapdf) then                                                ! Generate data PDF if doing a data comparison
           write (*,'(a)') 'Generating observed age PDF...'
           call get_pdf_size(oage,oageu,olc,onum,params%pdfmin,params%pdfmax, &
                             params%dx,params%calc_pdf_range)
@@ -361,7 +361,7 @@
         endif
 
 ! Generate full predicted PDF
-        if (params%fullppdf) then
+        if (params%fullppdf .and. peratescsum > eps) then
           write (*,'(a)') 'Generating full predicted age PDF...'
           call get_pdf_size(page,pageu,plc,pnum,params%pdfmin,                 &
                             params%pdfmax,params%dx,params%calc_pdf_range)
@@ -474,8 +474,6 @@
                   lseratesum=sum(lseratesc,lsc)
                 endif
 
-
-
   ! Randomly grab mcsamp (n) grains from model distribution
 
                 do k=1,mcsamp
@@ -505,8 +503,6 @@
                   endif
                 enddo
                 
-
-
 
                 ! SHOULD THIS BE DIFFERENT FOR LS VERSUS NO LS CASES???
                 ! if (params%dist_size > 0) then
@@ -551,6 +547,7 @@
                     endif
                     h = kuiper(params%kalpha,d,olc)
                   endif
+                  
                   ! Calculate h for comparison of observed and MC predicted PDFs
                   if (params%datamcpdfs) then
                     if (params%ecdfs) then
@@ -602,7 +599,7 @@
                           open(24,file='age_pdf_output/mc_age_PDFs_'//trim(mcschar)//&
                               '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
                               status='unknown',action='write')
-                          write(24,'(a20)') 'Age [Ma],Probability'
+                          write(24,'(a23)') 'Age [Ma],Probability MC'
                           do k=1,pnummc+1
                             write(24,'(e13.6,a1,e13.6)') pnmc(k),',',ppdfmc(k)
                           enddo
@@ -645,7 +642,7 @@
                             open(27,file='age_pdf_output/mc_age_ECDFs_'//trim(mcschar)//&
                                 '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
                                 status='unknown',action='write')
-                            write(27,'(a31)') 'Age [Ma],Cumulative probability'
+                            write(27,'(a34)') 'Age [Ma],Cumulative probability MC'
                             do k=1,pnummc+1
                               write(27,'(e13.6,a1,e13.6)') pnmc(k),',',pecdfmc(k)
                             enddo
@@ -685,7 +682,7 @@
                             open(27,file='age_pdf_output/mc_age_CDFs_'//trim(mcschar)//&
                                 '_samples_'//trim(basin_info(i)%obasin_name)//'_veusz.csv',&
                                 status='unknown',action='write')
-                            write(27,'(a31)') 'Age [Ma],Cumulative probability'
+                            write(27,'(a34)') 'Age [Ma],Cumulative probability MC'
                             do k=1,pnummc+1
                               write(27,'(e13.6,a1,e13.6)') pnmc(k),',',pcdfmc(k)
                             enddo
@@ -825,7 +822,7 @@
                 if (params%veusz_output) then
                   open(25,file='age_pdf_output/data_age_CDF_'//trim(basin_info(i)%obasin_name)//&
                       '_veusz.csv',status='unknown',action='write')
-                  write(25,'(a31)') 'Age [Ma],Cumulative probabilty'
+                  write(25,'(a31)') 'Age [Ma],Cumulative probability'
                   do k=1,onum+1
                     write(25,'(e13.6,a1,e13.6)') on(k),',',ocdf(k)
                   enddo
@@ -886,7 +883,7 @@
                   open(26,file='age_pdf_output/full_predicted_age_ECDF_'&
                        //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
                        status='unknown',action='write')
-                  write(26,'(a31)') 'Age [Ma],Cumulative probabilty'
+                  write(26,'(a31)') 'Age [Ma],Cumulative probability'
                   do k=1,pnum+1
                     write(26,'(e13.6,e13.6)') pn(k),pecdf(k)
                   enddo
