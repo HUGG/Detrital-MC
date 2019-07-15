@@ -7,9 +7,9 @@
 ! and finally record the results of that test. This process is repeated a
 ! large number of times (~10000).
 !
-! This is the main program file for version 3.1 of Detrital MC.
+! This is the main program file for version 3.2 of Detrital MC.
 !
-! dwhipp - 06.16
+! dwhipp - 07.19
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       program detrital_mc
@@ -43,7 +43,8 @@
       real(kind=sp) :: dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9
       real(kind=sp) :: dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17
       real(kind=sp) :: dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25
-      real(kind=sp) :: dump26,dump27,dump28,dump29,dump30,dump31,dump32
+      real(kind=sp) :: dump26,dump27,dump28,dump29,dump30,dump31,dump32,dump33
+      real(kind=sp) :: dump34,dump35
       real(kind=sp) :: randflt,eps,peratesum
       integer(kind=sp) :: onum,h,i,j,k,pnum,olc,oeratesum,peratescsummc
       integer(kind=sp) :: plc,cnt,pnummc,m,peratescsum
@@ -77,7 +78,7 @@
 ! Write program starting info
       write (*,'(a)') '#------------------------------------------------------------------------------#'
       write (*,'(a)') 'Detrital Monte Carlo PDF creator started'
-      write (*,'(a)') 'Version 3.1 (dwhipp - June 2016)'
+      write (*,'(a)') 'Version 3.2 (Dave Whipp - July 2019)'
 
 ! Read in the input file
       call read_input_file(params,basin_info)
@@ -168,7 +169,7 @@
               pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
             endif
           enddo
-        else
+        elseif (basin_info(i)%page_ftype==2) then
           open (12,file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv',&
                 status='old')
           read(12,*) plc
@@ -242,6 +243,184 @@
             if (basin_info(i)%perate_col == 23) perate(j)=dump19                ! Scale ages using Ksn_t3
             if (basin_info(i)%perate_col == 31) perate(j)=dump27                ! Scale ages using ssp_t2b31
             if (basin_info(i)%perate_col == 32) perate(j)=dump28                ! Scale ages using ssp_t3b42
+            if (basin_info(i)%perate_col == 98) then                            ! Scale ages using a combination of factors listed below
+              if (dump16 > eps .and. dump16 < 7.0) then
+                perate(j)=basin_info(i)%geol_scale_factor(int(dump16))          ! Scale by mineral abundance in bedrock
+              endif
+              if (dump17 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(7)          ! Scale for regions with glacier coverage
+              elseif (dump18 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(8)          ! Scale for regions with moraine coverage
+              elseif (dump19 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(9)          ! Scale for regions with rock glacier coverage
+              else
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(10)         ! Scale for regions free of glacial formations
+              endif
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              endif
+            endif
+            if (basin_info(i)%perate_col == 99) then
+              if (dump17 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              elseif (dump18 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              elseif (dump19 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(3)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(4)
+              endif
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              endif
+            endif
+            if (perate(j) < eps) perate(j)=0.0                                  ! Ensure no erosion rate scalars are negative
+
+            if (params%datapdf) then                                            ! Assign predicted age uncertainties based on dataset, if doing a data comparison
+              if (params%obs_uncert_type == 1) then                             ! Assign uncertainty using mean percent uncertainty in observed ages
+                pageu(j) = page(j)*(pctpagemu/100.)
+              elseif (params%obs_uncert_type == 2) then                         ! Assign uncertainty using median percent uncertainty in observed ages
+                pageu(j) = page(j)*(pctpagemed/100.)
+              elseif (params%obs_uncert_type == 3) then                         ! Assign uncertainty using standard deviation in percent uncertainty in observed ages
+                pageu(j) = page(j)*(pctpagesd/100.)
+              elseif (params%obs_uncert_type == 4) then                         ! Assign user-specified percent uncertainty
+                pageu(j)=page(j)*(params%pdf_pct_uncert/100.)
+              endif
+            else
+              pageu(j)=page(j)*(params%pdf_pct_uncert/100.)                     ! Assign predicted age uncertainties based on user-specified value above
+            endif
+          enddo
+
+          if (params%scale_erates) then
+            if (params%scaletype == 1) then                                     ! Normalized
+              perate=perate/maxval(perate)
+            elseif (params%scaletype == 2) then                                 ! Power law exponent = 2.0
+              perate=perate**2.0
+              perate=perate/maxval(perate)
+            elseif (params%scaletype == 3) then                                 ! Power law exponent = 5.0
+              perate=perate**5.0
+              perate=perate/maxval(perate)
+            elseif (params%scaletype == 4) then
+              write(*,*) 'Not yet implemented.'
+            elseif (params%scaletype == 5) then
+              write(*,*) 'Not yet implemented.'
+            elseif (params%scaletype == 6) then
+              write(*,*) 'Not yet implemented.'
+            elseif (params%scaletype == 7) then
+              write(*,*) 'Not yet implemented.'
+            endif
+          endif
+        else
+          open (12,file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv',&
+                status='old')
+          read(12,*) plc
+          allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))              ! Allocate model age/uncertainty and erate arrays
+          do j=1,plc
+            read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
+                       dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
+                       dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
+                       dump26,dump27,dump28,dump29,dump30,dump31,dump32.dump33,&
+                       dump34,dump35
+            if (basin_info(i)%page_col == 6) page(j)=dump6                      ! Store predicted AHe age
+            if (basin_info(i)%page_col == 7) page(j)=dump7                      ! Store predicted ZHe age
+            if (basin_info(i)%page_col == 8) page(j)=dump8                      ! Store predicted AFT age
+            if (basin_info(i)%page_col == 9) page(j)=dump9                      ! Store predicted ZFT age
+            if (basin_info(i)%page_col == 12) page(j)=dump12                    ! Store predicted MAr age
+            if (basin_info(i)%perate_col == 5) perate(j)=dump5                  ! Store predicted erosion rate
+            if (basin_info(i)%perate_col == 16) then                            ! Scale ages using bedrock geology
+              if (dump16 > eps .and. dump16 < 7.0) perate(j)=basin_info(i)%geol_scale_factor(int(dump16))
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              endif
+            endif
+            if (basin_info(i)%perate_col == 17) then                            ! Scale ages using glaciers
+              if (dump17 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              endif
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              endif
+            endif
+            if (basin_info(i)%perate_col == 18) then                            ! Scale ages using moraines
+              if (dump18 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              endif
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              endif
+            endif
+            if (basin_info(i)%perate_col == 19) then                            ! Scale ages using rock glaciers
+              if (dump19 > eps) then
+                perate(j)=basin_info(i)%geol_scale_factor(1)
+              else
+                perate(j)=basin_info(i)%geol_scale_factor(2)
+              endif
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              endif
+            endif
+            if (basin_info(i)%perate_col == 20) perate(j)=dump16                ! Scale ages using Ksn
+            if (basin_info(i)%perate_col == 21) perate(j)=dump17                ! Scale ages using Ksn_t045
+            if (basin_info(i)%perate_col == 22) perate(j)=dump18                ! Scale ages using Ksn_t2
+            if (basin_info(i)%perate_col == 23) perate(j)=dump19                ! Scale ages using Ksn_t3
+            if (basin_info(i)%perate_col == 31) perate(j)=dump27                ! Scale ages using ssp_t2b31
+            if (basin_info(i)%perate_col == 32) perate(j)=dump28                ! Scale ages using ssp_t3b42
+            if (basin_info(i)%perate_col == 97) then                            ! Scale ages using a combination of factors listed below
+              if (dump16 > eps .and. dump16 < 7.0) then
+                perate(j)=basin_info(i)%geol_scale_factor(int(dump16))          ! Scale by mineral abundance in bedrock
+              endif
+              if (dump17 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(7)          ! Scale for regions with glacier coverage
+              elseif (dump18 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(8)          ! Scale for regions with moraine coverage
+              elseif (dump19 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(9)          ! Scale for regions with rock glacier coverage
+              else
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(10)         ! Scale for regions free of glacial formations
+              endif
+              if (dump34 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(11)         ! Scale for regions with hillslopes steeper than 30 degrees
+              elseif (dump35 > eps) then
+                perate(j)=perate(j)*basin_info(i)%geol_scale_factor(12)         ! Scale for regions with hillslopes less than 10 degrees
+              endif
+              if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
+                perate(j)=perate(j)*dump5
+              elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
+                perate(j)=perate(j)*dump16
+              elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
+                perate(j)=perate(j)*dump27
+              elseif (basin_info(i)%uplift_velo_scaling == 4) then              ! Scale by hillslope angle (degrees)
+                perate(j)=perate(j)*dump33
+              endif
+            endif
             if (basin_info(i)%perate_col == 98) then                            ! Scale ages using a combination of factors listed below
               if (dump16 > eps .and. dump16 < 7.0) then
                 perate(j)=basin_info(i)%geol_scale_factor(int(dump16))          ! Scale by mineral abundance in bedrock

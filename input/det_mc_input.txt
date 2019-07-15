@@ -6,8 +6,8 @@ $ | |_| |  __/ |_| |  | | || (_| | | | |  | | |___
 $ |____/ \___|\__|_|  |_|\__\__,_|_| |_|  |_|\____|
 $
 $===============================================================================
-$ Input file for detrital_mc version 3.1
-$ dwhipp - 06.16
+$ Input file for detrital_mc version 3.2
+$ dwhipp - 07.19
 $===============================================================================
 $
 $ Comment lines start with a '$' character
@@ -19,7 +19,8 @@ $ (a) Number of basins to analyze, num_basins
 $ Line(s) 2+: [char int char int (int)]
 $ (a) Name of observed detrital age file in the data/observed_ages subdirectory
 $     (e.g., 'ba1' for ba1.dat)
-$ (b) Predicted age file format (1 = Pecube Comparison.txt, 2 = CSV file)
+$ (b) Predicted age file format (1 = Pecube Comparison.txt, 2 = CSV file,
+$     3 = newer CSV file)
 $   - If (b) = 1 (Pecube format) then:
 $     - (c) Name of the Pecube model run output directory (e.g., RUN00) in the
 $           data subdirectory
@@ -58,8 +59,8 @@ $         - (h) is a flag for which type of uplift scaling to apply
 $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
 $            normalized channel steepness, 3 = the specific stream power)
 $       - If (e) = 98 then:
-$         - (f-k) are the geological scaling factors for the (f) Tethyan,
-$           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) LHSC,
+$         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
+$           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
 $         - (l) is the scaling factor for glacier-covered areas
 $         - (m) is the scaling factor for moraine-covered areas
 $         - (n) is the scaling factor for rock glacier-covered areas
@@ -76,8 +77,23 @@ $           glacier-free areas
 $         - (j) is a flag for which type of uplift scaling to apply
 $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
 $            normalized channel steepness, 3 = the specific stream power)
+$   - If (b) = 3 (Generic CSV) then:
+$     The options are the same as for (b) = 2, with the addition of that below:
+$       - If (e) = 97 then:
+$         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
+$           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
+$         - (l) is the scaling factor for glacier-covered areas
+$         - (m) is the scaling factor for moraine-covered areas
+$         - (n) is the scaling factor for rock glacier-covered areas
+$         - (o) is the scaling factor for regions free of glacial formations
+$         - (p) is the scaling factor for regions with hillslopes >30 degrees
+$         - (q) is the scaling factor for regions will hillslopes <10 degrees
+$         - (r) is a flag for which type of uplift scaling to apply
+$           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+$            normalized channel steepness, 3 = the specific stream power, 
+$            4 = the hillslope angle)
 1
-BH381-AFT 2 BH381_250m 8 5
+BH27-AFT 2 BH27_250m  8 98 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1
 
 $=== [2] - Number of grains to consider in predicted age PDFs ==================
 $ Line 1: [int]

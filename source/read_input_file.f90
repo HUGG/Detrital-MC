@@ -129,10 +129,10 @@ else
     !1 = Pecube Comparison.txt, 2 = Generic CSV file
     read (unit=101,fmt=*) basin_info(i)%page_ftype
     if (echo_vals) write (*,*) 'basin_info(',i,')%page_ftype: ',basin_info(i)%page_ftype
-    if (basin_info(i)%page_ftype < 1 .or. basin_info(i)%page_ftype > 2) then
+    if (basin_info(i)%page_ftype < 1 .or. basin_info(i)%page_ftype > 3) then
       write (*,'(a)') '#------------------------------------------------------------------------------#'
       write (*,'(a,i1,a,i3)') 'Error: Unsupported predicted age file format (',basin_info(i)%page_ftype,') for basin ',i,'.'
-      write (*,'(a)') '       The listed predicted age file type must be an integer value between 1 and 2'
+      write (*,'(a)') '       The listed predicted age file type must be an integer value between 1 and 3'
       write (*,'(a)') ''
       write (*,'(a)') 'Program exited with an error'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -223,13 +223,15 @@ else
 
       if (basin_info(i)%perate_col==16 .or. basin_info(i)%perate_col==17 .or.  &
           basin_info(i)%perate_col==18 .or. basin_info(i)%perate_col==19 .or.  &
-          basin_info(i)%perate_col==98 .or. basin_info(i)%perate_col==99) then
-        allocate(basin_info(i)%geol_scale_factor(10))
+          basin_info(i)%perate_col==97 .or. basin_info(i)%perate_col==98 .or.  &
+          basin_info(i)%perate_col==99) then
+        allocate(basin_info(i)%geol_scale_factor(12))
         basin_info(i)%geol_scale_factor=0.0
         if (basin_info(i)%perate_col==16) geol_units = 6
         if (basin_info(i)%perate_col==17) geol_units = 2
         if (basin_info(i)%perate_col==18) geol_units = 2
         if (basin_info(i)%perate_col==19) geol_units = 2
+        if (basin_info(i)%perate_col==97) geol_units = 12
         if (basin_info(i)%perate_col==98) geol_units = 10
         if (basin_info(i)%perate_col==99) geol_units = 4
         do j=1,geol_units
@@ -248,10 +250,10 @@ else
         enddo
         read (unit=101,fmt=*) basin_info(i)%uplift_velo_scaling
         if (echo_vals) write (*,*) 'basin_info(',i,')%uplift_velo_scaling: ',basin_info(i)%uplift_velo_scaling
-        if (basin_info(i)%uplift_velo_scaling < 0 .or. basin_info(i)%uplift_velo_scaling > 3) then
+        if (basin_info(i)%uplift_velo_scaling < 0 .or. basin_info(i)%uplift_velo_scaling > 4) then
           write (*,'(a)') '#------------------------------------------------------------------------------#'
           write (*,'(a,i1)') 'Error: Bad value for type of uplift scaling to apply: ',basin_info(i)%uplift_velo_scaling
-          write (*,'(a)') '       Value must be either "0", "1", "2", or "3"'
+          write (*,'(a)') '       Value must be either "0", "1", "2", "3" or "4"'
           write (*,'(a)') ''
           write (*,'(a)') 'Program exited with an error'
           write (*,'(a)') '#------------------------------------------------------------------------------#'
