@@ -327,7 +327,7 @@
             read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
                        dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
                        dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
-                       dump26,dump27,dump28,dump29,dump30,dump31,dump32.dump33,&
+                       dump26,dump27,dump28,dump29,dump30,dump31,dump32,dump33,&
                        dump34,dump35
             if (basin_info(i)%page_col == 6) page(j)=dump6                      ! Store predicted AHe age
             if (basin_info(i)%page_col == 7) page(j)=dump7                      ! Store predicted ZHe age
