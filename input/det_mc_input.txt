@@ -93,7 +93,7 @@ $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
 $            normalized channel steepness, 3 = the specific stream power, 
 $            4 = the hillslope angle)
 1
-BH27-AFT 2 BH27_250m  8 98 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1
+BH398-AFT 3 BH398_WB009-1km_Pecube_and_topometrics_250m 8 97 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1
 
 $=== [2] - Number of grains to consider in predicted age PDFs ==================
 $ Line 1: [int]
