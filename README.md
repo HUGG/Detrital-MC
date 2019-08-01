@@ -1,5 +1,5 @@
-Detrital MC version 3
---------------------------------------------------------------------------------
+# Detrital MC version 3
+-----------------------
 
 This code reads files containing predicted thermochronometer ages and performs
 Monte Carlo sampling of the predicted age data to produce predicted age
@@ -26,17 +26,16 @@ input file for Detrital MC. The code is currently otherwise identical to version
 2.0, but the input file has changed, so we're assigning a new version number.
 Input files for version 2.0 of detrital MC will not work with version 3.0.
 
-References:
-Brandon, M. T. (1996). Probability density plot for fission-track grain-age
+## References
+
+- Brandon, M. T. (1996). Probability density plot for fission-track grain-age
   samples. Radiation Measurements, 26(5), 663–676.
   doi:[10.1016/S1350-4487(97)82880-6](https://dx.doi.org/10.1016/S1350-4487(97)82880-6)
 
-Vermeesch, P. (2007). Quantitative geomorphology of the White Mountains
+- Vermeesch, P. (2007). Quantitative geomorphology of the White Mountains
   (California) using detrital apatite fission track thermochronology. Journal of
   Geophysical Research, F, Earth Surface, 112(F3), F03004.
   doi:[10.1029/2006JF000671](https://dx.doi.org/10.1029/2006JF000671)
 
-The Helsinki University Geodynamics Group (HUGG) version of Pecube is available at
-[https://github.com/HUGG/Pecube-HUGG](https://github.com/HUGG/Pecube-HUGG)
-
-dwhipp - August 2019
+- The Helsinki University Geodynamics Group (HUGG) version of Pecube is available at
+  [https://github.com/HUGG/Pecube-HUGG](https://github.com/HUGG/Pecube-HUGG)
