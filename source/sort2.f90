@@ -4,12 +4,17 @@
 ! dwhipp - 04/08
 
       SUBROUTINE sort2(arr,n1,slave,n2)
+
       USE nrutil, ONLY : assert_eq
+      USE definitions
+
       IMPLICIT NONE
-      REAL*4,DIMENSION(n1),INTENT(INOUT) :: arr
-      REAL*4,DIMENSION(n2),INTENT(INOUT) :: slave
-      INTEGER :: ndum,n1,n2,i
-      INTEGER,DIMENSION(n1) :: index
+
+      REAL(kind=sp),DIMENSION(n1),INTENT(INOUT) :: arr
+      REAL(kind=sp),DIMENSION(n2),INTENT(INOUT) :: slave
+      INTEGER(kind=sp) :: ndum,n1,n2,i
+      INTEGER(kind=sp),DIMENSION(n1) :: index
+
       ndum=assert_eq(size(arr),size(slave),'sort2')
       call indexx(arr,n1,index)
       arr=arr(index)

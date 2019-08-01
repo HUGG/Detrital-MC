@@ -9,16 +9,18 @@ implicit none
 type (detrital_params) :: params
 type (basin_information) :: basin_info(100)
 
-character(len=80) :: line
-integer :: datapdf_in,fullppdf_in,mcpdfs_in
+character(len=160) :: line
+integer :: datapdf_in,fullppdf_in,mcpdfs_in,ecdfs_in
 integer :: datappdf_in,datamcpdfs_in,ppdfmcpdfs_in
 integer :: opdf_out_in,ppdf_out_in,mcpdfs_out_in
+integer :: ocdf_out_in,pcdf_out_in,mccdfs_out_in
 integer :: lsero_in,tec_header_in,calc_pdf_range_in
-integer :: i,j,k,io
+integer :: kuipernew_in,scale_erates_in
+integer :: i,j,k,io,geol_units,veusz_output_in
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
 
-echo_vals=.false.
+echo_vals=.true.
 
 inquire(file='input/det_mc_input.txt',exist=fileexist)
 if (.not.fileexist) then
@@ -122,16 +124,15 @@ else
       stop
     endif
 
-    ![char] basin_info(:)%pbasin_name is the name of the predicted age output
-    !directory
-    read (unit=101,fmt=*) basin_info(i)%pbasin_name
-    if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
-    inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',exist=fileexist)
-    if (.not.fileexist) then
+    ![int] basin_info(:)%page_ftype is the number corresponding to the input predicted
+    !age file format
+    !1 = Pecube Comparison.txt, 2 = Generic CSV file
+    read (unit=101,fmt=*) basin_info(i)%page_ftype
+    if (echo_vals) write (*,*) 'basin_info(',i,')%page_ftype: ',basin_info(i)%page_ftype
+    if (basin_info(i)%page_ftype < 1 .or. basin_info(i)%page_ftype > 3) then
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
-      write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
-      write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//' directory?'
+      write (*,'(a,i1,a,i3)') 'Error: Unsupported predicted age file format (',basin_info(i)%page_ftype,') for basin ',i,'.'
+      write (*,'(a)') '       The listed predicted age file type must be an integer value between 1 and 3'
       write (*,'(a)') ''
       write (*,'(a)') 'Program exited with an error'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -139,20 +140,127 @@ else
       stop
     endif
 
-    ![int] params%page_sys is the number corresponding to the desired predicted
-    !thermochronometer age system to be compared to the data
-    !1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr
-    read (unit=101,fmt=*) basin_info(i)%page_sys
-    if (echo_vals) write (*,*) 'basin_info(',i,')%page_sys: ',basin_info(i)%page_sys
-    if (basin_info(i)%page_sys < 1 .or. basin_info(i)%page_sys > 5) then
-      write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a,i1,a,i3)') 'Error: Unsupported thermochronometer system (',basin_info(i)%page_sys,') for basin ',i,'.'
-      write (*,'(a)') '       The listed thermochronometer system must be an integer value between 1 and 5'
-      write (*,'(a)') ''
-      write (*,'(a)') 'Program exited with an error'
-      write (*,'(a)') '#------------------------------------------------------------------------------#'
-      close(unit=101)
-      stop
+    if (basin_info(i)%page_ftype == 1) then
+      ![char] basin_info(:)%pbasin_name is the name of the predicted age output
+      !directory
+      read (unit=101,fmt=*) basin_info(i)%pbasin_name
+      if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
+      inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/Comparison.txt',exist=fileexist)
+      if (.not.fileexist) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a)') 'Error: Cannot find Pecube predicted age file.'
+        write (*,'(a)') '       Does the data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'/ directory exist?'
+        write (*,'(a)') '       Is the age file (Comparison.txt) in the data/predicted_ages/'&
+                                //trim(basin_info(i)%pbasin_name)//' directory?'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%page_sys is the number corresponding to the desired predicted
+      !thermochronometer age system to be compared to the data
+      !1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr
+      read (unit=101,fmt=*) basin_info(i)%page_sys
+      if (echo_vals) write (*,*) 'basin_info(',i,')%page_sys: ',basin_info(i)%page_sys
+      if (basin_info(i)%page_sys < 1 .or. basin_info(i)%page_sys > 5) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported thermochronometer system (',basin_info(i)%page_sys,') for basin ',i,'.'
+        write (*,'(a)') '       The listed thermochronometer system must be an integer value between 1 and 5'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+    else
+      ![char] basin_info(:)%pbasin_name is the name of the predicted age input
+      !CSV file
+      read (unit=101,fmt=*) basin_info(i)%pbasin_name
+      if (echo_vals) write (*,*) 'basin_info(',i,')%pbasin_name: ',trim(basin_info(i)%pbasin_name)
+      inquire(file='data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv',exist=fileexist)
+      if (.not.fileexist) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a)') 'Error: Cannot find predicted age file.'
+        write (*,'(a)') '       Does the file data/predicted_ages/'//trim(basin_info(i)%pbasin_name)//'.csv exist?'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%page_col is the number corresponding to the column in
+      !the CSV file containing the predicted ages
+      read (unit=101,fmt=*) basin_info(i)%page_col
+      if (echo_vals) write (*,*) 'basin_info(',i,')%page_col: ',basin_info(i)%page_col
+      if (basin_info(i)%page_col < 1 .or. basin_info(i)%page_col > 1000) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported CSV file age column value (',basin_info(i)%page_col,') for basin ',i,'.'
+        write (*,'(a)') '       The listed value must be a positive integer value less than 1000'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      ![int] basin_info(:)%perate_col is the number corresponding to the column
+      !in the CSV file containing the predicted erosion rates
+      read (unit=101,fmt=*) basin_info(i)%perate_col
+      if (echo_vals) write (*,*) 'basin_info(',i,')%perate_col: ',basin_info(i)%perate_col
+      if (basin_info(i)%perate_col < 1 .or. basin_info(i)%perate_col > 1000) then
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        write (*,'(a,i1,a,i3)') 'Error: Unsupported CSV file erate column value (',basin_info(i)%perate_col,') for basin ',i,'.'
+        write (*,'(a)') '       The listed value must be a positive integer value less than 1000'
+        write (*,'(a)') ''
+        write (*,'(a)') 'Program exited with an error'
+        write (*,'(a)') '#------------------------------------------------------------------------------#'
+        close(unit=101)
+        stop
+      endif
+
+      if (basin_info(i)%perate_col==16 .or. basin_info(i)%perate_col==17 .or.  &
+          basin_info(i)%perate_col==18 .or. basin_info(i)%perate_col==19 .or.  &
+          basin_info(i)%perate_col==97 .or. basin_info(i)%perate_col==98 .or.  &
+          basin_info(i)%perate_col==99) then
+        allocate(basin_info(i)%geol_scale_factor(12))
+        basin_info(i)%geol_scale_factor=0.0
+        if (basin_info(i)%perate_col==16) geol_units = 6
+        if (basin_info(i)%perate_col==17) geol_units = 2
+        if (basin_info(i)%perate_col==18) geol_units = 2
+        if (basin_info(i)%perate_col==19) geol_units = 2
+        if (basin_info(i)%perate_col==97) geol_units = 12
+        if (basin_info(i)%perate_col==98) geol_units = 10
+        if (basin_info(i)%perate_col==99) geol_units = 4
+        do j=1,geol_units
+          read (unit=101,fmt=*) basin_info(i)%geol_scale_factor(j)
+          if (echo_vals) write (*,*) 'basin_info(',i,')%geol_scale_factor(',j,'): ',basin_info(i)%geol_scale_factor(j)
+          if (basin_info(i)%geol_scale_factor(j) < 0) then
+            write (*,'(a)') '#------------------------------------------------------------------------------#'
+            write (*,'(a,i1,a,i3)') 'Error: Unsupported value for erosion rate scaling (',basin_info(i)%geol_scale_factor(j),') for basin ',i,'.'
+            write (*,'(a)') '       The listed value must be positive or zero'
+            write (*,'(a)') ''
+            write (*,'(a)') 'Program exited with an error'
+            write (*,'(a)') '#------------------------------------------------------------------------------#'
+            close(unit=101)
+            stop
+          endif
+        enddo
+        read (unit=101,fmt=*) basin_info(i)%uplift_velo_scaling
+        if (echo_vals) write (*,*) 'basin_info(',i,')%uplift_velo_scaling: ',basin_info(i)%uplift_velo_scaling
+        if (basin_info(i)%uplift_velo_scaling < 0 .or. basin_info(i)%uplift_velo_scaling > 4) then
+          write (*,'(a)') '#------------------------------------------------------------------------------#'
+          write (*,'(a,i1)') 'Error: Bad value for type of uplift scaling to apply: ',basin_info(i)%uplift_velo_scaling
+          write (*,'(a)') '       Value must be either "0", "1", "2", "3" or "4"'
+          write (*,'(a)') ''
+          write (*,'(a)') 'Program exited with an error'
+          write (*,'(a)') '#------------------------------------------------------------------------------#'
+          close(unit=101)
+          stop
+        endif
+      endif
     endif
   enddo
 endif
@@ -320,6 +428,52 @@ else
   stop
 endif
 
+![int] ecdfs_in is the flag for whether or not to use empirical cumulative
+!distribution functions (ECDFs) rather that CSPDFs for the comparison between
+!the predicted and observed age distributions. This value is stored as [bool]
+!params%ecdfs
+read (unit=101,fmt=*) ecdfs_in
+if (echo_vals) write (*,*) 'ecdfs_in: ',ecdfs_in
+if (ecdfs_in == 0) then
+  params%ecdfs = .false.
+elseif (ecdfs_in == 1) then
+  params%ecdfs = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a)') 'Error: Bad value for flag to use ECDFs rather than CSPDFs for the comparison'
+  write (*,'(a,i1)') 'of the observed and predicted age distributions: ',ecdfs_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] kuipernew_in is the flag for whether or not to use the new formulation of
+!Kuiper's test, which is required for comparisons using ECDFs. This value is
+!stored as [bool] params%kuipernew
+read (unit=101,fmt=*) kuipernew_in
+if (echo_vals) write (*,*) 'kuipernew_in: ',kuipernew_in
+if (kuipernew_in == 0) then
+  params%kuipernew = .false.
+elseif (kuipernew_in == 1) then
+  params%kuipernew = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to use new formulation of Kuipers test: ',kuipernew_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![flt] params%kalpha is the significance level for Kuiper's test
+read (unit=101,fmt=*) params%kalpha
+if (echo_vals) write (*,*) 'params%kalpha: ',params%kalpha
+
 ![int] lsero_in is the flag for whether or not to simulate landslide erosion
 !This value is stored as [bool] params%lsero
 read (unit=101,fmt=*) lsero_in
@@ -354,6 +508,20 @@ if (echo_vals) write (*,*) 'params%lseratejunk: ',params%lseratejunk
 read (unit=101,fmt=*) simyr_in
 if (echo_vals) write (*,*) 'simyr_in: ',simyr_in
 write (unit=params%simyr,fmt='(f8.4)') simyr_in
+
+![int] params%lsfiletype is the type of file used for the landslide input files
+read (unit=101,fmt=*) params%lsfiletype
+if (echo_vals) write (*,*) 'params%lsfiletype: ',params%lsfiletype
+if (params%scaletype > 2 .or. params%scaletype < 0) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for landslide file type: ',params%lsfiletype
+  write (*,'(a)') '       Value must be "1" or "2"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
 
 ![int] opdf_out_in is the flag for whether or not observed age PDFs should be
 !written to file(s). This value is stored as [bool] params%opdf_out
@@ -418,6 +586,64 @@ endif
 read (unit=101,fmt=*) params%num_mc_out
 if (echo_vals) write (*,*) 'params%num_mc_out: ',params%num_mc_out
 
+![int] ocdf_out_in is the flag for whether or not observed age CDFs/ECDFs should
+!be written to file(s). This value is stored as [bool] params%ocdf_out
+read (unit=101,fmt=*) ocdf_out_in
+if (echo_vals) write (*,*) 'ocdf_out_in: ',ocdf_out_in
+if (ocdf_out_in == 0) then
+  params%ocdf_out = .false.
+elseif (ocdf_out_in == 1) then
+  params%ocdf_out = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to output observed age CDFs/ECDFs: ',ocdf_out_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] pcdf_out_in is the flag for whether or not full predicted age CDFs/ECDFs
+!should be written to file(s). This value is stored as [bool] params%pcdf_out
+read (unit=101,fmt=*) pcdf_out_in
+if (echo_vals) write (*,*) 'pcdf_out_in: ',pcdf_out_in
+if (pcdf_out_in == 0) then
+  params%pcdf_out = .false.
+elseif (pcdf_out_in == 1) then
+  params%pcdf_out = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to output full predicted age CDFs/ECDFs: ',pcdf_out_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] mccdfs_out_in is the flag for whether or not Monte Carlo predicted age
+!CDFs/ECDFs should be written to file(s). This value is stored as [bool]
+!params%mccdfs_out
+read (unit=101,fmt=*) mccdfs_out_in
+if (echo_vals) write (*,*) 'mccdfs_out_in: ',mccdfs_out_in
+if (mccdfs_out_in == 0) then
+  params%mccdfs_out = .false.
+elseif (mccdfs_out_in == 1) then
+  params%mccdfs_out = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to output Monte Carlo predicted age CDFs/ECDFs: ',mccdfs_out_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
 ![int] tec_header_in is the flag for whether or not to include a Tecplot header
 !in the PDF output files. This value is stored as [bool] params%tec_header
 read (unit=101,fmt=*) tec_header_in
@@ -429,6 +655,25 @@ elseif (tec_header_in == 1) then
 else
   write (*,'(a)') '#------------------------------------------------------------------------------#'
   write (*,'(a,i1)') 'Error: Bad value for flag to include Tecplot headers in the output files: ',tec_header_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] veusz_output_in is the flag for whether or not to write output PDF/CDF/
+!ECDF files in a file format for use with the Veusz plotting software
+read (unit=101,fmt=*) veusz_output_in
+if (echo_vals) write (*,*) 'veusz_output_in: ',veusz_output_in
+if (veusz_output_in == 0) then
+  params%veusz_output = .false.
+elseif (veusz_output_in == 1) then
+  params%veusz_output = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to write output in Veusz format: ',veusz_output_in
   write (*,'(a)') '       Value must be either "0" or "1"'
   write (*,'(a)') ''
   write (*,'(a)') 'Program exited with an error'
@@ -478,10 +723,10 @@ if (echo_vals) write (*,*) 'params%pdfmax: ',params%pdfmax
 !uncertainty)
 read (unit=101,fmt=*) params%obs_uncert_type
 if (echo_vals) write (*,*) 'params%obs_uncert_type: ',params%obs_uncert_type
-if (params%obs_uncert_type > 3 .or. params%obs_uncert_type < 0) then
+if (params%obs_uncert_type > 4 .or. params%obs_uncert_type < 0) then
   write (*,'(a)') '#------------------------------------------------------------------------------#'
   write (*,'(a,i1)') 'Error: Bad value for PDF uncertainty type: ',params%obs_uncert_type
-  write (*,'(a)') '       Value must be either "1", "2" or "3"'
+  write (*,'(a)') '       Value must be either "1", "2", "3", or "4"'
   write (*,'(a)') ''
   write (*,'(a)') 'Program exited with an error'
   write (*,'(a)') '#------------------------------------------------------------------------------#'
@@ -497,6 +742,78 @@ if (echo_vals) write (*,*) 'params%pdf_pct_uncert: ',params%pdf_pct_uncert
 ![flt] params%pdfscl is the approximate number of values in scaled age PDFs
 read (unit=101,fmt=*) params%pdfscl
 if (echo_vals) write (*,*) 'params%pdfscl: ',params%pdfscl
+
+![flt] params%alpha is the standard deviation scaling factor for making the PDFs
+read (unit=101,fmt=*) params%alphain
+if (echo_vals) write (*,*) 'params%alphain: ',params%alphain
+
+![int] scale_erates_in is the flag for whether or not the input erosion rates
+!should be scaled
+!This value is stored as [bool] params%scale_erates
+read (unit=101,fmt=*) scale_erates_in
+if (echo_vals) write (*,*) 'scale_erates_in: ',scale_erates_in
+if (scale_erates_in == 0) then
+  params%scale_erates = .false.
+elseif (scale_erates_in == 1) then
+  params%scale_erates = .true.
+else
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for flag to scale erosion rates: ',scale_erates_in
+  write (*,'(a)') '       Value must be either "0" or "1"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] params%scaletype is the type of scaling used when scaling the input
+!erosion rates
+read (unit=101,fmt=*) params%scaletype
+if (echo_vals) write (*,*) 'params%scaletype: ',params%scaletype
+if (params%scaletype > 3 .or. params%scaletype < 0) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a,i1)') 'Error: Bad value for erosion rate scaling type: ',params%scaletype
+  write (*,'(a)') '       Value must be "1", "2" or "3"'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+![int] params%dist_size is the desired size of age distribution arrays
+read (unit=101,fmt=*) params%dist_size
+if (echo_vals) write (*,*) 'params%dist_size: ',params%dist_size
+
+!Check for compatibility of input file options
+if(.not.params%kuipernew .and. params%ecdfs) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a)') 'Error: Incompatible options for CDF comparison and Kuipers test'
+  write (*,'(a)') ''
+  write (*,'(a)') '       Comparison of ECDFs requires the new version of Kuipers test'
+  write (*,'(a)') '       Either use the option for CDF comparison (d in section 4 of input file)'
+  write (*,'(a)') '       or use the new version of Kuipers test (e in section 4 of input file)'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
+
+if (params%kuipernew .and. params%calc_pdf_range) then
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  write (*,'(a)') 'Error: Incompatible options for PDF age range and Kuipers test'
+  write (*,'(a)') ''
+  write (*,'(a)') '       The new version of Kuipers test currently requires use of a fixed age'
+  write (*,'(a)') '       range. Disable option (c) in section 7 of the input file and specify an'
+  write (*,'(a)') '       age range using options (d) and (e) in section 7.'
+  write (*,'(a)') ''
+  write (*,'(a)') 'Program exited with an error'
+  write (*,'(a)') '#------------------------------------------------------------------------------#'
+  close(unit=101)
+  stop
+endif
 
 close(unit=101)
 
