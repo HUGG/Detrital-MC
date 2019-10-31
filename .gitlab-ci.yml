@@ -2,6 +2,7 @@ before_script:
   - apt-get update
   - apt-get install gfortan
 
-script:
-  - cd source
-  - make all
+build:
+  script:
+    - cd source
+    - make all
