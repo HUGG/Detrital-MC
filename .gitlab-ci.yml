@@ -1,6 +1,6 @@
 before_script:
   - apk update
-  - apk install build-essential gfortran
+  - apk add gcc gfortran
 
 build:
   script:
