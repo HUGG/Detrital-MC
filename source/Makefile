@@ -4,9 +4,13 @@ NAME=det_mc
 
 ### Define compilers --------------------------------------------------------###
 # GNU
-F90    = /usr/local/bin/gfortran
-F77    = /usr/local/bin/gfortran
-CC     = /usr/local/bin/gcc
+#F90    = /usr/local/bin/gfortran
+#F77    = /usr/local/bin/gfortran
+#CC     = /usr/local/bin/gcc
+F90    = gfortran
+F77    = gfortran
+CC     = gcc
+
 
 # Intel
 #F90    = /usr/bin/ifort
