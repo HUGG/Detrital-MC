@@ -1,6 +1,6 @@
 before_script:
-  - apt-get update
-  - apt-get install gfortan
+  - apt update
+  - apt install build-essential gfortran
 
 build:
   script:
