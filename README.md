@@ -1,5 +1,7 @@
 # Detrital MC version 3
 
+[![Build Status](https://travis-ci.org/HUGG/Detrital-MC.svg?branch=master)](https://travis-ci.org/HUGG/Detrital-MC)
+
 This code reads files containing predicted thermochronometer ages and performs
 Monte Carlo sampling of the predicted age data to produce predicted age
 distributions and compare them to either other predicted age distributions or
