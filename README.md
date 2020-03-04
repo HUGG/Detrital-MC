@@ -1,5 +1,4 @@
 # Detrital MC version 3
------------------------
 
 This code reads files containing predicted thermochronometer ages and performs
 Monte Carlo sampling of the predicted age data to produce predicted age
