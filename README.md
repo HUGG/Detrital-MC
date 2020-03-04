@@ -2,9 +2,6 @@
 
 [![Build Status](https://travis-ci.org/HUGG/Detrital-MC.svg?branch=master)](https://travis-ci.org/HUGG/Detrital-MC)
 
-![ECDF plot](https://github.com/HUGG/Detrital-MC/raw/master/img/BZ435_ECDFs.png)<br/>
-*Predicted and observed detrital thermochronometer age distributions plotted as empirical cumulative distribution functions*
-
 This code reads files containing predicted thermochronometer ages and performs
 Monte Carlo sampling of the predicted age data to produce predicted age
 distributions and compare them to either other predicted age distributions or
