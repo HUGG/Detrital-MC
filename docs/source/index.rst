@@ -29,6 +29,12 @@ If you are interested in the code itself, you can download Detrital MC from its 
    manual/output-files
    manual/references
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
+
+   examples/pecube
+
 Indices and tables
 ==================
 
