@@ -18,7 +18,7 @@ If you are interested in the code itself, you can download Detrital MC from its 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User guide
 
    manual/quick-intro
    manual/input-file
