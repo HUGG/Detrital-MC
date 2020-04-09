@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/HUGG/Detrital-MC.svg?branch=master)](https://travis-ci.org/HUGG/Detrital-MC)
 [![Documentation Status](https://readthedocs.org/projects/detrital-mc/badge/?version=latest)](https://detrital-mc.readthedocs.io/en/latest/?badge=latest)
 
+## Introduction
+
 This code reads files containing predicted thermochronometer ages and performs Monte Carlo sampling of the predicted age data to produce predicted age distributions and compare them to either other predicted age distributions or observed age data.
 The comparison is done using the Kuiper test and summary statistics report the percentage of the predicted age distributions are statistically equal to the measured age distribution.
 
@@ -16,6 +18,10 @@ This factor, described in section 2.3 of [Brandon (1996)](https://dx.doi.org/10.
 In addition, there are several new formats for the predicted age input data, which are described in the input file for Detrital MC.
 The code is currently otherwise identical to version 2.0, but the input file has changed, so we're assigning a new version number.
 Input files for version 2.0 of detrital MC will not work with version 3.0.
+
+## Documentation
+
+Documentation for Detrital MC can be found at [detrital-mc.readthedocs.io](https://detrital-mc.readthedocs.io).
 
 ## References
 
