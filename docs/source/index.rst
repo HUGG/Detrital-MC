@@ -20,7 +20,8 @@ If you are interested in the code itself, you can download Detrital MC from its 
    :maxdepth: 2
    :caption: User guide
 
-   manual/getting-started
+   manual/quick-start
+   manual/overview
    manual/input-file
    manual/input-data
    manual/age-dists
