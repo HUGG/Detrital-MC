@@ -20,7 +20,7 @@ In order to calculate age distributions for all grain ages in a sample, the firs
 
 .. math::
 
-   \mathrm{PDF}_{i} = \frac{1}{\sigma_{i} \sqrt{2 \pi}} \exp{\left(-\frac{1}{2} \left(\frac{x - \bar{x}_{i}}{\sigma_{i}} \right)^{2} \right)
+   \mathrm{PDF}_{i} = \frac{1}{\sigma_{i} \sqrt{2 \pi}} \exp \left(-\frac{1}{2} \left(\frac{x - \bar{x}_{i}}{\sigma_{i}} \right)^{2} \right)
 
 Catchment sample SPDFs
 ----------------------
