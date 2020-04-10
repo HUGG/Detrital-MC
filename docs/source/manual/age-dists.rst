@@ -5,13 +5,12 @@ This page presents and overview of how age distributions in Detrital MC are calc
 
 Clearly, the page is under construction.
 
-Terminology and abbreviations
------------------------------
+.. note:: Terminology and abbreviations
 
-- **Probability density function (PDF)**: 
-- **Synoptic probability density function (SPDF)**:
-- **Cumulative density function (CDF)**:
-- **Empirical cumulative density function (ECDF)**:
+   - **Probability density function (PDF)**: 
+   - **Synoptic probability density function (SPDF)**:
+   - **Cumulative density function (CDF)**:
+   - **Empirical cumulative density function (ECDF)**:
 
 Individual age PDFs
 -------------------
