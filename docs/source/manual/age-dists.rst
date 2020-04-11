@@ -5,9 +5,7 @@ This page presents and overview of how age distributions in Detrital MC are calc
 
 Clearly, the page is under construction.
 
-.. note::
-
-   Terminology and abbreviations
+.. admonition:: Terminology and abbreviations
 
    - **Probability density function (PDF)**: 
    - **Synoptic probability density function (SPDF)**:
