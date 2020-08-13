@@ -17,9 +17,9 @@ The input values are described in more detail below.
 Section 1, line 1 (1 required value)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Value 1: Number of basins to analyze.
+- **Value 1**: Number of basins to analyze.
 
-    The only input value here is the number of basins to analyze (``num_basins``).
+    The only input value here is the number of basins to analyze.
     This should be an integer value.
 
 Section 1, line 2 (4+ required values)
