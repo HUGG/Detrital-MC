@@ -3,15 +3,6 @@ Calculation of age distributions
 
 This page presents and overview of how age distributions in Detrital MC are calculated. Distributions of ages from detrital samples can be assembled and visualized in serveral different ways. Below I describe the different distributions and their meanings, as well as how they are used in Detrital MC.
 
-Clearly, the page is under construction.
-
-.. admonition:: Terminology and abbreviations
-
-   - **Probability density function (PDF)**: 
-   - **Synoptic probability density function (SPDF)**:
-   - **Cumulative density function (CDF)**:
-   - **Empirical cumulative density function (ECDF)**:
-
 Measured age PDFs and sample age distributions
 ----------------------------------------------
 
@@ -77,11 +68,21 @@ In other words,
 Catchment cumulative distributions
 ----------------------------------
 
+In order to compare the measured and predicted age distributions, both need to be converted to cumulative density functions (CDFs) of some form.
+There are two options for this in Detrital MC, described below.
+
 Smoothed distributions
 ~~~~~~~~~~~~~~~~~~~~~~
 
+The standard CDF used in Detrital MC is simply an integrated version of the SPDF, integrated using the trapezoid rule.
+This produces a smooth CDF, since the ages in the SPDF have been smoothed by their measurement uncertainties.
+
 Unsmoothed distributions
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+Option two is to calculate an unsmoothed cumulative distribution function.
+This function is referred to as the empirical cumulative distribution function (ECDF), which is the same as the cumulative age distribution described by Vermeesch (2007).
+The result is a step function, where the function value increases by :math:`1/n` for each age in the sorted distribution.
 
 References
 ----------
