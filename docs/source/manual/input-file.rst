@@ -5,4 +5,190 @@ Here we explain the input file used to control Detrital MC.
 The `input file <https://github.com/HUGG/Detrital-MC/blob/master/input/det_mc_input.txt>`_ is located in the ``input`` subdirectory.
 Please check the rest of the documentation for more detailed explanations of how other parts the software operate.
 
-*Input file description coming soon...*
+Detrital MC is controlled by an input file ``input/det_mc_input.txt``, where all parameters for a Detrital MC model and the locations of input data files are specified.
+Note that you can freely add comments in your copies of the Detrital MC input file by starting lines with the ``$`` character.
+
+Below, we desribe the different sections of the Detrital MC input file and how they work.
+
+Section 1: Basin summary information
+------------------------------------
+
+.. code-block:: none
+    :caption: Section 1 of the Detrital MC input file (without comments)
+
+    $=== [1] - Basin summary information ===========================================
+    1
+    BH398-AFT 3 BH398_WB009-1km_Pecube_and_topometrics_250m 8 97 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1
+
+..
+
+    $ Line 1: [int]
+    $ (a) Number of basins to analyze, num_basins
+    $ Line(s) 2+: [char int char int (int)]
+    $ (a) Name of observed detrital age file in the data/observed_ages subdirectory
+    $     (e.g., 'ba1' for ba1.dat)
+    $ (b) Predicted age file format (1 = Pecube Comparison.txt, 2 = CSV file,
+    $     3 = newer CSV file)
+    $   - If (b) = 1 (Pecube format) then:
+    $     - (c) Name of the Pecube model run output directory (e.g., RUN00) in the
+    $           data subdirectory
+    $     - (d) The predicted thermochronometer age system to use
+    $           (1 = AHe, 2 = AFT, 3 = ZHe, 4 = ZFT, 5 = MAr)
+    $   - If (b) = 2 (Generic CSV) then:
+    $     - (c) Name of the predicted age file (e.g., 'DW001' for DW001.csv) in the
+    $           data subdirectory
+    $     - (d) The number of the column containing predicted ages in the CSV file
+    $     - (e) The number of the column containing predicted erosion rates in the
+    $           CSV file
+    $     - If (e) is equal to 16, 17, 18, 19, 98, or 99, additional information is
+    $       required.
+    $       - If (e) = 16 then:
+    $         - (f-k) are the geological scaling factors for the (f) Tethyan,
+    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites and (k) LHSC
+    $         - (l) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power)
+    $       - If (e) = 17 then:
+    $         - (f) is the scaling factor for glacier-covered areas
+    $         - (g) is the scaling factor for glacier-free areas
+    $         - (h) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power)
+    $       - If (e) = 18 then:
+    $         - (f) is the scaling factor for moraine-covered areas
+    $         - (g) is the scaling factor for moraine-free areas
+    $         - (h) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power)
+    $       - If (e) = 19 then:
+    $         - (f) is the scaling factor for rock glacier-covered areas
+    $         - (g) is the scaling factor for rock glacier-free areas
+    $         - (h) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power)
+    $       - If (e) = 98 then:
+    $         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
+    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
+    $         - (l) is the scaling factor for glacier-covered areas
+    $         - (m) is the scaling factor for moraine-covered areas
+    $         - (n) is the scaling factor for rock glacier-covered areas
+    $         - (o) is the scaling factor for regions free of glacial formations
+    $         - (p) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power)
+    $       - If (e) = 99 then:
+    $         - (f) is the scaling factor for glacier-covered areas
+    $         - (g) is the scaling factor for moraine-covered areas
+    $         - (h) is the scaling factor for rock glacier-covered areas
+    $         - (i) is the scaling factor for glacier-, moraine-, and rock
+    $           glacier-free areas
+    $         - (j) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power)
+    $   - If (b) = 3 (Generic CSV) then:
+    $     The options are the same as for (b) = 2, with the addition of that below:
+    $       - If (e) = 97 then:
+    $         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
+    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
+    $         - (l) is the scaling factor for glacier-covered areas
+    $         - (m) is the scaling factor for moraine-covered areas
+    $         - (n) is the scaling factor for rock glacier-covered areas
+    $         - (o) is the scaling factor for regions free of glacial formations
+    $         - (p) is the scaling factor for regions with hillslopes >30 degrees
+    $         - (q) is the scaling factor for regions will hillslopes <10 degrees
+    $         - (r) is a flag for which type of uplift scaling to apply
+    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
+    $            normalized channel steepness, 3 = the specific stream power, 
+    $            4 = the hillslope angle)
+
+    $=== [2] - Number of grains to consider in predicted age PDFs ==================
+    $ Line 1: [int]
+    $ (a) Number of different sample sizes, nss, to consider
+    $   - If nss < 1, the code will use the number in the observed age PDF
+    $   - If nss > 0, you should list nss samples sizes below
+    $ Line 2: [int(1) int(2)...int(nss)]
+    $ (a) Number of 'grains' in each sample, separated by a single space
+    $   - If nss < 1, this value is read, but ignored
+    0
+    0
+
+    $=== [3] - PDF generation ======================================================
+    $ Line 1: [int int int]
+    $ (a) Observed age PDFs (yes = 1, no = 0)
+    $ (b) Full predicted age PDFs (yes = 1, no = 0)
+    $ (c) Monte Carlo predicted age PDFs (yes = 1, no = 0)
+    1 0 1
+
+    $=== [4] - PDF comparison ======================================================
+    $ Line 1: [int int int int int flt]
+    $ (a) Observed age and full predicted age PDFs (yes = 1, no = 0)
+    $ (b) Observed age and Monte Carlo predicted age PDFs (yes = 1, no = 0)
+    $ (c) Full predicted age and Monte Carlo predicted age PDFs (yes = 1, no = 0)
+    $ (d) Use empirical cumulative distribution functions (ECDFs) rather than CSPDFs
+    $     for PDF comparisons (Kuiper's test) (yes = 1, no = 0)
+    $     NOTE: You must set option (e) below equal to 1 to use ECDFs
+    $ (e) Use new Kuiper's test formulation or original? (yes = 1, no = 0)
+    $     The differences between the two versions are trivial, but the new version
+    $     must be used for comparison of ECDFs.
+    $     NOTE: Currently, you must use a fixed age range for the PDFs/CDFs/ECDFs to
+    $     use the new Kuiper's test. A fixed age range can be set using (d) and (e)
+    $     in section 7 of this file.
+    $ (f) Kuiper's test significance level. A value of 0.05 is recommended (95%
+    $     confidence interval
+    0 1 0 0 1 0.05
+
+    $=== [5] - Landslide PDF options ===============================================
+    $ Line 1: [int flt flt flt]
+    $ (a) Flag to (=1) enable or (=0) disable landslide erosion
+    $ (b) Junk landslide age when there are no landslides within the catchment
+    $ (c) Junk landslide erosion rate when there are no landslides within the
+    $     catchment
+    $ (d) Landslide sediment residence time in years.
+    $ (e) Landslide input file format (1 = ASCII, 2 = binary)
+    0 1. 5. 100. 2
+
+    $=== [6] - PDF output ==========================================================
+    $ Line 1: [int int int int int int int int]
+    $ [Age probability density functions]
+    $ (a) Observed age PDF (yes = 1, no = 0)
+    $ (b) Full predicted age PDF (yes = 1, no = 0)
+    $ (c) Monte Carlo predicted age PDFs (yes = 1, no = 0)
+    $ (d) Number of Monte Carlo predicted age PDFs to output
+    $ [Cumulative age distributions]
+    $     NOTE: If option 4 in section 3 (use empirical CDFs) is equal to 1, the
+    $     output distributions will be empirical cumulative distribution functions
+    $     (ECDFs), otherwise they will be cumulative density functions (CDFs)
+    $ (e) Observed age cumulative distribution (yes = 1, no = 0)
+    $ (f) Full predicted age cumulative distribution (yes = 1, no = 0)
+    $ (g) Monte Carlo predicted age cumulative distribution (yes = 1, no = 0)
+    $ (h) Write Tecplot header to output PDFs/CDFs/ECDFs (yes = 1, no = 0)
+    $ (i) Write Veusz formatted PDFs/CDFs/ECDFs (yes = 1, no = 0)
+    1 0 1 100 1 0 1 0 1
+
+    $=== [7] - Other options =======================================================
+    $ Line 1: [int flt int flt flt int flt flt flt int]
+    $ (a) Number of Monte Carlo predicted age PDFs to calculate (10000, typically)
+    $ (b) Age increment for calculating PDFs (0.01 - 0.001, typically)
+    $ (c) Calculate age range for PDFs using data age ranges and uncertainties
+    $     (yes = 1, no = 0)
+    $ (d) Minimum age for PDF calculation if not using (c)
+    $ (e) Maximum age for PDF calculation if not using (c)
+    $ (f) Type of age uncertainty to apply if comparing to data
+    $  - Mean 1-sigma percent uncertainty in observed ages = 1
+    $  - Median 1-sigma percent uncertainty in observed ages = 2
+    $  - Standard deviation in 1-sigma percent uncertainty in observed ages = 3
+    $  - User-specified percent uncertainty = 4 (using option g below)
+    $ (g) Percent age uncertainty to use if not comparing to data or specified above
+    $ (h) Approximate number of values in scaled age PDFs (50., unless you know what
+    $     you're doing)
+    $ (i) alpha, the standard deviation scaling factor (0.6 is a good choice). If
+    $     alpha is negative, an optimal alpha value will be calculated using Eq. 18
+    $     from Brandon, 1996, Radiation Damage.
+    $ (j) Scale input erosion rates? (yes = 1, no = 0)
+    $ (k) If yes for (j), what kind of scaling should be done?
+    $  - Normalize erosion rates = 1
+    $  -
+    $ (l) Array size for fixed-size predicted age distributions
+    $  - If the value is less than 1, the default scaling will be used
+    $  - If the value is positive, a value of 1000000 (one million) is recommended
+    10000 0.005 0 0. 20. 1 5.0 50. 0.6 0 3 1000000
