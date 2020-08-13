@@ -24,7 +24,7 @@ The input values are described in more detail below.
 Section 1, line 1 (1 required value)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Value 1 (int)**: Number of basins to analyze.
+- **Value 1** (``int``): Number of basins to analyze.
 
     The only input value here is the number of basins to analyze.
 
