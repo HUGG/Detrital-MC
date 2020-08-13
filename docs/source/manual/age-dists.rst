@@ -15,11 +15,11 @@ Clearly, the page is under construction.
 Individual age PDFs
 -------------------
 
-In order to calculate age distributions for all grain ages in a sample, the first step is to calculate the probability distribution function :math:`\mathrm{PDF}_{i}` for a single age assuming a normal distribution of error about the mean age :math:`\bar{x}_{i}` with the standard deviation :math:`\sigma_{i}`.
+In order to calculate age distributions for all grain ages in a sample, the first step is to calculate the probability distribution function :math:`\mathrm{PDF}(x)` for a single age assuming a normal distribution of error about the mean age :math:`\mu` with the standard deviation :math:`\sigma`.
 
 .. math::
 
-   \mathrm{PDF}_{i} = \frac{1}{\sigma_{i} \sqrt{2 \pi}} \exp \left(-\frac{1}{2} \left(\frac{x - \bar{x}_{i}}{\sigma_{i}} \right)^{2} \right)
+   \mathrm{PDF}(x) = \frac{1}{\alpha \sigma_{i} \sqrt{2 \pi}} \exp \left(-\frac{1}{2} \left(\frac{x - \mu}{\alpha \sigma} \right)^{2} \right)
 
 Catchment sample SPDFs
 ----------------------
