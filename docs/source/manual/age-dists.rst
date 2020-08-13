@@ -67,12 +67,12 @@ Predicted age distributions (SPDFs)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The predicted age SPDFs are also calculated similar to those for the sample measured ages, but scaled once again by the scaling factor :math:`f_{\mathrm{eff}}`.
-In this case, the age distribution should be normalized to have an area of 1.0, so the predicted SPDF is simply the SPDF divided by the average scaling factor :math:`\bar{f_{\mathrm{eff}}}`.
+In this case, the age distribution should be normalized to have an area of 1.0, so the predicted SPDF is simply the SPDF divided by the average scaling factor :math:`\overline{f_{\mathrm{eff}}}`.
 In other words, 
 
 .. math::
 
-   \mathrm{SPDF}_{\mathrm{p}}(x) = \frac{1}{\bar{f_{\mathrm{eff}}}} \times \mathrm{SPDF}(x).
+   \mathrm{SPDF}_{\mathrm{p}}(x) = \frac{1}{\overline{f_{\mathrm{eff}}}} \times \mathrm{SPDF}(x).
 
 Catchment cumulative distributions
 ----------------------------------
