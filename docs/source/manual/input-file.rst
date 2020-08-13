@@ -14,26 +14,35 @@ Section 1: Basin summary information
 The first section of the Detrital MC input file is for specifying how many basins are being analyzed, and the names, formats, and associated parameters for the input data files.
 The input values are described in more detail below.
 
-Section 1, line 1 (1 required value)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- **Value 1**: Number of basins to analyze.
-
-    The only input value here is the number of basins to analyze.
-    This should be an integer value.
-
-Section 1, line 2 (4+ required values)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Test
-
-
 .. code-block:: none
     :caption: Section 1 of the Detrital MC input file (without comments)
 
     $=== [1] - Basin summary information ===========================================
     1
     BH398-AFT 3 BH398_WB009-1km_Pecube_and_topometrics_250m 8 97 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1
+
+Section 1, line 1 (1 required value)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Value 1 (int)**: Number of basins to analyze.
+
+    The only input value here is the number of basins to analyze.
+
+Section 1, line 2+ (4+ required values)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In section 1, the remaining line(s) are used to provide information about each of the basins that should be analyzed.
+You should use one line per basin.
+
+- **Value 1 (char)**: Name of the observed age data file in the ``data/observed_ages`` subdirectory.
+
+    Listing ``ba1`` would tell Detrital MC to read measured ages from the ``data/observed_ages/ba1.dat`` file.
+    This should be a character string.
+
+- **Value 2 (int)**: Predicted age file format
+
+    Test formatting...
+
 
 ..
     $ Line 1: [int]
