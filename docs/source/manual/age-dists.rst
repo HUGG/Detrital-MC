@@ -84,7 +84,7 @@ Unsmoothed distributions
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 References
-==========
+----------
 
 Brandon, M. T. (1996). Probability density plot for fission-track grain-age samples. Radiation Measurements, 26(5), 663--676.
 
