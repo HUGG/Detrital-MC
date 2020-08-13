@@ -24,7 +24,7 @@ The input values are described in more detail below.
 Section 1, line 1 (1 required value)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Value 1**: Number of basins to analyze. Type: int
+- **Value 1**: Number of basins to analyze. Type: ``int``
 
     The only input value here is the number of basins to analyze.
 
@@ -34,12 +34,12 @@ Section 1, line 2+ (4+ required values)
 In section 1, the remaining line(s) are used to provide information about each of the basins that should be analyzed.
 You should use one line per basin.
 
-- **Value 1 (char)**: Name of the observed age data file in the ``data/observed_ages`` subdirectory.
+- **Value 1**: Name of the observed age data file in the ``data/observed_ages`` subdirectory. Type: ``char``
 
     Listing ``ba1`` would tell Detrital MC to read measured ages from the ``data/observed_ages/ba1.dat`` file.
     This should be a character string.
 
-- **Value 2 (int)**: Predicted age file format
+- **Value 2**: Predicted age file format. Type: int
 
     Test formatting...
 
