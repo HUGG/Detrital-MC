@@ -40,7 +40,10 @@ This is referred to as the synoptic probability density function (SPDF) by Ruhl 
 Predicted age PDFs and age distributions
 ----------------------------------------
 
-The predicted age PDFs are scaled by one or more scaling factors :math:`f_{\mathrm{eff}}` in order to account for factors that might increase the probability of an age being present in a catchment predicted age distribution, such as differences in the tectonic uplift rate or bedrock mineral fertility.
+Predicted age PDFs
+~~~~~~~~~~~~~~~~~~
+
+The calculation of individual predicted age PDFs is similar to that above, but the predicted age PDFs are scaled by one or more scaling factors collectively referred to as :math:`f_{\mathrm{eff}}` in order to account for factors that might increase the probability of an age being present in a catchment predicted age distribution, such as differences in the tectonic uplift rate or bedrock mineral fertility.
 Thus, the age PDF for a given predicted age can be calculated as
 
 .. math::
@@ -50,6 +53,26 @@ Thus, the age PDF for a given predicted age can be calculated as
 The values for the scaling factors that are combined as :math:`f_{\mathrm{eff}}` are given in the input data file for Detrital MC.
 Further detail about this is given in the :doc:`section describing the Detrital MC input file <input-file>`.
 
+Another important difference for the predicted age PDFs is that there are no mean ages or standard deviations for the predicted ages.
+Instead, the predicted age is used as the mean age :math:`\mu_{\mathrm{p}}` and the standard deviation :math:`\sigma_{\mathrm{p}}` can be calculated as a function of the uncertainties in the measured ages or a constant percentage of the mean age.
+For example, it is often the case that the mean uncertainty fraction in the measured ages is used to calculate the predicted age standard deviations such that the calculated standard deviation would be
+
+.. math::
+
+   \sigma_{\mathrm{p}} = \mu_{\mathrm{p}} \times \sum_{i = 1}^{n} \frac{\sigma_{i}}{\mu_{i}},
+
+where :math:`\sigma_{i}` and :math:`\mu_{i}` are the mean age and standard deviation for the :math:`n` measured ages.
+
+Predicted age distributions (SPDFs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The predicted age SPDFs are also calculated similar to those for the sample measured ages, but scaled once again by the scaling factor :math:`f_{\mathrm{eff}}`.
+In this case, the age distribution should be normalized to have an area of 1.0, so the predicted SPDF is simply the SPDF divided by the average scaling factor :math:`\bar{f_{\mathrm{eff}}}`.
+In other words, 
+
+.. math::
+
+   \mathrm{SPDF}_{\mathrm{p}}(x) = \frac{1}{\bar{f_{\mathrm{eff}}}} \times \mathrm{SPDF}(x).
 
 Catchment cumulative distributions
 ----------------------------------
