@@ -1,17 +1,32 @@
 Input file
 ==========
 
-Here we explain the input file used to control Detrital MC.
+Here we explain the input file used to control Detrital MC, where all parameters for a Detrital MC model and the locations of input data files are specified.
 The `input file <https://github.com/HUGG/Detrital-MC/blob/master/input/det_mc_input.txt>`_ is located in the ``input`` subdirectory.
-Please check the rest of the documentation for more detailed explanations of how other parts the software operate.
-
-Detrital MC is controlled by an input file ``input/det_mc_input.txt``, where all parameters for a Detrital MC model and the locations of input data files are specified.
 Note that you can freely add comments in your copies of the Detrital MC input file by starting lines with the ``$`` character.
 
 Below, we desribe the different sections of the Detrital MC input file and how they work.
+Please check the rest of the documentation for more detailed explanations of how other parts the software operate.
 
 Section 1: Basin summary information
 ------------------------------------
+
+The first section of the Detrital MC input file is for specifying how many basins are being analyzed, and the names, formats, and associated parameters for the input data files.
+The input values are described in more detail below.
+
+Section 1, line 1 (1 required value)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Value 1: Number of basins to analyze.
+
+    The only input value here is the number of basins to analyze (``num_basins``).
+    This should be an integer value.
+
+Section 1, line 2 (4+ required values)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Test
+
 
 .. code-block:: none
     :caption: Section 1 of the Detrital MC input file (without comments)
