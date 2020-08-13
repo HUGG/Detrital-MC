@@ -21,7 +21,6 @@ Section 1: Basin summary information
     BH398-AFT 3 BH398_WB009-1km_Pecube_and_topometrics_250m 8 97 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1
 
 ..
-
     $ Line 1: [int]
     $ (a) Number of basins to analyze, num_basins
     $ Line(s) 2+: [char int char int (int)]
