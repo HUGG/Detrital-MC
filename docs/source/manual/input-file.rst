@@ -148,7 +148,7 @@ You should use one line per basin.
             - ``2``: Normalized channel steepness
             - ``3``: Specific stream power
 
-        If value b = ``3``: Newer generic CSV file. Listed values are the same as for Value b = ``2``, with the addition below:
+    If value b = ``3``: Newer generic CSV file. Listed values are the same as for Value b = ``2``, with the addition below:
 
         .. note:: If value e is equal to ``16``, ``17``, ``18``, ``19``, ``98``, or ``99``, additional information is required.
 
