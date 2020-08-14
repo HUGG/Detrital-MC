@@ -148,28 +148,30 @@ You should use one line per basin.
             - ``2``: Normalized channel steepness
             - ``3``: Specific stream power
 
-    If value b = ``3``: Newer generic CSV file. Listed values are the same as for Value b = ``2``, with the addition below:
+        If value b = ``3``: Newer generic CSV file. Listed values are the same as for Value b = ``2``, with the addition below:
 
-    If value e = ``98``:
+        .. note:: If value e is equal to ``16``, ``17``, ``18``, ``19``, ``98``, or ``99``, additional information is required.
 
-    - **Value f**: Bedrock fertility scaling factor 1 (Checkha/TSS). Type: ``float``
-    - **Value g**: Bedrock fertility scaling factor 2 (GHS). Type: ``float``
-    - **Value h**: Bedrock fertility scaling factor 3 (LHS). Type: ``float``
-    - **Value i**: Bedrock fertility scaling factor 4 (Siwaliks). Type: ``float``
-    - **Value j**: Bedrock fertility scaling factor 5 (Leucogranites). Type: ``float``
-    - **Value k**: Bedrock fertility scaling factor 6 (Paro). Type: ``float``
-    - **Value l**: Glacier scaling factor (Glacier-covered areas). Type: ``float``
-    - **Value m**: Moraine scaling factor (Moraine-covered areas). Type: ``float``
-    - **Value n**: Rock glacier scaling factor (Rock glacier-covered areas). Type: ``float``
-    - **Value o**: Non-glacial scaling factor (Areas free of glacial formations). Type: ``float``
-    - **Value p**: Scaling factor for regions with hillslopes >30 degrees. Type: ``float``
-    - **Value q**: Scaling factor for regions with hillslopes <10 degrees. Type: ``float``
-    - **Value r**: Erosion scaling factor. Type: ``int``
+        If value e = ``97``:
 
-        - ``0``: None
-        - ``1``: Instantaneous exhumation rates from Pecube
-        - ``2``: Normalized channel steepness
-        - ``3``: Specific stream power
+        - **Value f**: Bedrock fertility scaling factor 1 (Checkha/TSS). Type: ``float``
+        - **Value g**: Bedrock fertility scaling factor 2 (GHS). Type: ``float``
+        - **Value h**: Bedrock fertility scaling factor 3 (LHS). Type: ``float``
+        - **Value i**: Bedrock fertility scaling factor 4 (Siwaliks). Type: ``float``
+        - **Value j**: Bedrock fertility scaling factor 5 (Leucogranites). Type: ``float``
+        - **Value k**: Bedrock fertility scaling factor 6 (Paro). Type: ``float``
+        - **Value l**: Glacier scaling factor (Glacier-covered areas). Type: ``float``
+        - **Value m**: Moraine scaling factor (Moraine-covered areas). Type: ``float``
+        - **Value n**: Rock glacier scaling factor (Rock glacier-covered areas). Type: ``float``
+        - **Value o**: Non-glacial scaling factor (Areas free of glacial formations). Type: ``float``
+        - **Value p**: Scaling factor for regions with hillslopes >30 degrees. Type: ``float``
+        - **Value q**: Scaling factor for regions with hillslopes <10 degrees. Type: ``float``
+        - **Value r**: Erosion scaling factor. Type: ``int``
+
+            - ``0``: None
+            - ``1``: Instantaneous exhumation rates from Pecube
+            - ``2``: Normalized channel steepness
+            - ``3``: Specific stream power
 
 Section 2: Number of grains to consider in predicted age PDFs
 -------------------------------------------------------------
@@ -197,7 +199,7 @@ Section 2, line 1 (1 required value)
 Section 2, line 2 (1 required value, additional optional values)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Value a**: Number of 'grains' in each sample, separated by a single space. Type: ``int`` [``int`` ``int`` ...]
+- **Value a**: Number of 'grains' in each sample, separated by a single space. Type: ``int [int int ...]``
 
     If value a on line one of this section is less than 1, this value is read, but ignored
 
