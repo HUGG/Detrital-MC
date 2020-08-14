@@ -6,6 +6,17 @@ The `input file <https://github.com/HUGG/Detrital-MC/blob/master/input/det_mc_in
 Note that you can freely add comments in your copies of the Detrital MC input file by starting lines with the ``$`` character.
 
 Below, we desribe the different sections of the Detrital MC input file and how they work.
+The general format of this documentation gives information about what should be listed on each line of each section of the input file.
+The sections and lines are given by number, while the values on each line are given using letters.
+An example of two lines containing 3 and 5 values is given below.
+
+.. code-block:: none
+    :caption: Example format of the Detrital MC input file.
+
+    $=== [3] - Section name ========================================================
+    <value a> <value b> <value c>
+    <value a> <value b> <value c> <value d> <value e>
+
 Please check the rest of the documentation for more detailed explanations of how other parts the software operate.
 
 Section 1: Basin summary information
