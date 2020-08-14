@@ -148,34 +148,60 @@ You should use one line per basin.
             - ``2``: Normalized channel steepness
             - ``3``: Specific stream power
 
-..
-    $   - If (b) = 3 (Generic CSV) then:
-    $     The options are the same as for (b) = 2, with the addition of that below:
-    $       - If (e) = 97 then:
-    $         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
-    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
-    $         - (l) is the scaling factor for glacier-covered areas
-    $         - (m) is the scaling factor for moraine-covered areas
-    $         - (n) is the scaling factor for rock glacier-covered areas
-    $         - (o) is the scaling factor for regions free of glacial formations
-    $         - (p) is the scaling factor for regions with hillslopes >30 degrees
-    $         - (q) is the scaling factor for regions will hillslopes <10 degrees
-    $         - (r) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power, 
-    $            4 = the hillslope angle)
+    If value b = ``3``: Newer generic CSV file. Listed values are the same as for Value b = ``2``, with the addition below:
+
+    If value e = ``98``:
+
+    - **Value f**: Bedrock fertility scaling factor 1 (Checkha/TSS). Type: ``float``
+    - **Value g**: Bedrock fertility scaling factor 2 (GHS). Type: ``float``
+    - **Value h**: Bedrock fertility scaling factor 3 (LHS). Type: ``float``
+    - **Value i**: Bedrock fertility scaling factor 4 (Siwaliks). Type: ``float``
+    - **Value j**: Bedrock fertility scaling factor 5 (Leucogranites). Type: ``float``
+    - **Value k**: Bedrock fertility scaling factor 6 (Paro). Type: ``float``
+    - **Value l**: Glacier scaling factor (Glacier-covered areas). Type: ``float``
+    - **Value m**: Moraine scaling factor (Moraine-covered areas). Type: ``float``
+    - **Value n**: Rock glacier scaling factor (Rock glacier-covered areas). Type: ``float``
+    - **Value o**: Non-glacial scaling factor (Areas free of glacial formations). Type: ``float``
+    - **Value p**: Scaling factor for regions with hillslopes >30 degrees. Type: ``float``
+    - **Value q**: Scaling factor for regions with hillslopes <10 degrees. Type: ``float``
+    - **Value r**: Erosion scaling factor. Type: ``int``
+
+        - ``0``: None
+        - ``1``: Instantaneous exhumation rates from Pecube
+        - ``2``: Normalized channel steepness
+        - ``3``: Specific stream power
+
+Section 2: Number of grains to consider in predicted age PDFs
+-------------------------------------------------------------
+
+The first section of the Detrital MC input file is for specifying how many basins are being analyzed, and the names, formats, and associated parameters for the input data files.
+The input values are described in more detail below.
+
+.. code-block:: none
+    :caption: Section 2 of the Detrital MC input file (without comments)
 
     $=== [2] - Number of grains to consider in predicted age PDFs ==================
-    $ Line 1: [int]
-    $ (a) Number of different sample sizes, nss, to consider
-    $   - If nss < 1, the code will use the number in the observed age PDF
-    $   - If nss > 0, you should list nss samples sizes below
-    $ Line 2: [int(1) int(2)...int(nss)]
-    $ (a) Number of 'grains' in each sample, separated by a single space
-    $   - If nss < 1, this value is read, but ignored
     0
     0
 
+Section 2, line 1 (1 required value)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Value a**: Number of different sample sizes to consider. Type: ``int``
+
+    Detrital MC has the option to calculate age distributions using different numbers of ages in the distribution.
+
+    - If a < 1, the code will use the number in the observed age file
+    - If a > 0, you should list the number of different samples sizes on the second line
+
+Section 2, line 2 (1 required value, additional optional values)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Value a**: Number of 'grains' in each sample, separated by a single space. Type: ``int`` [``int`` ``int`` ...]
+
+    If value a on line one of this section is less than 1, this value is read, but ignored
+
+..
     $=== [3] - PDF generation ======================================================
     $ Line 1: [int int int]
     $ (a) Observed age PDFs (yes = 1, no = 0)
