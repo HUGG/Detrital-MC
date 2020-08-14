@@ -115,81 +115,40 @@ You should use one line per basin.
             - ``1``: Instantaneous exhumation rates from Pecube
             - ``2``: Normalized channel steepness
             - ``3``: Specific stream power
-..
-    $       - If (e) = 98 then:
-    $         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
-    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
-    $         - (l) is the scaling factor for glacier-covered areas
-    $         - (m) is the scaling factor for moraine-covered areas
-    $         - (n) is the scaling factor for rock glacier-covered areas
-    $         - (o) is the scaling factor for regions free of glacial formations
-    $         - (p) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    $       - If (e) = 99 then:
-    $         - (f) is the scaling factor for glacier-covered areas
-    $         - (g) is the scaling factor for moraine-covered areas
-    $         - (h) is the scaling factor for rock glacier-covered areas
-    $         - (i) is the scaling factor for glacier-, moraine-, and rock
-    $           glacier-free areas
-    $         - (j) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    3 =  Newer format CSV file (details below)
 
+        If value e = ``98``:
+
+        - **Value f**: Bedrock fertility scaling factor 1 (Checkha/TSS). Type: ``float``
+        - **Value g**: Bedrock fertility scaling factor 2 (GHS). Type: ``float``
+        - **Value h**: Bedrock fertility scaling factor 3 (LHS). Type: ``float``
+        - **Value i**: Bedrock fertility scaling factor 4 (Siwaliks). Type: ``float``
+        - **Value j**: Bedrock fertility scaling factor 5 (Leucogranites). Type: ``float``
+        - **Value k**: Bedrock fertility scaling factor 6 (Paro). Type: ``float``
+        - **Value l**: Glacier scaling factor (Glacier-covered areas). Type: ``float``
+        - **Value m**: Moraine scaling factor (Moraine-covered areas). Type: ``float``
+        - **Value n**: Rock glacier scaling factor (Rock glacier-covered areas). Type: ``float``
+        - **Value o**: Non-glacial scaling factor (Areas free of glacial formations). Type: ``float``
+        - **Value p**: Erosion scaling factor. Type: ``int``
+
+            - ``0``: None
+            - ``1``: Instantaneous exhumation rates from Pecube
+            - ``2``: Normalized channel steepness
+            - ``3``: Specific stream power
+
+        If value e = ``99``:
+
+        - **Value f**: Glacier scaling factor (Glacier-covered areas). Type: ``float``
+        - **Value g**: Moraine scaling factor (Moraine-covered areas). Type: ``float``
+        - **Value h**: Rock glacier scaling factor (Rock glacier-covered areas). Type: ``float``
+        - **Value i**: Non-glacial scaling factor (Areas free of glacial formations). Type: ``float``
+        - **Value j**: Erosion scaling factor. Type: ``int``
+
+            - ``0``: None
+            - ``1``: Instantaneous exhumation rates from Pecube
+            - ``2``: Normalized channel steepness
+            - ``3``: Specific stream power
 
 ..
-    $   - If (b) = 2 (Generic CSV) then:
-    $     - (c) Name of the predicted age file (e.g., 'DW001' for DW001.csv) in the
-    $           data subdirectory
-    $     - (d) The number of the column containing predicted ages in the CSV file
-    $     - (e) The number of the column containing predicted erosion rates in the
-    $           CSV file
-    $     - If (e) is equal to 16, 17, 18, 19, 98, or 99, additional information is
-    $       required.
-    $       - If (e) = 16 then:
-    $         - (f-k) are the geological scaling factors for the (f) Tethyan,
-    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites and (k) LHSC
-    $         - (l) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    $       - If (e) = 17 then:
-    $         - (f) is the scaling factor for glacier-covered areas
-    $         - (g) is the scaling factor for glacier-free areas
-    $         - (h) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    $       - If (e) = 18 then:
-    $         - (f) is the scaling factor for moraine-covered areas
-    $         - (g) is the scaling factor for moraine-free areas
-    $         - (h) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    $       - If (e) = 19 then:
-    $         - (f) is the scaling factor for rock glacier-covered areas
-    $         - (g) is the scaling factor for rock glacier-free areas
-    $         - (h) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    $       - If (e) = 98 then:
-    $         - (f-k) are the geological scaling factors for the (f) Checkha/Tethyan,
-    $           (g) GHS, (h) LHS, (i) Siwaliks, (j) leucogranites, and (k) Paro,
-    $         - (l) is the scaling factor for glacier-covered areas
-    $         - (m) is the scaling factor for moraine-covered areas
-    $         - (n) is the scaling factor for rock glacier-covered areas
-    $         - (o) is the scaling factor for regions free of glacial formations
-    $         - (p) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
-    $       - If (e) = 99 then:
-    $         - (f) is the scaling factor for glacier-covered areas
-    $         - (g) is the scaling factor for moraine-covered areas
-    $         - (h) is the scaling factor for rock glacier-covered areas
-    $         - (i) is the scaling factor for glacier-, moraine-, and rock
-    $           glacier-free areas
-    $         - (j) is a flag for which type of uplift scaling to apply
-    $           (0 = none, 1 = instantaneous exhumation rates from Pecube, 2 = the
-    $            normalized channel steepness, 3 = the specific stream power)
     $   - If (b) = 3 (Generic CSV) then:
     $     The options are the same as for (b) = 2, with the addition of that below:
     $       - If (e) = 97 then:
