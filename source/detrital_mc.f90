@@ -95,7 +95,7 @@
 
         if (params%datamcpdfs .or. params%ppdfmcpdfs) then
           open(21,file='kmc_percent_pass_summary_'//trim(basin_info(i)%obasin_name)//'.dat',&      ! Open basin summary results file
-                status='unknown')
+               status='unknown')
           write(21,'(a27)') '            Percent passing'                       ! Write header
           write(21,'(a23)') 'Basin       Kuiper test'
         endif
@@ -147,7 +147,7 @@
           allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))              ! Allocate model age/uncertainty and erate arrays
           do j=1,plc
             read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
-                        dump10,dump11,dump12,dump13,dump14,dump15,dump
+                       dump10,dump11,dump12,dump13,dump14,dump15,dump
             if (basin_info(i)%page_sys == 1) page(j)=dump7                      ! Store predicted AHe ages
             if (basin_info(i)%page_sys == 2) page(j)=dump9                      ! Store predicted AFT ages
             if (basin_info(i)%page_sys == 3) page(j)=dump11                     ! Store predicted ZHe ages
@@ -176,9 +176,9 @@
           allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))              ! Allocate model age/uncertainty and erate arrays
           do j=1,plc
             read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
-                        dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
-                        dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
-                        dump26,dump27,dump28,dump29,dump30,dump31,dump32
+                       dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
+                       dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
+                       dump26,dump27,dump28,dump29,dump30,dump31,dump32
             if (basin_info(i)%page_col == 6) page(j)=dump6                      ! Store predicted AHe age
             if (basin_info(i)%page_col == 7) page(j)=dump7                      ! Store predicted ZHe age
             if (basin_info(i)%page_col == 8) page(j)=dump8                      ! Store predicted AFT age
@@ -325,10 +325,10 @@
           allocate(page(plc),pageu(plc),perate(plc),peratesc(plc))              ! Allocate model age/uncertainty and erate arrays
           do j=1,plc
             read(12,*) dump1,dump2,dump3,dump4,dump5,dump6,dump7,dump8,dump9,  &
-                        dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
-                        dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
-                        dump26,dump27,dump28,dump29,dump30,dump31,dump32,dump33,&
-                        dump34,dump35
+                       dump10,dump11,dump12,dump13,dump14,dump15,dump16,dump17,&
+                       dump18,dump19,dump20,dump21,dump22,dump23,dump24,dump25,&
+                       dump26,dump27,dump28,dump29,dump30,dump31,dump32,dump33,&
+                       dump34,dump35
             if (basin_info(i)%page_col == 6) page(j)=dump6                      ! Store predicted AHe age
             if (basin_info(i)%page_col == 7) page(j)=dump7                      ! Store predicted ZHe age
             if (basin_info(i)%page_col == 8) page(j)=dump8                      ! Store predicted AFT age
@@ -959,7 +959,7 @@
                   write(22,'(a20)') 'TITLE="Data age PDF"'
                   write(22,'(a34)') 'VARIABLES="Age [Ma]" "Probability"'
                   write(22,'(a60)') 'ZONE I='//trim(onumc)//&
-                            ' DATAPACKING=POINT T="Data PDF '//trim(basin_info(i)%obasin_name)//'"'
+                           ' DATAPACKING=POINT T="Data PDF '//trim(basin_info(i)%obasin_name)//'"'
                 endif
                 do k=1,onum+1
                   write(22,'(e13.6,e13.6)') on(k),opdf(k)
@@ -989,7 +989,7 @@
                     write(25,'(a21)') 'TITLE="Data age ECDF"'
                     write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                     write(25,'(a60)') 'ZONE I='//trim(onumc)//&
-                              ' DATAPACKING=POINT T="Data ECDF '//trim(basin_info(i)%obasin_name)//'"'
+                             ' DATAPACKING=POINT T="Data ECDF '//trim(basin_info(i)%obasin_name)//'"'
                   endif
                   do k=1,onum+1
                     write(25,'(e13.6,e13.6)') on(k),oecdf(k)
@@ -1015,7 +1015,7 @@
                     write(25,'(a20)') 'TITLE="Data age CDF"'
                     write(25,'(a45)') 'VARIABLES="Age [Ma]" "Cumulative probability"'
                     write(25,'(a60)') 'ZONE I='//trim(onumc)//&
-                              ' DATAPACKING=POINT T="Data CDF '//trim(basin_info(i)%obasin_name)//'"'
+                             ' DATAPACKING=POINT T="Data CDF '//trim(basin_info(i)%obasin_name)//'"'
                   endif
                   do k=1,onum+1
                     write(25,'(e13.6,e13.6)') on(k),ocdf(k)
@@ -1029,8 +1029,8 @@
             if (params%ppdf_out .and. peratescsum > eps) then
               if (params%veusz_output) then
                 open(23,file='age_pdf_output/full_predicted_age_PDF_'&
-                      //trim(basin_info(i)%obasin_name)//'_veusz.csv',          &
-                      status='unknown',action='write')
+                     //trim(basin_info(i)%obasin_name)//'_veusz.csv',          &
+                     status='unknown',action='write')
                 write(23,'(a20)') 'Age [Ma],Probability'
                 do k=1,pnum+1
                   write(23,'(e13.6,a1,e13.6)') pn(k),',',ppdf(k)
@@ -1038,7 +1038,7 @@
                 close(23)
               else
                 open(23,file='age_pdf_output/full_predicted_age_PDF_'&
-                      //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
+                     //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
                 if (params%tec_header) then
                   write(pnumc,'(i10)') pnum+1
                   pnumc=adjustl(pnumc)
@@ -1060,8 +1060,8 @@
               if (params%ecdfs) then
                 if (params%veusz_output) then
                   open(26,file='age_pdf_output/full_predicted_age_ECDF_'&
-                        //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
-                        status='unknown',action='write')
+                       //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
+                       status='unknown',action='write')
                   write(26,'(a31)') 'Age [Ma],Cumulative probability'
                   do k=1,pnum+1
                     write(26,'(e13.6,e13.6)') pn(k),pecdf(k)
@@ -1069,7 +1069,7 @@
                   close(26)
                 else
                   open(26,file='age_pdf_output/full_predicted_age_ECDF_'&
-                        //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
+                       //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
                   if (params%tec_header) then
                     write(pnumc,'(i10)') pnum+1
                     pnumc=adjustl(pnumc)
@@ -1087,8 +1087,8 @@
               else
                 if (params%veusz_output) then
                   open(26,file='age_pdf_output/full_predicted_age_CDF_'&
-                        //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
-                        status='unknown',action='write')
+                       //trim(basin_info(i)%obasin_name)//'_veusz.csv',        &
+                       status='unknown',action='write')
                   write(26,'(a31)') 'Age [Ma],Cumulative probability'
                   do k=1,pnum+1
                     write(26,'(e13.6,e13.6)') pn(k),pcdf(k)
@@ -1096,7 +1096,7 @@
                   close(26)
                 else
                   open(26,file='age_pdf_output/full_predicted_age_CDF_'&
-                        //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
+                       //trim(basin_info(i)%obasin_name)//'.dat',status='unknown')
                   if (params%tec_header) then
                     write(pnumc,'(i10)') pnum+1
                     pnumc=adjustl(pnumc)
