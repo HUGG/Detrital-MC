@@ -1,9 +1,0 @@
-before_script:
-  - apk update
-  - apk add make gcc gfortran
-  - apk add --no-cache musl-dev
-
-build:
-  script:
-    - cd source
-    - make all

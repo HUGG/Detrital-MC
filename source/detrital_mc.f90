@@ -414,9 +414,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               elseif (basin_info(i)%uplift_velo_scaling == 4) then              ! Scale by hillslope angle (degrees)
                 perate(j)=perate(j)*dump33
               endif
