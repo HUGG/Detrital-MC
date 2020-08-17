@@ -190,9 +190,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 17) then                            ! Scale ages using glaciers
@@ -204,9 +204,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 18) then                            ! Scale ages using moraines
@@ -218,9 +218,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 19) then                            ! Scale ages using rock glaciers
@@ -232,17 +232,17 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
-            if (basin_info(i)%perate_col == 20) perate(j)=dump16                ! Scale ages using Ksn
-            if (basin_info(i)%perate_col == 21) perate(j)=dump17                ! Scale ages using Ksn_t045
-            if (basin_info(i)%perate_col == 22) perate(j)=dump18                ! Scale ages using Ksn_t2
-            if (basin_info(i)%perate_col == 23) perate(j)=dump19                ! Scale ages using Ksn_t3
-            if (basin_info(i)%perate_col == 31) perate(j)=dump27                ! Scale ages using ssp_t2b31
-            if (basin_info(i)%perate_col == 32) perate(j)=dump28                ! Scale ages using ssp_t3b42
+            if (basin_info(i)%perate_col == 20) perate(j)=dump20                ! Scale ages using Ksn
+            if (basin_info(i)%perate_col == 21) perate(j)=dump21                ! Scale ages using Ksn_t045
+            if (basin_info(i)%perate_col == 22) perate(j)=dump22                ! Scale ages using Ksn_t2
+            if (basin_info(i)%perate_col == 23) perate(j)=dump23                ! Scale ages using Ksn_t3
+            if (basin_info(i)%perate_col == 31) perate(j)=dump31                ! Scale ages using ssp_t2b31
+            if (basin_info(i)%perate_col == 32) perate(j)=dump32                ! Scale ages using ssp_t3b42
             if (basin_info(i)%perate_col == 98) then                            ! Scale ages using a combination of factors listed below
               if (dump16 > eps .and. dump16 < 7.0) then
                 perate(j)=basin_info(i)%geol_scale_factor(int(dump16))          ! Scale by mineral abundance in bedrock
@@ -259,9 +259,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 99) then
@@ -277,9 +277,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (perate(j) < eps) perate(j)=0.0                                  ! Ensure no erosion rate scalars are negative
@@ -340,9 +340,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 17) then                            ! Scale ages using glaciers
@@ -354,9 +354,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 18) then                            ! Scale ages using moraines
@@ -368,9 +368,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 19) then                            ! Scale ages using rock glaciers
@@ -382,17 +382,17 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
-            if (basin_info(i)%perate_col == 20) perate(j)=dump16                ! Scale ages using Ksn
-            if (basin_info(i)%perate_col == 21) perate(j)=dump17                ! Scale ages using Ksn_t045
-            if (basin_info(i)%perate_col == 22) perate(j)=dump18                ! Scale ages using Ksn_t2
-            if (basin_info(i)%perate_col == 23) perate(j)=dump19                ! Scale ages using Ksn_t3
-            if (basin_info(i)%perate_col == 31) perate(j)=dump27                ! Scale ages using ssp_t2b31
-            if (basin_info(i)%perate_col == 32) perate(j)=dump28                ! Scale ages using ssp_t3b42
+            if (basin_info(i)%perate_col == 20) perate(j)=dump20                ! Scale ages using Ksn
+            if (basin_info(i)%perate_col == 21) perate(j)=dump21                ! Scale ages using Ksn_t045
+            if (basin_info(i)%perate_col == 22) perate(j)=dump22                ! Scale ages using Ksn_t2
+            if (basin_info(i)%perate_col == 23) perate(j)=dump23                ! Scale ages using Ksn_t3
+            if (basin_info(i)%perate_col == 31) perate(j)=dump31                ! Scale ages using ssp_t2b31
+            if (basin_info(i)%perate_col == 32) perate(j)=dump32                ! Scale ages using ssp_t3b42
             if (basin_info(i)%perate_col == 97) then                            ! Scale ages using a combination of factors listed below
               if (dump16 > eps .and. dump16 < 7.0) then
                 perate(j)=basin_info(i)%geol_scale_factor(int(dump16))          ! Scale by mineral abundance in bedrock
@@ -437,9 +437,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (basin_info(i)%perate_col == 99) then
@@ -455,9 +455,9 @@
               if (basin_info(i)%uplift_velo_scaling == 1) then                  ! Scale by Pecube uplift rates
                 perate(j)=perate(j)*dump5
               elseif (basin_info(i)%uplift_velo_scaling == 2) then              ! Scale by ksn
-                perate(j)=perate(j)*dump16
+                perate(j)=perate(j)*dump20
               elseif (basin_info(i)%uplift_velo_scaling == 3) then              ! Scale by ssp_t2b31
-                perate(j)=perate(j)*dump27
+                perate(j)=perate(j)*dump31
               endif
             endif
             if (perate(j) < eps) perate(j)=0.0                                  ! Ensure no erosion rate scalars are negative
