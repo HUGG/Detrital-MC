@@ -14,8 +14,8 @@ An example of two lines containing 3 and 5 values is given below.
     :caption: Example format of the Detrital MC input file.
 
     $=== [3] - Section name ========================================================
-    <value a> <value b> <value c>
-    <value a> <value b> <value c> <value d> <value e>
+    VALUE_A VALUE_B VALUE_C
+    VALUE_A VALUE_B VALUE_C VALUE_D VALUE_E
 
 Please check the rest of the documentation for more detailed explanations of how other parts the software operate.
 
