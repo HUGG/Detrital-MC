@@ -176,7 +176,7 @@ You should use one line per basin.
 Section 2: Number of grains to consider in predicted age PDFs
 -------------------------------------------------------------
 
-The first section of the Detrital MC input file is for specifying how many basins are being analyzed, and the names, formats, and associated parameters for the input data files.
+The second section of the Detrital MC input file contains information about the number of "samples" to consider when calculating age distributions.
 The input values are described in more detail below.
 
 .. code-block:: none
@@ -203,14 +203,43 @@ Section 2, line 2 (1 required value, additional optional values)
 
     If value a on line one of this section is less than 1, this value is read, but ignored
 
-..
+Section 3: PDFs to calculate
+----------------------------
+
+Section three of the Detrital MC input file contains flags for which age distributions should be calculated.
+The input values are described in more detail below.
+
+.. code-block:: none
+    :caption: Section 3 of the Detrital MC input file (without comments)
+
     $=== [3] - PDF generation ======================================================
-    $ Line 1: [int int int]
-    $ (a) Observed age PDFs (yes = 1, no = 0)
-    $ (b) Full predicted age PDFs (yes = 1, no = 0)
-    $ (c) Monte Carlo predicted age PDFs (yes = 1, no = 0)
     1 0 1
 
+Section 3, line 1 (3 required values)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Value a**: Flag for whether or not to calculate age distributions for the observed age data. Type: ``int``
+
+    The input value must be either ``1`` or ``0``.
+
+    - 1 = yes
+    - 0 = no
+
+- **Value b**: Flag for whether or not to calculate age distributions for the entire predicted age population. Type: ``int``
+
+    The input value must be either ``1`` or ``0``.
+
+    - 1 = yes
+    - 0 = no
+
+- **Value c**: Flag for whether or not to calculate age distributions from Monte Carlo random samples from the predicted age population. Type: ``int``
+
+    The input value must be either ``1`` or ``0``.
+
+    - 1 = yes
+    - 0 = no
+
+..
     $=== [4] - PDF comparison ======================================================
     $ Line 1: [int int int int int flt]
     $ (a) Observed age and full predicted age PDFs (yes = 1, no = 0)
