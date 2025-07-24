@@ -553,7 +553,7 @@
           call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,      &
                             ppdf,params%pdfmin,params%dx,params%pdfscl,pi,     &
                             pcnt,1)
-          if (params%pcdf_out) then
+          if (params%pcdf_out .or. params%datappdf) then
             if (params%ecdfs) then
               allocate(pecdf(pnum+1))
               call make_age_ecdf(page,peratesc,peratescsum,pn,plc,pnum,pecdf)
@@ -717,16 +717,6 @@
 
   ! Run Kuiper test to get misfit between data and model
                 if (params%kuipernew) then
-                  ! Calculate h for comparison of observed and full predicted PDFs
-                  if (params%datappdf) then
-                    if (params%ecdfs) then
-                      d = maxval(oecdf-pecdf)+maxval(pecdf-oecdf)
-                    else
-                      d = maxval(ocdf-pcdf)+maxval(pcdf-ocdf)
-                    endif
-                    h = kuiper(params%kalpha,d,olc,1)
-                  endif
-                  
                   ! Calculate h for comparison of observed and MC predicted PDFs
                   if (params%datamcpdfs) then
                     if (params%ecdfs) then
@@ -748,9 +738,6 @@
                     h = kuiper(params%kalpha,d,mcsamp,1)
                   endif
                 else
-                  ! Calculate h for comparison of observed and full predicted PDFs
-                  if (params%datappdf) call kptwo(opdfv,ocnt,ppdfv,pcnt,olc,d,   &
-                                                  prob,h)
                   ! Calculate h for comparison of observed and MC predicted PDFs
                   if (params%datamcpdfs) call kptwo(opdfv,ocnt,ppdfvmc,pcntmc,   &
                                                     mcsamp,d,prob,h)
@@ -934,6 +921,32 @@
 
   ! End of main loop
             enddo
+          else
+            ! No Monte Carlo loop!
+            if (params%kuipernew) then
+              ! Calculate h for comparison of observed and full predicted PDFs
+              if (params%datappdf) then
+                if (params%ecdfs) then
+                  d = maxval(oecdf-pecdf)+maxval(pecdf-oecdf)
+                else
+                  d = maxval(ocdf-pcdf)+maxval(pcdf-ocdf)
+                endif
+                h = kuiper(params%kalpha,d,olc,1)
+              endif
+            else
+              ! Calculate h for comparison of observed and full predicted PDFs
+              if (params%datappdf) call kptwo(opdfv,ocnt,ppdfv,pcnt,olc,d,   &
+                                              prob,h)
+            endif
+
+            ! Write out value of d from Kuiper test if comparing to full predicted PDF
+            if (params%datappdf) then
+              open(28,file='kuiper_output_'//trim(basin_info(i)%obasin_name)//&
+                  '.dat',status='unknown')
+              write(28,'(a51)') "Kuiper D, Kuiper h (0=pass; 1=distributions differ)"
+              write(28,'(f12.10,a1,i1)') d,",",h
+              close(28)
+            endif
           endif
         else
           write(*,'(a,a,a)') "No erosion in basin ",trim(basin_info(i)%obasin_name),". Continuing with next basin..."
@@ -1123,6 +1136,7 @@
           endif
         endif
         if (params%fullppdf .and. peratescsum > eps) deallocate(pn,ppdf,ppdfv)
+        if (params%pcdf_out .or. params%datappdf) deallocate(pcdf)
         deallocate(page,pageu,perate,peratesc)
         if (peratescsum > eps) then
           if (params%datamcpdfs .or. params%ppdfmcpdfs) deallocate(kuiper_res)
