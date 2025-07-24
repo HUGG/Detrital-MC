@@ -244,7 +244,7 @@
         enddo
       end subroutine insertion_sort
 
-      function kuiper(alpha,d,nsamp)
+      function kuiper(alpha,d,nsamp,ntest)
 
         USE definitions
 
@@ -252,12 +252,18 @@
 
         ! Values passed in/returned
         real(kind=sp) :: alpha,d
-        integer(kind=sp) :: nsamp,kuiper
+        integer(kind=sp) :: nsamp,kuiper,ntest
         ! Internal values
         real(kind=sp) :: prob,ns,probkp,en
 
         ns=real(nsamp)
-        en=sqrt(ns**2/(2*ns))
+        ! Use one-sample Kuiper test if ntest==1
+        if (ntest.eq.1) then
+          en=sqrt(ns)
+        ! Use two-sample Kuiper test otherwise
+        else
+          en=sqrt(ns**2/(2*ns))
+        endif
         ! probkp is a function from kptwo.f90
         prob=probkp((en+0.155+0.24/en)*d)
         !write (*,*) 'probnew: ',prob

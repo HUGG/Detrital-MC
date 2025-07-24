@@ -724,7 +724,7 @@
                     else
                       d = maxval(ocdf-pcdf)+maxval(pcdf-ocdf)
                     endif
-                    h = kuiper(params%kalpha,d,olc)
+                    h = kuiper(params%kalpha,d,olc,1)
                   endif
                   
                   ! Calculate h for comparison of observed and MC predicted PDFs
@@ -736,7 +736,7 @@
                       d = maxval(ocdf-pcdfmc)+maxval(pcdfmc-ocdf)
                       !write(*,*) 'd_cdf: ',d
                     endif
-                    h = kuiper(params%kalpha,d,mcsamp)
+                    h = kuiper(params%kalpha,d,mcsamp,2)
                   endif
                   ! Calculate h for comparison of full predicted and MC PDFs
                   if (params%ppdfmcpdfs) then
@@ -745,7 +745,7 @@
                     else
                       d = maxval(pcdf-pcdfmc)+maxval(pcdfmc-pcdf)
                     endif
-                    h = kuiper(params%kalpha,d,mcsamp)
+                    h = kuiper(params%kalpha,d,mcsamp,1)
                   endif
                 else
                   ! Calculate h for comparison of observed and full predicted PDFs
