@@ -1136,10 +1136,10 @@
           endif
         endif
         if (params%fullppdf .and. peratescsum > eps) deallocate(pn,ppdf,ppdfv)
-        if (params%pcdf_out .or. params%datappdf) deallocate(pcdf)
         deallocate(page,pageu,perate,peratesc)
         if (peratescsum > eps) then
           if (params%datamcpdfs .or. params%ppdfmcpdfs) deallocate(kuiper_res)
+          if (params%pcdf_out .or. params%datappdf) deallocate(pcdf)
         endif
 
 ! Close open files
