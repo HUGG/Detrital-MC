@@ -943,7 +943,7 @@
             if (params%datappdf) then
               open(28,file='kuiper_output_'//trim(basin_info(i)%obasin_name)//&
                   '.dat',status='unknown')
-              write(28,'(a51)') "Kuiper D, Kuiper h (0=pass; 1=distributions differ)"
+              write(28,'(a51)') "Kuiper V, Kuiper h (0=pass; 1=distributions differ)"
               write(28,'(f12.10,a1,i1)') d,",",h
               close(28)
             endif
