@@ -2,6 +2,11 @@
 NAME=det_mc
 #NAME=det_mc_int8
 
+### Use Fortran stdlib
+stdlib_install_dir := /opt/homebrew
+libdir := $(stdlib_install_dir)/lib
+moduledir := $(stdlib_install_dir)/include/fortran_stdlib/GNU-14.2.0
+
 ### Define compilers --------------------------------------------------------###
 # GNU
 #F90    = /usr/local/bin/gfortran
@@ -9,8 +14,7 @@ NAME=det_mc
 #CC     = /usr/local/bin/gcc
 F90    = gfortran
 F77    = gfortran
-CC     = gcc
-
+CC     = gcc-15
 
 # Intel
 #F90    = /usr/bin/ifort
@@ -19,7 +23,7 @@ CC     = gcc
 
 # Define compiler flags -----------------------------------------------------###
 #F90FLAGS  = -O2
-F90FLAGS  = -O2 -ffree-line-length-160
+F90FLAGS  = -O2 -ffree-line-length-160 
 F77FLAGS  = -O2
 CFLAGS  = -O2
 #F90FLAGS  = -O0 -g -w -traceback
@@ -47,6 +51,12 @@ CFLAGS  = -O2
 
 #AR=ar
 BITS=_v3.2
+
+# Fortran stdlib stuff
+INCLUDES = -I$(moduledir)
+
+LIBS = -L$(libdir) -lfortran_stdlib
+
 
 # Compile rules
 #

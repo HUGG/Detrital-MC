@@ -144,6 +144,7 @@
       subroutine make_age_ecdf(age,eratesc,eratesum,n,lc,num,ecdf)
 
       USE definitions
+      USE stdlib_sorting, only: ord_sort
 
       IMPLICIT NONE
 
@@ -155,7 +156,7 @@
 
       ! Internal subroutine variables
       integer(kind=sp) i,j,agei,agecnt
-      real(kind=sp),allocatable :: erateages(:)
+      real(kind=sp),allocatable :: erateages(:),eratemp(:)
 
       ! Create age array scaled by erosion rates
       allocate(erateages(eratesum))
@@ -168,7 +169,9 @@
       enddo
 
       ! Sort age array (?)
-      call insertion_sort(erateages)
+      allocate (eratemp, mold=erateages)
+      call ord_sort(erateages, eratemp)
+      !call insertion_sort(erateages)
 
       ! Initialize counter variable for position in incoming raw age array
       agei=1
@@ -177,13 +180,14 @@
       ! raw age array is less than that in the PDF age range. If so, increment
       ! age counter and increase value in ecdf.
       do i=1,num+1
-        do while (erateages(agei) <= n(i) .and. agei <= eratesum)
+        !do while (erateages(agei) <= n(i) .and. agei <= eratesum)
+        do while (eratemp(agei) <= n(i) .and. agei <= eratesum)
           agei=agei+1
         enddo
         ecdf(i)=real(agei-1)/real(eratesum)
       enddo
 
-      deallocate(erateages)
+      deallocate(erateages,eratemp)
 
       return
       end subroutine make_age_ecdf

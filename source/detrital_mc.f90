@@ -66,8 +66,14 @@
       !real(kind=sp) :: pagemcmax
       !probcut=0.005
 
+      ! Document the execution speed
+      integer(kind=sp) :: starttime, endtime, timerate
+
       !mcboth=.false.
       eps=1.e-8
+
+! Start the timer
+      call system_clock(starttime, timerate)
 
 ! Initialize random number generator
       call init_random_seed()
@@ -1146,10 +1152,13 @@
         close(21)
       enddo
 
+      ! Stop timer
+      call system_clock(endtime)
+
       ! Sign off
       write (*,*) ''
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Execution complete'
+      write (*,'(a24,f10.4,a2)') 'Execution completed in ', real(endtime - starttime) / real(timerate), ' s'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
 
 ! Exit
