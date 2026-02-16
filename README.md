@@ -1,7 +1,8 @@
 # Detrital MC version 3
 
-[![Build Status](https://travis-ci.org/HUGG/Detrital-MC.svg?branch=master)](https://travis-ci.org/HUGG/Detrital-MC)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15264993.svg)](https://doi.org/10.5281/zenodo.15264993)
 [![Documentation Status](https://readthedocs.org/projects/detrital-mc/badge/?version=latest)](https://detrital-mc.readthedocs.io/en/latest/?badge=latest)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
