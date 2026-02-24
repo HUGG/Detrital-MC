@@ -20,6 +20,7 @@ If you are interested in the code itself, you can download Detrital MC from its 
    :maxdepth: 2
    :caption: User guide
 
+   manual/installation
    manual/quick-start
    manual/overview
    manual/input-file
