@@ -7,9 +7,9 @@
 ! and finally record the results of that test. This process is repeated a
 ! large number of times (~10000).
 !
-! This is the main program file for version 3.2 of Detrital MC.
+! This is the main program file for version 3.3 of Detrital MC.
 !
-! dwhipp - 07.19
+! dwhipp - 02.26
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       program detrital_mc
@@ -66,8 +66,14 @@
       !real(kind=sp) :: pagemcmax
       !probcut=0.005
 
+      ! Document the execution speed
+      integer(kind=sp) :: starttime, endtime, timerate
+
       !mcboth=.false.
       eps=1.e-8
+
+! Start the timer
+      call system_clock(starttime, timerate)
 
 ! Initialize random number generator
       call init_random_seed()
@@ -77,8 +83,7 @@
 
 ! Write program starting info
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Detrital Monte Carlo PDF creator started'
-      write (*,'(a)') 'Version 3.2 (Dave Whipp - July 2019)'
+      write (*,'(a)') 'This is Detrital MC version 3.3 (February 2026)'
 
 ! Read in the input file
       call read_input_file(params,basin_info)
@@ -553,7 +558,7 @@
           call make_age_pdf(page,pageu,params%alpha,peratesc,plc,pnum,pn,      &
                             ppdf,params%pdfmin,params%dx,params%pdfscl,pi,     &
                             pcnt,1)
-          if (params%pcdf_out) then
+          if (params%pcdf_out .or. params%datappdf) then
             if (params%ecdfs) then
               allocate(pecdf(pnum+1))
               call make_age_ecdf(page,peratesc,peratescsum,pn,plc,pnum,pecdf)
@@ -717,16 +722,6 @@
 
   ! Run Kuiper test to get misfit between data and model
                 if (params%kuipernew) then
-                  ! Calculate h for comparison of observed and full predicted PDFs
-                  if (params%datappdf) then
-                    if (params%ecdfs) then
-                      d = maxval(oecdf-pecdf)+maxval(pecdf-oecdf)
-                    else
-                      d = maxval(ocdf-pcdf)+maxval(pcdf-ocdf)
-                    endif
-                    h = kuiper(params%kalpha,d,olc)
-                  endif
-                  
                   ! Calculate h for comparison of observed and MC predicted PDFs
                   if (params%datamcpdfs) then
                     if (params%ecdfs) then
@@ -736,7 +731,7 @@
                       d = maxval(ocdf-pcdfmc)+maxval(pcdfmc-ocdf)
                       !write(*,*) 'd_cdf: ',d
                     endif
-                    h = kuiper(params%kalpha,d,mcsamp)
+                    h = kuiper(params%kalpha,d,mcsamp,2)
                   endif
                   ! Calculate h for comparison of full predicted and MC PDFs
                   if (params%ppdfmcpdfs) then
@@ -745,12 +740,9 @@
                     else
                       d = maxval(pcdf-pcdfmc)+maxval(pcdfmc-pcdf)
                     endif
-                    h = kuiper(params%kalpha,d,mcsamp)
+                    h = kuiper(params%kalpha,d,mcsamp,1)
                   endif
                 else
-                  ! Calculate h for comparison of observed and full predicted PDFs
-                  if (params%datappdf) call kptwo(opdfv,ocnt,ppdfv,pcnt,olc,d,   &
-                                                  prob,h)
                   ! Calculate h for comparison of observed and MC predicted PDFs
                   if (params%datamcpdfs) call kptwo(opdfv,ocnt,ppdfvmc,pcntmc,   &
                                                     mcsamp,d,prob,h)
@@ -934,6 +926,32 @@
 
   ! End of main loop
             enddo
+          else
+            ! No Monte Carlo loop!
+            if (params%kuipernew) then
+              ! Calculate h for comparison of observed and full predicted PDFs
+              if (params%datappdf) then
+                if (params%ecdfs) then
+                  d = maxval(oecdf-pecdf)+maxval(pecdf-oecdf)
+                else
+                  d = maxval(ocdf-pcdf)+maxval(pcdf-ocdf)
+                endif
+                h = kuiper(params%kalpha,d,olc,1)
+              endif
+            else
+              ! Calculate h for comparison of observed and full predicted PDFs
+              if (params%datappdf) call kptwo(opdfv,ocnt,ppdfv,pcnt,olc,d,   &
+                                              prob,h)
+            endif
+
+            ! Write out value of d from Kuiper test if comparing to full predicted PDF
+            if (params%datappdf) then
+              open(28,file='kuiper_output_'//trim(basin_info(i)%obasin_name)//&
+                  '.dat',status='unknown')
+              write(28,'(a51)') "Kuiper V, Kuiper h (0=pass; 1=distributions differ)"
+              write(28,'(f12.10,a1,i1)') d,",",h
+              close(28)
+            endif
           endif
         else
           write(*,'(a,a,a)') "No erosion in basin ",trim(basin_info(i)%obasin_name),". Continuing with next basin..."
@@ -1126,16 +1144,20 @@
         deallocate(page,pageu,perate,peratesc)
         if (peratescsum > eps) then
           if (params%datamcpdfs .or. params%ppdfmcpdfs) deallocate(kuiper_res)
+          if (params%pcdf_out .or. params%datappdf) deallocate(pcdf)
         endif
 
 ! Close open files
         close(21)
       enddo
 
+      ! Stop timer
+      call system_clock(endtime)
+
       ! Sign off
       write (*,*) ''
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Execution complete'
+      write (*,'(a24,f10.4,a2)') 'Execution completed in ', real(endtime - starttime) / real(timerate), ' s'
       write (*,'(a)') '#------------------------------------------------------------------------------#'
 
 ! Exit

@@ -20,7 +20,7 @@ integer :: i,j,k,io,geol_units,veusz_output_in
 logical :: fileexist,echo_vals
 real(kind=sp) :: simyr_in
 
-echo_vals=.true.
+echo_vals=.false.
 
 inquire(file='input/det_mc_input.txt',exist=fileexist)
 if (.not.fileexist) then

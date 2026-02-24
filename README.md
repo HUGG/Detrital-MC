@@ -1,7 +1,8 @@
 # Detrital MC version 3
 
-[![Build Status](https://travis-ci.org/HUGG/Detrital-MC.svg?branch=master)](https://travis-ci.org/HUGG/Detrital-MC)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15264993.svg)](https://doi.org/10.5281/zenodo.15264993)
 [![Documentation Status](https://readthedocs.org/projects/detrital-mc/badge/?version=latest)](https://detrital-mc.readthedocs.io/en/latest/?badge=latest)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -18,6 +19,48 @@ This factor, described in section 2.3 of [Brandon (1996)](https://dx.doi.org/10.
 In addition, there are several new formats for the predicted age input data, which are described in the input file for Detrital MC.
 The code is currently otherwise identical to version 2.0, but the input file has changed, so we're assigning a new version number.
 Input files for version 2.0 of detrital MC will not work with version 3.0.
+
+## Installation
+
+### Dependencies
+
+To compile the `det_mc` executable, you need the following software on your system:
+
+- A Fortran compiler ([gfortran](https://gcc.gnu.org/fortran/) is recommended)
+- The [Fortran Standard Library](https://fortran-lang.github.io/stdlib/)
+- [GNU Make](https://www.gnu.org/software/make/) or [CMake](https://cmake.org/)
+
+### Downloading the Detrital MC source code
+
+To build Detrital MC, you should first download the [latest source code release](https://github.com/HUGG/Detrital-MC/releases/) as a `.zip` or `.tar.gz` file and extract its contents. For those who are familiar, you can also clone the Detrital MC git repository and build using that.
+
+### Building using GNU Make
+
+1. Edit the `source/Makefile` file to ensure the installation location of the Fortran Standard Library is correct for your system.
+2. In a terminal, navigate to the `source` subdirectory of Detrital MC.
+3. Run 
+
+   ```bash
+   make
+   make install
+   ```
+    
+   to compile Detrital MC and install it in the `bin` subdirectory.
+
+### Building using CMake
+
+1. Edit the `source/CMakeLists.txt` file to ensure the installation location of the Fortran Standard Library is correct for your system.
+2. In a terminal, navigate to the base directory of Detrital MC.
+3. Run 
+
+   ```bash
+   mkdir build
+   cmake -B build -S source
+   cmake --build build
+   cmake --install build --prefix .
+   ```
+    
+   to compile Detrital MC and install it in the `bin` subdirectory.
 
 ## Documentation
 
