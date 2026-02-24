@@ -6,7 +6,7 @@
 Detrital MC user guide
 ======================
 
-.. figure:: https://github.com/HUGG/Detrital-MC/raw/master/img/BZ435_ECDFs.png
+.. figure:: https://github.com/HUGG/Detrital-MC/raw/main/img/BZ435_ECDFs.png
    :width: 800 px
    :alt: Detrital MC ECDF plot
 
