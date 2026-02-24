@@ -6,10 +6,6 @@ Dependencies
 
 To compile the ``det_mc`` executable, you need the following software on your system:
 
-`input file <https://github.com/HUGG/Detrital-MC/blob/master/input/det_mc_input.txt>`__
-`latest source code release <https://github.com/HUGG/Detrital-MC/releases/>`__
-
-
 - A Fortran compiler (`gfortran <https://gcc.gnu.org/fortran/>`__ is recommended)
 - The `Fortran Standard Library <https://fortran-lang.github.io/stdlib/>`__
 - `GNU Make <https://www.gnu.org/software/make/>`__ or `CMake <https://cmake.org/>`__
