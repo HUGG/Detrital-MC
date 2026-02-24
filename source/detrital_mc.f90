@@ -7,9 +7,9 @@
 ! and finally record the results of that test. This process is repeated a
 ! large number of times (~10000).
 !
-! This is the main program file for version 3.2 of Detrital MC.
+! This is the main program file for version 3.3 of Detrital MC.
 !
-! dwhipp - 07.19
+! dwhipp - 02.26
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       program detrital_mc
@@ -83,8 +83,7 @@
 
 ! Write program starting info
       write (*,'(a)') '#------------------------------------------------------------------------------#'
-      write (*,'(a)') 'Detrital Monte Carlo PDF creator started'
-      write (*,'(a)') 'Version 3.2 (Dave Whipp - July 2019)'
+      write (*,'(a)') 'This is Detrital MC version 3.3 (February 2026)'
 
 ! Read in the input file
       call read_input_file(params,basin_info)
