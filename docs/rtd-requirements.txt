@@ -1,0 +1,4 @@
+myst-nb
+numpydoc
+sphinx-book-theme
+sphinxcontrib-bibtex
