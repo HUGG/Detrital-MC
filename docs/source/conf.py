@@ -56,7 +56,6 @@ html_theme_options = {
     "path_to_docs": "docs/source/",
     "use_edit_page_button": True,
     "use_repository_button": True,
-    },
 }
 
 # Allow myst admonition style
