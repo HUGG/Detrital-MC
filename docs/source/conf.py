@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Detrital MC'
-copyright = '2020, David Whipp'
+copyright = '2020-2026, David Whipp, University of Helsinki'
 author = 'David Whipp'
 
 
@@ -27,7 +27,10 @@ author = 'David Whipp'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['recommonmark']
+extensions = [
+    "myst_nb",
+    "sphinxcontrib.bibtex",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -43,7 +46,38 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_book_theme"
+
+# HTML theme options
+html_theme_options = {
+    # "external_links": [],
+    "repository_url": "https://github.com/HUGG/Detrital-MC",
+    "repository_branch": "main",
+    "path_to_docs": "docs/source/",
+    "use_edit_page_button": True,
+    "use_repository_button": True,
+    },
+}
+
+# Allow myst admonition style
+myst_admonition_enable = True
+
+# Define level for myst heading implicit anchors
+myst_heading_anchors = 3
+
+# Enable math config options
+myst_enable_extensions = ["dollarmath"]
+
+# MathJax config
+mathjax3_config = {
+    "loader": {"load": ["[tex]/upgreek"]},
+    "tex": {"packages": {"[+]": ["upgreek"]}},
+}
+
+# Use bibtex for citations
+bibtex_bibfiles = ["refs.bib"]
+bibtex_default_style = "unsrt"
+bibtex_reference_style = "author_year"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
