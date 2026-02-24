@@ -36,10 +36,3 @@ If you are interested in the code itself, you can download Detrital MC from its 
    :caption: Examples
 
    examples/pecube
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
